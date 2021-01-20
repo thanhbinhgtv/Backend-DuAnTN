@@ -47,10 +47,22 @@ public class Articles implements Serializable {
     @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date postTime;
 
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "MM/dd/yyyy")
+    private Date expiryDate;
+
+    @Column(nullable = false)
+    private boolean isVip;
+
 
     @OneToOne
     @JoinColumn(name = "serviceId")
     private Services service;
+
+    @OneToOne
+    @JoinColumn(name = "roommateId")
+    private Roommates roommate;
 
 
     @ManyToOne

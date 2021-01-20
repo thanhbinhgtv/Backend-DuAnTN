@@ -55,6 +55,9 @@ public class Staffs implements Serializable {
     @Column(nullable = false)
     private String image;
 
+    @Column(nullable = false)
+    private boolean status;
+
     @OneToMany(mappedBy = "staff", fetch = FetchType.EAGER)
     private Set<News> news;
 

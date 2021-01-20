@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 public class Test implements CommandLineRunner {
@@ -20,18 +21,9 @@ public class Test implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Staffs staff=new Staffs();
-        staff.setEmail("dskfjksdfj");
-        staff.setPass("dskfjksdfj");
-        staff.setName("dskfjksdfj");
-        staff.setCardId("dskfjksdfj");
-        staff.setDob(new Date());
-        staff.setGender(true);
-        staff.setPosition("dskfjksdfj");
-        staff.setAddress("dskfjksdfj");
-        staff.setPhone("dskfjksdfj");
-        staff.setImage("dskfjksdfj");
-        staffRepository.save(staff);
-
+        Optional<Staffs> staff=staffRepository.findById(1);
+        //staff.setStaffId(1);
+        staff.get().setPhone("12345678");
+        staffRepository.save(staff.get());
     }
 }

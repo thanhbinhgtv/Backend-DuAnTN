@@ -43,6 +43,9 @@ public class Customers implements Serializable {
     @Column(nullable = false)
     private int accountBalance;
 
+    @Column(nullable = false)
+    private boolean status;
+
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
     private Set<FavoriteArticles> favoriteArticles;
 
