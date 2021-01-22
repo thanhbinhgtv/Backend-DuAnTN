@@ -11,9 +11,9 @@ import java.util.List;
 @Repository
 public interface ArticlesRepository extends JpaRepository<Articles, Integer> {
     @Query("FROM Articles a WHERE a.title LIKE %:title%")
-    public List<Articles> findByTitle(@Param("title") String title);
+    List<Articles> findByTitle(@Param("title") String title);
 
-    @Query("")
-    public List<Articles> sortAsc();
+//    @Query("")
+//    public List<Articles> sortAsc();
 }
 
