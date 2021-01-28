@@ -1,4 +1,4 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,14 +14,19 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Cities implements Serializable {
+public class District extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int cityId;
+    private Integer districtId;
 
     @Column(nullable = false)
-    private String cityName;
+    private String districtName;
 
-    @OneToMany(mappedBy = "city", fetch = FetchType.EAGER)
-    private Set<Districts> districts;
+
+    @ManyToOne
+    @JoinColumn(name = "cityId")
+    private City city;
+
+    @OneToMany(mappedBy = "district", fetch = FetchType.EAGER)
+    private Set<Ward> wards;
 }

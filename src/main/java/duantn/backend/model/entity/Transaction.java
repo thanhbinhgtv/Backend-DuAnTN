@@ -1,4 +1,4 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,10 +15,10 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transactions implements Serializable {
+public class Transaction extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int transactionId;
+    private Integer transactionId;
 
     @Column(nullable = false)
     private boolean type;
@@ -37,5 +37,5 @@ public class Transactions implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "customerId")
-    private Customers customer;
+    private Customer customer;
 }

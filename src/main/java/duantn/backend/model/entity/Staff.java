@@ -1,11 +1,10 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -18,10 +17,10 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Staffs implements Serializable {
+public class Staff extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int staffId;
+    private Integer staffId;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -36,15 +35,13 @@ public class Staffs implements Serializable {
     private String cardId;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date dob;
 
     @Column(nullable = false)
     private boolean gender;
 
     @Column(nullable = false)
-    private String position;
+    private boolean role;
 
     @Column(nullable = false)
     private String address;
@@ -55,17 +52,14 @@ public class Staffs implements Serializable {
     @Column(nullable = false)
     private String image;
 
-    @Column(nullable = false)
-    private boolean status;
+    @OneToMany(mappedBy = "staff", fetch = FetchType.EAGER)
+    private Set<Newspaper> news;
 
     @OneToMany(mappedBy = "staff", fetch = FetchType.EAGER)
-    private Set<News> news;
+    private Set<Advertisement> advertisements;
 
     @OneToMany(mappedBy = "staff", fetch = FetchType.EAGER)
-    private Set<Advertisements> advertisements;
-
-    @OneToMany(mappedBy = "staff", fetch = FetchType.EAGER)
-    private Set<Articles> articles;
+    private Set<Article> articles;
 
 
 }

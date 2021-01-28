@@ -1,4 +1,4 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,17 +13,23 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Roommates implements Serializable {
+public class Advertisement extends BaseEntity implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int roommateId;
+    private Integer advertisementId;
 
     @Column(nullable = false)
-    private boolean gender;
+    private String title;
 
     @Column(nullable = false)
-    private int quantity;
+    private String content;
 
-    @Column(nullable = true)
-    private String description;
+    @Column(nullable = false)
+    private String image;
+
+
+    @ManyToOne
+    @JoinColumn(name = "staffId")
+    private Staff staff;
+
 }

@@ -1,18 +1,23 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@Getter
+@Setter
 @IdClass(FavoriteArticlesCompositeKey.class)
-public class FavoriteArticles implements Serializable {
+public class FavoriteArticle extends BaseEntity implements Serializable {
     @Id
     @ManyToOne
     @JoinColumn(name = "articleId")
-    private Articles article;
+    private Article article;
 
     @Id
     @ManyToOne
     @JoinColumn(name = "customerId")
-    private Customers customer;
+    private Customer customer;
 }

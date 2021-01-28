@@ -1,8 +1,7 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.*;
 
-import javax.persistence.ManyToOne;
 import java.io.Serializable;
 
 @EqualsAndHashCode
@@ -11,6 +10,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FavoriteArticlesCompositeKey implements Serializable {
-    public Customers customer;
-    public Articles article;
+    public Customer customer;
+    public Article article;
 }

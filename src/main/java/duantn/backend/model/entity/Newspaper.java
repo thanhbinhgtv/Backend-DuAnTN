@@ -1,4 +1,4 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,10 +13,11 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Advertisements implements Serializable {
+public class Newspaper extends BaseEntity implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int advertisementId;
+    private Integer newId;
 
     @Column(nullable = false)
     private String title;
@@ -27,9 +28,7 @@ public class Advertisements implements Serializable {
     @Column(nullable = false)
     private String image;
 
-
     @ManyToOne
     @JoinColumn(name = "staffId")
-    private Staffs staff;
-
+    private Staff staff;
 }

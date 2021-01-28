@@ -1,19 +1,11 @@
 package duantn.backend.dao;
 
-import duantn.backend.entity.Articles;
+import duantn.backend.model.entity.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface ArticlesRepository extends JpaRepository<Articles, Integer> {
-    @Query("FROM Articles a WHERE a.title LIKE %:title%")
-    List<Articles> findByTitle(@Param("title") String title);
+public interface ArticlesRepository extends JpaRepository<Article, Integer> {
 
-//    @Query("")
-//    public List<Articles> sortAsc();
 }
 

@@ -1,7 +1,7 @@
 package duantn.backend.controller.admin;
 
 import duantn.backend.dao.AdvertisementRepository;
-import duantn.backend.entity.Advertisements;
+import duantn.backend.model.entity.Advertisement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,21 +24,21 @@ public class AdvertisementsManager {
 
     //    list quảng cáo	Get/admin/advertisements
     @GetMapping("/advertisements")
-    public ResponseEntity<List<Advertisements>> listAdvertisements() {
+    public ResponseEntity<List<Advertisement>> listAdvertisements() {
         return ResponseEntity.ok(advertisementRepository.findAll());
     }
 
     //    tìm theo title	Get/admin/advertisements?title={title}
     @GetMapping(value = "/advertisements", params = "title")
-    public ResponseEntity<List<Advertisements>>
+    public ResponseEntity<List<Advertisement>>
     findAdvertisementsByTitle(@RequestParam("title") String title) {
-        return ResponseEntity.ok(advertisementRepository.findByTitle(title));
+        return null;
     }
 
     //    đăng quản cáo	Post/admin/advertisements
     @PostMapping("/advertisements")
-    public ResponseEntity<?> postAdvertisement(@RequestBody Advertisements advertisement) {
-        Advertisements newAdvertisement = advertisementRepository.save(advertisement);
+    public ResponseEntity<?> postAdvertisement(@RequestBody Advertisement advertisement) {
+        Advertisement newAdvertisement = advertisementRepository.save(advertisement);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(newAdvertisement.getAdvertisementId()).toUri();
 
@@ -47,8 +47,8 @@ public class AdvertisementsManager {
 
     //    sửa quảng cáo	Put/admin/advertisements
     @PutMapping("/advertisements")
-    public ResponseEntity<?> updateAdvertisement(@RequestBody Advertisements advertisement) {
-        Advertisements newAdvertisement = advertisementRepository.save(advertisement);
+    public ResponseEntity<?> updateAdvertisement(@RequestBody Advertisement advertisement) {
+        Advertisement newAdvertisement = advertisementRepository.save(advertisement);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(newAdvertisement.getAdvertisementId()).toUri();
 

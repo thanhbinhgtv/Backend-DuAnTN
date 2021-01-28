@@ -1,4 +1,4 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,25 +7,21 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Services implements Serializable {
-
+public class City extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int serviceId;
+    private Integer cityId;
 
     @Column(nullable = false)
-    private int waterPrice;
+    private String cityName;
 
-    @Column(nullable = false)
-    private int electricPrice;
-
-    @Column(nullable = false)
-    private int wifiPrice;
-
+    @OneToMany(mappedBy = "city", fetch = FetchType.EAGER)
+    private Set<District> districts;
 }

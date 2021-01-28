@@ -1,7 +1,7 @@
 package duantn.backend.controller.admin;
 
 import duantn.backend.dao.ArticlesRepository;
-import duantn.backend.entity.Articles;
+import duantn.backend.model.entity.Article;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +20,6 @@ public class ArticlesManager {
     }
 
     //    list bài đăng	GET/admin/articles
-    public List<Articles> listArticles(){
-        return articlesRepository.findAll();
-    }
 
 //    xếp bài đăng theo ngày tăng dần	GET/admin/articles?post-time=asc
 

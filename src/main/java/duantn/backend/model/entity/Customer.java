@@ -1,4 +1,4 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,10 +14,10 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Customers implements Serializable {
+public class Customer extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int customerId;
+    private Integer customerId;
 
     @Column(nullable = false)
     private String name;
@@ -43,16 +43,13 @@ public class Customers implements Serializable {
     @Column(nullable = false)
     private int accountBalance;
 
-    @Column(nullable = false)
-    private boolean status;
+    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
+    private Set<FavoriteArticle> favoriteArticles;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
-    private Set<FavoriteArticles> favoriteArticles;
+    private Set<Article> articles;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
-    private Set<Articles> articles;
-
-    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
-    private Set<Transactions> transactions;
+    private Set<Transaction> transactions;
 
 }

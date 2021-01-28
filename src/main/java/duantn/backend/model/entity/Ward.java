@@ -1,4 +1,4 @@
-package duantn.backend.entity;
+package duantn.backend.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,28 +7,25 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class News implements Serializable {
-
+public class Ward extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int newId;
+    private Integer wardId;
 
     @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String content;
-
-    @Column(nullable = false)
-    private String image;
+    private String wardName;
 
     @ManyToOne
-    @JoinColumn(name = "staffId")
-    private Staffs staff;
+    @JoinColumn(name = "districtId")
+    private District district;
+
+    @OneToMany(mappedBy = "ward", fetch = FetchType.EAGER)
+    private Set<Article> articles;
 }
