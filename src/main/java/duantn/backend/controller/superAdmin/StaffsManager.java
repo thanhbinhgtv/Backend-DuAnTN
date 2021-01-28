@@ -19,7 +19,9 @@ public class StaffsManager {
         this.staffService = staffService;
     }
 
-
+    //page là trang mấy
+    //limit là số bản ghi trong 1 trang
+    //nếu ko nhập 2 tham số này thì ko phân trang
     @GetMapping("/staffs")
     public List<StaffOutputDTO> listStaffs
             (@RequestParam(required = false) Integer page,
