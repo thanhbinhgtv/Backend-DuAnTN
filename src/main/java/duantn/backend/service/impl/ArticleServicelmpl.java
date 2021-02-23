@@ -4,6 +4,7 @@ import duantn.backend.dao.ArticleReponsitory;
 import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
+import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Article;
 import duantn.backend.service.ArticleService;
 import org.modelmapper.ModelMapper;
@@ -26,7 +27,6 @@ public class ArticleServicelmpl implements ArticleService {
     public ArticleServicelmpl(ArticleReponsitory reponsitory) {
         this.reponsitory = reponsitory;
     }
-
     private SimpleDateFormat DATE_FORMATER = new SimpleDateFormat("yyyy/mm/dd");
 
     @Override
@@ -59,7 +59,7 @@ public class ArticleServicelmpl implements ArticleService {
             return ResponseEntity.ok(modelMapper.map(newArticle, ArticleOutputDTO.class));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Insert failed");
+            return ResponseEntity.badRequest().body( "Insert failed");
         }
     }
 
@@ -75,7 +75,6 @@ public class ArticleServicelmpl implements ArticleService {
             return ResponseEntity.badRequest().body("Update failed");
         }
     }
-
     @Override
     public ResponseEntity<String> deleteArticle(Integer id) {
         Article article = reponsitory.findByArticleIdAndDeletedFalse(id);
@@ -83,6 +82,7 @@ public class ArticleServicelmpl implements ArticleService {
             return ResponseEntity.badRequest().body("id" + id + "này không tồn tại");
         } else {
             article.setDeleted(true);
+            article.setStatus(true);
             reponsitory.save(article);
         }
         return ResponseEntity.ok("bài viết này đã được ẩn ");
@@ -92,7 +92,7 @@ public class ArticleServicelmpl implements ArticleService {
     public ResponseEntity<String> activeArticle(Integer id) {
         Optional<Article> articles = reponsitory.findById(id);
         if (!articles.isPresent()) {
-            return ResponseEntity.badRequest().body("id" + id + " không tồm tại");
+            return ResponseEntity.badRequest().body("id " + id + " không tồn tại");
         } else {
             articles.get().setDeleted(false);
             reponsitory.save(articles.get());

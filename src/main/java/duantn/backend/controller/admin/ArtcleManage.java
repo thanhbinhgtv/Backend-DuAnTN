@@ -33,6 +33,7 @@ public class ArtcleManage {
 
     @GetMapping("articles/active/{id}")
     public ResponseEntity<String> activeArticle(@PathVariable Integer id) {
+
         return service.activeArticle(id);
     }
 

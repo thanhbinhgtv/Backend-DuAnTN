@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 public class ArticleOutputDTO {
     private Integer articleId;
+    private Boolean deleted;
     private String title;
     private String content;
     private String image;
