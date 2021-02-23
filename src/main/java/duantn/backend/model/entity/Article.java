@@ -45,7 +45,7 @@ public class Article extends BaseEntity implements Serializable {
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "MM/dd/yyyy")
-    private Date postTime;
+    private Date postTime = DateHeper.now();
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)

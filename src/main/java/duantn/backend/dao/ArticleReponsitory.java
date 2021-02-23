@@ -13,18 +13,23 @@ import java.util.List;
 public interface ArticleReponsitory extends JpaRepository<Article, Integer> {
     // danh sách bài viết có trạng thái được duyệt
     Page<Article> findByDeletedFalse(Pageable pageable);
+
     List<Article> findByDeletedFalse();
 
     // tìm kiếm bài viết theo tiêu đề
     Page<Article> findByTitleLikeAndDeletedFalse(String title, Pageable pageable);
+
     List<Article> findByTitleLikeAndDeletedFalse(String title);
 
     // tìm kiếm theo id
     Article findByArticleIdAndDeletedFalse(Integer articleId);
+
     // tìm kiếm bài viết theo thời gian tăng dần
     Page<Article> findByDeletedFalseOrderByPostTimeAsc(Pageable pageable);
+
     List<Article> findByDeletedFalseOrderByPostTimeAsc();
 
+    // tìm kiếm các bài viết có trạng thái chưa được duyệt
     Page<Article> findByDeletedTrue(Pageable pageable);
     List<Article> findByDeletedTrue();
 

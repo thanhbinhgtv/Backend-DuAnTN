@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 public class BaseEntity {
 
-    private boolean deleted =false;
+    private boolean deleted =true;
 
     private Date timeCreated=new Date();
 
