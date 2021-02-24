@@ -30,10 +30,10 @@ public interface ArticleService {
     // tìm kiếm bài viêt theo nội dung Get/admin/articles?seach=
     List<ArticleOutputDTO> findArticleByTitleAndPhone(String search, Integer page, Integer limit);
 
-    // tìm kiếm bài viết theo  thời gian tăng dần Get/admin/articles/post-time-desc"
+    // tìm kiếm bài viết theo  thời gian tăng dần Get/admin/articles/post-time=desc"
     List<ArticleOutputDTO> findArticleByPostTimeDESC(Integer page, Integer limit);
 
-    //tìm kiếm bào viết theo thời gian giảm dần  Get/admin/articles/post-time-asc
+    //tìm kiếm bào viết theo thời gian giảm dần  Get/admin/articles/post-time=asc
     List<ArticleOutputDTO> findArticleByPostTimeAsc(Integer page, Integer limit);
 
     // danh sach bài đăng theo trạng thái GET/admin/articles/status-true
