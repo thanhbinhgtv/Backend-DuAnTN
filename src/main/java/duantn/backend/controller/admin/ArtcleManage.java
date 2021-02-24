@@ -59,13 +59,13 @@ public class ArtcleManage {
         return service.findArticleByTitleAndPhone(search, page, limit);
     }
 
-    @GetMapping(value = "articles", params = "post-time-desc")
+    @GetMapping(value = "articles", params = "post-time=desc")
     public List<ArticleOutputDTO> findbyPostTimeDESC(@RequestParam(required = false) Integer page,
                                                      @RequestParam(required = false) Integer limit) {
         return service.findArticleByPostTimeDESC(page, limit);
     }
 
-    @GetMapping(value = "articles", params = "post-time-asc")
+    @GetMapping(value = "articles", params = "post-time=asc")
     public List<ArticleOutputDTO> finbyArticleAsc(@RequestParam(required = false) Integer page,
                                                   @RequestParam(required = false) Integer limit){
         return  service.findArticleByPostTimeAsc(page, limit);
@@ -75,5 +75,4 @@ public class ArtcleManage {
                                                         @RequestParam(required = false) Integer limit){
         return service.ListAriticleStatusTrue(page, limit);
     }
-
 }
