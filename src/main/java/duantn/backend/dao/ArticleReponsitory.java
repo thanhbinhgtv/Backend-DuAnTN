@@ -35,6 +35,5 @@ public interface ArticleReponsitory extends JpaRepository<Article, Integer> {
 
     /// tìm kiếm bài viết theo thời gian giảm dần
     Page<Article> findByDeletedFalseOrderByPostTimeDesc(Pageable pageable);
-
     List<Article> findByDeletedFalseOrderByPostTimeDesc();
 }
