@@ -2,6 +2,7 @@ package duantn.backend.service;
 
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
+import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 import org.springframework.http.ResponseEntity;
 
@@ -18,10 +19,10 @@ public interface StaffService {
     ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO);
 
     //    block nhân viên	DELETE/super-admin/staffs/{id}
-    ResponseEntity<String> blockStaff(Integer id);
+    Message blockStaff(Integer id);
 
     //    active nhân viên
-    ResponseEntity<String> activeStaff(Integer id);
+    Message activeStaff(Integer id);
 
     //    tìm kiếm nhân viên bằng email	hoặc sđt hoặc họ tên GET/super-admin/staffs?search={search}
     List<StaffOutputDTO> searchStaff(String search, Integer page, Integer limit);
@@ -29,4 +30,7 @@ public interface StaffService {
 
     //    xem thông tin nhân viên	GET/super-admin/staffs/{id}
     ResponseEntity<?> findOneStaff(Integer id);
+
+    //xóa cứng tất cả staff bị xóa mềm
+    Message deleteStaffs();
 }

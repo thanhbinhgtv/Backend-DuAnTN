@@ -27,8 +27,6 @@ public class Transaction extends BaseEntity implements Serializable {
     private int amount;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date time;
 
     @Column(nullable = true)

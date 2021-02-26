@@ -43,13 +43,9 @@ public class Article extends BaseEntity implements Serializable {
     private Boolean status;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date postTime = DateHeper.now();
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date expiryDate;
 
     @Column(nullable = false)
@@ -79,6 +75,6 @@ public class Article extends BaseEntity implements Serializable {
     @JoinColumn(name = "wardId")
     private Ward ward;
 
-    @OneToMany(mappedBy = "article", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "article", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<FavoriteArticle> favoriteArticles;
 }

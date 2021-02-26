@@ -21,7 +21,7 @@ public class StaffInsertDTO {
 
     private String cardId;
 
-    private String birthday;
+    private long birthday;
 
     private boolean gender;
 

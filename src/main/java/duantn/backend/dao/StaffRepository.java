@@ -19,4 +19,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
             (String email, String name, String phone, Pageable pageable);
     List<Staff> findByNameLikeOrEmailLikeOrPhoneLikeAndDeletedFalse
             (String email, String name, String phone);
+
+    List<Staff> findByDeletedTrue();
 }
