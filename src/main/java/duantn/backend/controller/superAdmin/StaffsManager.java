@@ -2,6 +2,7 @@ package duantn.backend.controller.superAdmin;
 
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
+import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 import duantn.backend.service.StaffService;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +44,13 @@ public class StaffsManager {
 
     //    block nhân viên	GET/super-admin/staffs/block/{id}
     @DeleteMapping("/staffs/{id}")
-    public ResponseEntity<String> blockStaff(@PathVariable Integer id) {
+    public Message blockStaff(@PathVariable Integer id) {
         return staffService.blockStaff(id);
     }
 
     //    active nhân viên	DELETE/super-admin/staffs/block/{id}
     @GetMapping("/staffs/active/{id}")
-    public ResponseEntity<String> activeStaff(@PathVariable Integer id) {
+    public Message activeStaff(@PathVariable Integer id) {
         return staffService.activeStaff(id);
     }
 
@@ -66,6 +67,12 @@ public class StaffsManager {
     @GetMapping("/staffs/{id}")
     public ResponseEntity<?> findOneStaff(@PathVariable Integer id) {
         return staffService.findOneStaff(id);
+    }
+
+    // xóa toàn bộ những nhân viên đã bị xóa mềm
+    @GetMapping("/delete")
+    public Message deleteStaffs(){
+        return staffService.deleteStaffs();
     }
 
 }
