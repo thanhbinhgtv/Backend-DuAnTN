@@ -3,6 +3,7 @@ package duantn.backend.service.impl;
 import duantn.backend.dao.StaffRepository;
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
+import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,13 +62,13 @@ public class StaffServiceImpl implements StaffService {
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
             Staff staff = modelMapper.map(staffInsertDTO, Staff.class);
-            staff.setDob(sdf.parse(staffInsertDTO.getBirthday()));
+            staff.setDob(new Date((staffInsertDTO.getBirthday())));
             staff.setPass(passwordEncoder.encode(staffInsertDTO.getPass()));
             Staff newStaff = staffRepository.save(staff);
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Insert failed");
+            return ResponseEntity.ok(new Message("Insert failed"));
         }
     }
 
@@ -79,34 +81,34 @@ public class StaffServiceImpl implements StaffService {
             Staff staff = modelMapper.map(staffUpdateDTO, Staff.class);
             Staff oldStaff = staffRepository.findByStaffIdAndDeletedFalse(staffUpdateDTO.getStaffId());
             staff.setPass(oldStaff.getPass());
-            staff.setDob(sdf.parse(staffUpdateDTO.getBirthday()));
+            staff.setDob(new Date(staffUpdateDTO.getBirthday()));
             Staff newStaff = staffRepository.save(staff);
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Update failed");
+            return ResponseEntity.ok(new Message("Update failed"));
         }
     }
 
     @Override
-    public ResponseEntity<String> blockStaff(Integer id) {
+    public Message blockStaff(Integer id) {
         Staff staff = staffRepository.findByStaffIdAndDeletedFalse(id);
-        if (staff == null) return ResponseEntity.badRequest().body("StaffId: " + id + " is not found");
+        if (staff == null) return new Message("Block staff id: " + id + " failed");
         else {
             staff.setDeleted(true);
             staffRepository.save(staff);
-            return ResponseEntity.ok("Block staff id: " + id + " successfully");
+            return new Message("Block staff id: " + id + " successfully");
         }
     }
 
     @Override
-    public ResponseEntity<String> activeStaff(Integer id) {
+    public Message activeStaff(Integer id) {
         Optional<Staff> optionalStaff = staffRepository.findById(id);
-        if (!optionalStaff.isPresent()) return ResponseEntity.badRequest().body("StaffId: " + id + " is not found");
+        if (!optionalStaff.isPresent()) return new Message("StaffId: " + id + " is not found");
         else {
             optionalStaff.get().setDeleted(false);
             staffRepository.save(optionalStaff.get());
-            return ResponseEntity.ok("Active staff id: " + id + " successfully");
+            return new Message("Active staff id: " + id + " successfully");
         }
     }
 
@@ -140,7 +142,16 @@ public class StaffServiceImpl implements StaffService {
             return ResponseEntity.ok(modelMapper.map(staffRepository.findByStaffIdAndDeletedFalse(id),
                     StaffOutputDTO.class));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("StaffId: " + id + " is not found");
+            return ResponseEntity.ok(new Message("StaffId: " + id + " is not found"));
         }
+    }
+
+    @Override
+    public Message deleteStaffs() {
+        List<Staff> staffList=staffRepository.findByDeletedTrue();
+        for(Staff staff:staffList){
+            staffRepository.delete(staff);
+        }
+        return new Message("Deleted successfully");
     }
 }
