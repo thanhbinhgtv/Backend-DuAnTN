@@ -18,7 +18,6 @@ public class AdvertisementOutputDTO {
         this.image=advertisement.getImage();
         this.staffId=advertisement.getStaff().getStaffId();
     }
-
     private Integer advertisementId;
     private String title;
     private String content;
