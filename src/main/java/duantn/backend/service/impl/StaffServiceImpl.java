@@ -5,21 +5,21 @@ import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
+import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StaffServiceImpl implements StaffService {
@@ -37,17 +37,46 @@ public class StaffServiceImpl implements StaffService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
-    public List<StaffOutputDTO> listStaff(Integer page, Integer limit) {
+    public List<StaffOutputDTO> listStaff(String search, String sort,
+                                          Integer page, Integer limit) {
+        //find all and sort
+        List<Staff> staffList = new ArrayList<>();
+        if(sort!=null && !sort.equals("")){
+            if(sort.equalsIgnoreCase("desc")){
+                staffList=staffRepository.findByDeletedFalse(Sort.by("name").descending());
+            }else{
+                staffList=staffRepository.findByDeletedFalse(Sort.by("name").ascending());
+            }
+        }else staffList=staffRepository.findByDeletedFalse();
 
+        //search
+        if(search!=null && !search.equals("")){
+            Set<Staff> searchStaff=new HashSet<>();
+            List<Staff> staffName=staffRepository.findByNameLikeAndDeletedFalse("%"+search+"%");
+            List<Staff> staffNameFilter=filter(staffName, staffList);
+            searchStaff.addAll(staffNameFilter);
+
+            List<Staff> staffEmail=staffRepository.findByEmailLikeAndDeletedFalse("%"+search+"%");
+            List<Staff> staffEmailFilter=filter(staffEmail, staffList);
+            searchStaff.addAll(staffEmailFilter);
+
+            List<Staff> staffPhone=staffRepository.findByPhoneLikeAndDeletedFalse("%"+search+"%");
+            List<Staff> staffPhoneFilter=filter(staffPhone, staffList);
+            searchStaff.addAll(staffPhoneFilter);
+
+            List<Staff> searchStaffList=new ArrayList<>(searchStaff);
+            staffList=filter(staffList, searchStaffList);
+        }
+
+        //pageable
+        if(page!=null && limit!=null){
+            staffList=pageable(staffList, page,limit);
+        }
+
+        //convert sang StaffOutputDTO
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
-        List<Staff> staffList;
-        if (page != null && limit != null) {
-            Page<Staff> pages = staffRepository.findByDeletedFalse(PageRequest.of(page, limit));
-            staffList=pages.toList();
-        }
-        else staffList = staffRepository.findByDeletedFalse();
         List<StaffOutputDTO> staffOutputDTOList = new ArrayList<>();
         for (Staff staff : staffList) {
             staffOutputDTOList.add(modelMapper.map(staff, StaffOutputDTO.class));
@@ -113,27 +142,6 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public List<StaffOutputDTO> searchStaff(String search, Integer page, Integer limit) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STRICT);
-        List<Staff> staffList;
-        if (page != null && limit != null) {
-            Page<Staff> pages = staffRepository.findByNameLikeOrEmailLikeOrPhoneLikeAndDeletedFalse
-                    ("%" + search + "%", "%" + search + "%", "%" + search + "%",
-                            PageRequest.of(page, limit));
-            staffList=pages.toList();
-        }
-        else staffList = staffRepository.findByNameLikeOrEmailLikeOrPhoneLikeAndDeletedFalse
-                ("%" + search + "%", "%" + search + "%", "%" + search + "%");
-        List<StaffOutputDTO> staffOutputDTOList = new ArrayList<>();
-        for (Staff staff : staffList) {
-            staffOutputDTOList.add(modelMapper.map(staff, StaffOutputDTO.class));
-        }
-        return staffOutputDTOList;
-    }
-
-    @Override
     public ResponseEntity<?> findOneStaff(Integer id) {
         try {
             ModelMapper modelMapper = new ModelMapper();
@@ -153,5 +161,23 @@ public class StaffServiceImpl implements StaffService {
             staffRepository.delete(staff);
         }
         return new Message("Deleted successfully");
+    }
+
+    public List<Staff> filter(List<Staff> minList, List<Staff> maxList) {
+        List<Staff> newList = new ArrayList<>();
+        for (Staff article : minList) {
+            if (maxList.contains(article)) newList.add(article);
+        }
+        return newList;
+    }
+
+    private List<Staff> pageable(List<Staff> users, Integer page, Integer limit) {
+        List<Staff> returnList = new ArrayList<>();
+        if (page * limit > users.size() - 1) return returnList;
+        int endIndex = Math.min((page + 1) * limit, users.size());
+        for (int i = page * limit; i < endIndex; i++) {
+            returnList.add(users.get(i));
+        }
+        return returnList;
     }
 }

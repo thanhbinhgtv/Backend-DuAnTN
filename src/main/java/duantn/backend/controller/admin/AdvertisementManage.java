@@ -3,6 +3,7 @@ package duantn.backend.controller.admin;
 import duantn.backend.model.dto.input.AdvertisementInsertDTO;
 import duantn.backend.model.dto.input.AdvertisementUpdateDTO;
 import duantn.backend.model.dto.output.AdvertisementOutputDTO;
+import duantn.backend.model.dto.output.Message;
 import duantn.backend.service.AdvertisementService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +20,10 @@ public class AdvertisementManage {
     }
 
     @GetMapping("advertisement")
-    public List<AdvertisementOutputDTO> listAdvertisement(@RequestParam(required = false) Integer page,
+    public List<AdvertisementOutputDTO> listAdvertisement(@RequestParam(required = false) String title,
+                                                          @RequestParam(required = false) Integer page,
                                                           @RequestParam(required = false) Integer limit) {
-        return advertisementService.listAdvertisement(page, limit);
+        return advertisementService.listAdvertisement(title, page, limit);
     }
     @PostMapping("advertisement")
     public ResponseEntity<?>insertAdvertisement (@RequestBody AdvertisementInsertDTO advertisementInsertDTO) {
@@ -33,8 +35,11 @@ public class AdvertisementManage {
         return advertisementService.updateAdvertisement(advertisementUpdateDTO);
     }
     @DeleteMapping("advertisement/{id}")
-    public ResponseEntity<String> blockAdvertisement(@PathVariable Integer id) {
+    public Message deleteAdvertisement(@PathVariable Integer id) {
         return advertisementService.deleteAdvertisement(id);
-
+    }
+    @GetMapping("advertisement/{id}")
+    public ResponseEntity<?> findOneAdvertisement(@PathVariable Integer id) {
+        return advertisementService.findOneAdvertisement(id);
     }
 }
