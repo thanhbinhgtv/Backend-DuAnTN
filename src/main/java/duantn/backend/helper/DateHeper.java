@@ -1,4 +1,4 @@
-package duantn.backend.model.entity;
+package duantn.backend.helper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

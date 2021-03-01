@@ -23,11 +23,15 @@ public class StaffsManager {
     //page là trang mấy
     //limit là số bản ghi trong 1 trang
     //nếu ko nhập 2 tham số này thì ko phân trang
+    //search theo name or mail or phone ko nhập thì trả về all
+    //sort=asc or desc không nhập thì ko xếp
     @GetMapping("/staffs")
     public List<StaffOutputDTO> listStaffs
-            (@RequestParam(required = false) Integer page,
+            (@RequestParam(required = false) String search,
+             @RequestParam(required = false) String sort,
+             @RequestParam(required = false) Integer page,
              @RequestParam(required = false) Integer limit) {
-        return staffService.listStaff(page, limit);
+        return staffService.listStaff(search, sort, page, limit);
     }
 
     //    thêm nhân viên	Post/super-admin/staffs
@@ -53,15 +57,6 @@ public class StaffsManager {
     public Message activeStaff(@PathVariable Integer id) {
         return staffService.activeStaff(id);
     }
-
-    //    tìm kiếm nhân viên bằng email	hoặc sđt hoặc họ tên GET/super-admin/staffs?search={search}
-    @GetMapping(value = "/staffs", params = "search")
-    public List<StaffOutputDTO> searchStaff(@RequestParam String search,
-                                            @RequestParam(required = false) Integer page,
-                                            @RequestParam(required = false) Integer limit) {
-        return staffService.searchStaff(search,page,limit);
-    }
-
 
     //    xem thông tin nhân viên	GET/super-admin/staffs/{id}
     @GetMapping("/staffs/{id}")
