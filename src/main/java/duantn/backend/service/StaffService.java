@@ -5,12 +5,20 @@ import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 public interface StaffService {
 
-    List<StaffOutputDTO> listStaff(Integer page, Integer limit);
+    //Tìm kiếm nhân viên = email, phone, name
+    //sắp xếp theo name sort=asc, sort=desc
+    //phân trang
+    //nếu không truyền vào tham số thì trả về all list
+    List<StaffOutputDTO> listStaff(@RequestParam(required = false) String search,
+                                   @RequestParam(required = false) String sort,
+                                   @RequestParam(required = false) Integer page,
+                                   @RequestParam(required = false) Integer limit);
 
     //    thêm nhân viên	Post/super-admin/staffs
     ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO);
@@ -23,10 +31,6 @@ public interface StaffService {
 
     //    active nhân viên
     Message activeStaff(Integer id);
-
-    //    tìm kiếm nhân viên bằng email	hoặc sđt hoặc họ tên GET/super-admin/staffs?search={search}
-    List<StaffOutputDTO> searchStaff(String search, Integer page, Integer limit);
-
 
     //    xem thông tin nhân viên	GET/super-admin/staffs/{id}
     ResponseEntity<?> findOneStaff(Integer id);
