@@ -79,7 +79,9 @@ public class StaffServiceImpl implements StaffService {
                 .setMatchingStrategy(MatchingStrategies.STRICT);
         List<StaffOutputDTO> staffOutputDTOList = new ArrayList<>();
         for (Staff staff : staffList) {
-            staffOutputDTOList.add(modelMapper.map(staff, StaffOutputDTO.class));
+            StaffOutputDTO staffOutputDTO=modelMapper.map(staff, StaffOutputDTO.class);
+            staffOutputDTO.setDob(staff.getDob().getTime());
+            staffOutputDTOList.add(staffOutputDTO);
         }
         return staffOutputDTOList;
     }

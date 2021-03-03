@@ -23,6 +23,7 @@ import java.util.Optional;
 
 @Service
 public  class AdvertisementServiceIplm implements AdvertisementService {
+
     final
     AdvertisementRepository adverRepository;
 
@@ -50,11 +51,9 @@ public  class AdvertisementServiceIplm implements AdvertisementService {
             advertisementList=pageable(advertisementList,page,limit);
 
         //convert to AdvertisementOutputDTO
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<AdvertisementOutputDTO> advertisementOutputDTOS = new ArrayList<>();
         for (Advertisement advertisement : advertisementList) {
-            advertisementOutputDTOS.add(modelMapper.map(advertisement, AdvertisementOutputDTO.class));
+            advertisementOutputDTOS.add(new AdvertisementOutputDTO(advertisement));
         }
         return advertisementOutputDTOS;
     }
