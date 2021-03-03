@@ -12,7 +12,7 @@ import java.util.*;
 @Service
 public class JwtUtil {
     private final String secret="duc_pro";
-    private final int jwtExpirationInMs=54000000;
+    private final int jwtExpirationInMs=10000;   //54000000
 
     // generate token for user
     public String generateToken(UserDetails userDetails) {
@@ -30,7 +30,7 @@ public class JwtUtil {
         return doGenerateToken(claims, userDetails.getUsername());
     }
 
-    private String doGenerateToken(Map<String, Object> claims, String subject) {
+    public String doGenerateToken(Map<String, Object> claims, String subject) {
 
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs)).signWith(SignatureAlgorithm.HS512, secret).compact();

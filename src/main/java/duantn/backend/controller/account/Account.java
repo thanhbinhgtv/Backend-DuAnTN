@@ -47,4 +47,9 @@ public class Account {
         //login danh cho nhan vien -> role: admin, super admin
         return accountService.login(loginDTO);
     }
+
+    @GetMapping("/refreshtoken")
+    public Map<String, String> refreshtoken(HttpServletRequest request) throws Exception {
+        return accountService.refreshtoken(request);
+    }
 }
