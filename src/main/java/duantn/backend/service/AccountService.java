@@ -13,4 +13,6 @@ public interface AccountService {
     Message confirmEmail(String token);
 
     Map<String, String> login(LoginDTO loginDTO) throws Exception;
+
+    Map<String, String> refreshtoken(HttpServletRequest request) throws Exception;
 }

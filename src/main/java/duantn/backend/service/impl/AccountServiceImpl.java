@@ -12,10 +12,12 @@ import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.TokenCustomer;
 import duantn.backend.service.AccountService;
+import io.jsonwebtoken.impl.DefaultClaims;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -138,5 +141,26 @@ public class AccountServiceImpl implements AccountService {
         returnMap.put("token", token);
 
         return returnMap;
+    }
+
+    @Override
+    public Map<String, String> refreshtoken(HttpServletRequest request) throws Exception {
+        // From the HttpRequest get the claims
+        DefaultClaims claims = (io.jsonwebtoken.impl.DefaultClaims) request.getAttribute("claims");
+
+        Map<String, Object> expectedMap = getMapFromIoJsonwebtokenClaims(claims);
+        String token = jwtTokenUtil.doGenerateToken(expectedMap, expectedMap.get("sub").toString());
+        Map<String, String> returnMap=new HashMap<>();
+        returnMap.put("token", token);
+        return returnMap;
+    }
+
+
+    public Map<String, Object> getMapFromIoJsonwebtokenClaims(DefaultClaims claims) {
+        Map<String, Object> expectedMap = new HashMap<String, Object>();
+        for (Entry<String, Object> entry : claims.entrySet()) {
+            expectedMap.put(entry.getKey(), entry.getValue());
+        }
+        return expectedMap;
     }
 }
