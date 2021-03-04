@@ -10,9 +10,11 @@ import java.util.Map;
 public interface AccountService {
     Message customerSignup(SignupDTO signupDTO, HttpServletRequest request);
 
-    Message confirmEmail(String token);
+    Message confirmEmail(String token, String email);
 
     Map<String, String> login(LoginDTO loginDTO) throws Exception;
 
     Map<String, String> refreshtoken(HttpServletRequest request) throws Exception;
+
+    Message forgotPassword(String email, HttpServletRequest request);
 }

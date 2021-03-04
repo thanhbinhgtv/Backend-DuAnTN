@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Set;
+
 
 @Entity
 @Getter
@@ -45,6 +47,9 @@ public class Customer extends BaseEntity implements Serializable {
 
     @Column(nullable = false)
     private Boolean enabled=false;
+
+    @Column(nullable = true)
+    private String token;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<FavoriteArticle> favoriteArticles;
