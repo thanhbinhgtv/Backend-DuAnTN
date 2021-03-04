@@ -37,8 +37,9 @@ public class Account {
     }
 
     @GetMapping("/confirm")
-    public Message confirmEmail(@RequestParam(value = "token-customer") String token) {
-        return accountService.confirmEmail(token);
+    public Message confirmEmail(@RequestParam(value = "token-customer") String token,
+                                @RequestParam String email) {
+        return accountService.confirmEmail(token, email);
     }
 
     @PostMapping("/login")
@@ -48,8 +49,23 @@ public class Account {
         return accountService.login(loginDTO);
     }
 
+    //Brear Token
+    //isRefreshToken = true (Header)
     @GetMapping("/refreshtoken")
     public Map<String, String> refreshtoken(HttpServletRequest request) throws Exception {
         return accountService.refreshtoken(request);
+    }
+
+    @GetMapping("/forgot")
+    public Message forgotPassword(@RequestParam String email, HttpServletRequest request){
+        return accountService.forgotPassword(email, request);
+    }
+
+    @GetMapping("/confirm-forgot")
+    public Message confirmForgotPassword(@RequestParam String token,
+                                         @RequestParam String email){
+        //check token va email
+        //neu dung thi forward sang nhap mat khau moi
+        return null;
     }
 }

@@ -5,19 +5,16 @@ import duantn.backend.authentication.JwtUtil;
 import duantn.backend.component.MailSender;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
-import duantn.backend.dao.TokenCustomerRepository;
+import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.input.LoginDTO;
 import duantn.backend.model.dto.input.SignupDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Customer;
-import duantn.backend.model.entity.TokenCustomer;
+import duantn.backend.model.entity.Staff;
 import duantn.backend.service.AccountService;
 import io.jsonwebtoken.impl.DefaultClaims;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -31,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -39,9 +37,6 @@ public class AccountServiceImpl implements AccountService {
 
     final
     CustomerRepository customerRepository;
-
-    final
-    TokenCustomerRepository tokenCustomerRepository;
 
     final
     MailSender mailSender;
@@ -56,10 +51,9 @@ public class AccountServiceImpl implements AccountService {
     final
     JwtUtil jwtTokenUtil;
 
-    public AccountServiceImpl(PasswordEncoder passwordEncoder, CustomerRepository customerRepository, TokenCustomerRepository tokenCustomerRepository, MailSender mailSender, StaffRepository staffRepository, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil) {
+    public AccountServiceImpl(PasswordEncoder passwordEncoder, CustomerRepository customerRepository, MailSender mailSender, StaffRepository staffRepository, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil) {
         this.passwordEncoder = passwordEncoder;
         this.customerRepository = customerRepository;
-        this.tokenCustomerRepository = tokenCustomerRepository;
         this.mailSender = mailSender;
         this.staffRepository = staffRepository;
         this.authenticationManager = authenticationManager;
@@ -76,22 +70,19 @@ public class AccountServiceImpl implements AccountService {
         || staffRepository.findByEmail(signupDTO.getEmail())!=null)
             return new Message("Email is already in use");
 
+        //create token
+        String token;
+        while (true){
+            token=randomAlphaNumeric(30);
+            if(customerRepository.findByToken(token)==null) break;
+        }
+
         //create customer
         Customer customer=modelMapper.map(signupDTO, Customer.class);
         customer.setAccountBalance(0);
         customer.setPass(passwordEncoder.encode(signupDTO.getPass()));
-
-        //create token
-        TokenCustomer tokenCustomer=new TokenCustomer();
-        tokenCustomer.setCustomer(customer);
-        String token;
-        while (true){
-            token= RandomStringUtils.random(15);
-            if(tokenCustomerRepository.findByToken(token) ==null) break;
-        }
-        tokenCustomer.setToken(token);
-        tokenCustomer.setType(false);
-        tokenCustomerRepository.save(tokenCustomer);
+        customer.setToken(token);
+        customerRepository.save(customer);
 
         //send mail
         mailSender.send(
@@ -99,24 +90,35 @@ public class AccountServiceImpl implements AccountService {
                 "Xác nhận địa chỉ email",
                 "<h2>Xác nhận địa chỉ email</h2>"+
                         "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>"+
-                        request.getServletContext().getContextPath()+"/confirm?token-customer="+token
+                        Helper.getHostUrl(request.getRequestURL().toString(),"/sign-up") +"/confirm?token-customer="+token
+                +"&email="+signupDTO.getEmail()
         );
         return new Message("Please check your mail to confirm");
     }
 
     @Override
-    public Message confirmEmail(String token) {
-        TokenCustomer tokenCustomer=tokenCustomerRepository.findByToken(token);
-        if(tokenCustomer!=null){
-            Customer customer= tokenCustomer.getCustomer();
+    public Message confirmEmail(String token, String email) {
+        Customer customer=customerRepository.findByToken(token);
+        if(customer!=null){
+            if(!customer.getEmail().equals(email)) return new Message("Email is not correct");
             customer.setEnabled(true);
             customerRepository.save(customer);
+
+            //nen lam redirect
             return new Message("Confirm email successfully");
         }else return new Message("Confirm failed");
     }
 
     @Override
     public Map<String, String> login(LoginDTO loginDTO) throws Exception{
+        Map<String, String> returnMap=new HashMap<>();
+
+        if(customerRepository.findByEmail(loginDTO.getEmail())==null||
+        customerRepository.findByEmail(loginDTO.getEmail()).getEnabled()){
+            returnMap.put("mess","Email is not activated or account does not exist");
+            return returnMap;
+        }
+
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDTO.getEmail(), loginDTO.getPass()));
@@ -136,7 +138,7 @@ public class AccountServiceImpl implements AccountService {
             role="ADMIN";
         else role="CUSTOMER";
 
-        Map<String, String> returnMap=new HashMap<>();
+
         returnMap.put("role", role);
         returnMap.put("token", token);
 
@@ -155,6 +157,45 @@ public class AccountServiceImpl implements AccountService {
         return returnMap;
     }
 
+    @Override
+    public Message forgotPassword(String email, HttpServletRequest request) {
+        Staff staff=null;
+        staffRepository.findByEmail(email);
+        Customer customer=null;
+        if(staff==null) customer=customerRepository.findByEmail(email);
+
+        String token;
+
+        if(staff!=null){
+            while (true){
+                token=randomAlphaNumeric(31);
+                if(staffRepository.findByToken(token)==null) break;
+            }
+            staff.setToken(token);
+            staffRepository.save(staff);
+        }else if(customer!=null){
+            if(!customer.getEnabled()) return new Message("Email is not activated");
+            while (true){
+                token=randomAlphaNumeric(31);
+                if(customerRepository.findByToken(token)==null) break;
+            }
+            customer.setToken(token);
+            customerRepository.save(customer);
+        }else{
+            return new Message("Email not found");
+        }
+        //send mail
+        mailSender.send(
+                email,
+                "Quên mật khẩu",
+                "<h2>Quên mật khẩu, làm mới mật khẩu</h2>"+
+                        "Click vào đường link sau để tạo mới mật khẩu của bạn:<br/>"+
+                        Helper.getHostUrl(request.getRequestURL().toString(),"/forgot") +"/confirm-forgot?token="+token
+                +"&email="+email
+        );
+        return new Message("Successfully, please check mail to next step");
+    }
+
 
     public Map<String, Object> getMapFromIoJsonwebtokenClaims(DefaultClaims claims) {
         Map<String, Object> expectedMap = new HashMap<String, Object>();
@@ -162,5 +203,27 @@ public class AccountServiceImpl implements AccountService {
             expectedMap.put(entry.getKey(), entry.getValue());
         }
         return expectedMap;
+    }
+
+    private static final String alpha = "abcdefghijklmnopqrstuvwxyz"; // a-z
+    private static final String alphaUpperCase = alpha.toUpperCase(); // A-Z
+    private static final String digits = "0123456789"; // 0-9
+    private static final String ALPHA_NUMERIC = alpha + alphaUpperCase + digits;
+
+    private static Random generator = new Random();
+    /**
+     * Random string with a-zA-Z0-9, not included special characters
+     */
+    public String randomAlphaNumeric(int numberOfCharactor) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < numberOfCharactor; i++) {
+            int number = randomNumber(0, ALPHA_NUMERIC.length() - 1);
+            char ch = ALPHA_NUMERIC.charAt(number);
+            sb.append(ch);
+        }
+        return sb.toString();
+    }
+    public static int randomNumber(int min, int max) {
+        return generator.nextInt((max - min) + 1) + min;
     }
 }
