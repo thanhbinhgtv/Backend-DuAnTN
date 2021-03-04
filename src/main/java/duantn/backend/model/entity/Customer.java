@@ -48,7 +48,7 @@ public class Customer extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private Boolean enabled=false;
 
-    @Column(nullable = true)
+    @Column(nullable = true, unique = true)
     private String token;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

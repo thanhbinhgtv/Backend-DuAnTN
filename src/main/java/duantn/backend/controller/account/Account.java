@@ -3,6 +3,7 @@ package duantn.backend.controller.account;
 import duantn.backend.authentication.CustomUserDetailsService;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.model.dto.input.LoginDTO;
+import duantn.backend.model.dto.input.ResetPasswordDTO;
 import duantn.backend.model.dto.input.SignupDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.service.AccountService;
@@ -57,15 +58,12 @@ public class Account {
     }
 
     @GetMapping("/forgot")
-    public Message forgotPassword(@RequestParam String email, HttpServletRequest request){
-        return accountService.forgotPassword(email, request);
+    public Message forgotPassword(@RequestParam String email){
+        return accountService.forgotPassword(email);
     }
 
-    @GetMapping("/confirm-forgot")
-    public Message confirmForgotPassword(@RequestParam String token,
-                                         @RequestParam String email){
-        //check token va email
-        //neu dung thi forward sang nhap mat khau moi
-        return null;
+    @PostMapping("/reset-password")
+    public Message resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO){
+        return accountService.resetPassword(resetPasswordDTO);
     }
 }

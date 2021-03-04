@@ -32,8 +32,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<SimpleGrantedAuthority> roles = null;
-        Customer customer=customerRepository.findByEmail(username);
+        Customer customer=null;
         Staff staff=null;
+        customer=customerRepository.findByEmail(username);
         if(customer==null) staff=staffRepository.findByEmail(username);
         if(staff!=null)
         {
