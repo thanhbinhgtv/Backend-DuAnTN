@@ -52,7 +52,7 @@ public class Staff extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private String image;
 
-    @Column(nullable = true)
+    @Column(nullable = true, unique = true)
     private String token;
 
     @OneToMany(mappedBy = "staff", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

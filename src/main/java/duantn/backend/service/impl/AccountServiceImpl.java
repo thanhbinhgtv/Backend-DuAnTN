@@ -7,6 +7,7 @@ import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
 import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.input.LoginDTO;
+import duantn.backend.model.dto.input.ResetPasswordDTO;
 import duantn.backend.model.dto.input.SignupDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Customer;
@@ -24,7 +25,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,25 +64,26 @@ public class AccountServiceImpl implements AccountService {
         this.userDetailsService = userDetailsService;
         this.jwtTokenUtil = jwtTokenUtil;
     }
+
     @Override
     public Message customerSignup(SignupDTO signupDTO, HttpServletRequest request) {
-        ModelMapper modelMapper=new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
 
-        if(customerRepository.findByEmail(signupDTO.getEmail())!=null
-        || staffRepository.findByEmail(signupDTO.getEmail())!=null)
+        if (customerRepository.findByEmail(signupDTO.getEmail()) != null
+                || staffRepository.findByEmail(signupDTO.getEmail()) != null)
             return new Message("Email is already in use");
 
         //create token
         String token;
-        while (true){
-            token=randomAlphaNumeric(30);
-            if(customerRepository.findByToken(token)==null) break;
+        while (true) {
+            token = randomAlphaNumeric(30);
+            if (customerRepository.findByToken(token) == null) break;
         }
 
         //create customer
-        Customer customer=modelMapper.map(signupDTO, Customer.class);
+        Customer customer = modelMapper.map(signupDTO, Customer.class);
         customer.setAccountBalance(0);
         customer.setPass(passwordEncoder.encode(signupDTO.getPass()));
         customer.setToken(token);
@@ -88,37 +93,39 @@ public class AccountServiceImpl implements AccountService {
         mailSender.send(
                 signupDTO.getEmail(),
                 "Xác nhận địa chỉ email",
-                "<h2>Xác nhận địa chỉ email</h2>"+
-                        "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>"+
-                        Helper.getHostUrl(request.getRequestURL().toString(),"/sign-up") +"/confirm?token-customer="+token
-                +"&email="+signupDTO.getEmail()
+                "<h2>Xác nhận địa chỉ email</h2>" +
+                        "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
+                        Helper.getHostUrl(request.getRequestURL().toString(), "/sign-up") + "/confirm?token-customer=" + token
+                        + "&email=" + signupDTO.getEmail()
         );
         return new Message("Please check your mail to confirm");
     }
 
+    //về sau chuyển thành void, return redirect
     @Override
     public Message confirmEmail(String token, String email) {
-        Customer customer=customerRepository.findByToken(token);
-        if(customer!=null){
-            if(!customer.getEmail().equals(email)) return new Message("Email is not correct");
+        Customer customer = customerRepository.findByToken(token);
+        if (customer != null) {
+            if (!customer.getEmail().equals(email)) return new Message("Email is not correct");
             customer.setEnabled(true);
             customerRepository.save(customer);
 
             //nen lam redirect
             return new Message("Confirm email successfully");
-        }else return new Message("Confirm failed");
+        } else return new Message("Confirm failed");
     }
 
     @Override
-    public Map<String, String> login(LoginDTO loginDTO) throws Exception{
-        Map<String, String> returnMap=new HashMap<>();
+    public Map<String, String> login(LoginDTO loginDTO) throws Exception {
+        Map<String, String> returnMap = new HashMap<>();
 
-        if(customerRepository.findByEmail(loginDTO.getEmail())==null||
-        customerRepository.findByEmail(loginDTO.getEmail()).getEnabled()){
-            returnMap.put("mess","Email is not activated or account does not exist");
-            return returnMap;
+        if (customerRepository.findByEmail(loginDTO.getEmail()) == null ||
+                !customerRepository.findByEmail(loginDTO.getEmail()).getEnabled()) {
+            if(staffRepository.findByEmail(loginDTO.getEmail()) == null){
+                returnMap.put("mess", "Email is not activated or account does not exist");
+                return returnMap;
+            }
         }
-
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDTO.getEmail(), loginDTO.getPass()));
@@ -132,11 +139,11 @@ public class AccountServiceImpl implements AccountService {
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         String role;
-        if(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN")))
-            role="SUPER_ADMIN";
-        else if(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-            role="ADMIN";
-        else role="CUSTOMER";
+        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN")))
+            role = "SUPER_ADMIN";
+        else if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+            role = "ADMIN";
+        else role = "CUSTOMER";
 
 
         returnMap.put("role", role);
@@ -152,48 +159,69 @@ public class AccountServiceImpl implements AccountService {
 
         Map<String, Object> expectedMap = getMapFromIoJsonwebtokenClaims(claims);
         String token = jwtTokenUtil.doGenerateToken(expectedMap, expectedMap.get("sub").toString());
-        Map<String, String> returnMap=new HashMap<>();
+        Map<String, String> returnMap = new HashMap<>();
         returnMap.put("token", token);
         return returnMap;
     }
 
     @Override
-    public Message forgotPassword(String email, HttpServletRequest request) {
-        Staff staff=null;
-        staffRepository.findByEmail(email);
-        Customer customer=null;
-        if(staff==null) customer=customerRepository.findByEmail(email);
+    public Message forgotPassword(String email) {
+        Staff staff = null;
+        staff=staffRepository.findByEmail(email);
+        Customer customer = null;
+        if (staff == null) customer = customerRepository.findByEmail(email);
 
         String token;
 
-        if(staff!=null){
-            while (true){
-                token=randomAlphaNumeric(31);
-                if(staffRepository.findByToken(token)==null) break;
+        if (staff != null) {
+            while (true) {
+                token = randomAlphaNumeric(31);
+                if (staffRepository.findByToken(token) == null) break;
             }
             staff.setToken(token);
             staffRepository.save(staff);
-        }else if(customer!=null){
-            if(!customer.getEnabled()) return new Message("Email is not activated");
-            while (true){
-                token=randomAlphaNumeric(31);
-                if(customerRepository.findByToken(token)==null) break;
+        } else if (customer != null) {
+            if (!customer.getEnabled()) return new Message("Email is not activated");
+            while (true) {
+                token = randomAlphaNumeric(31);
+                if (customerRepository.findByToken(token) == null) break;
             }
             customer.setToken(token);
             customerRepository.save(customer);
-        }else{
+        } else {
             return new Message("Email not found");
         }
         //send mail
         mailSender.send(
                 email,
                 "Quên mật khẩu",
-                "<h2>Quên mật khẩu, làm mới mật khẩu</h2>"+
-                        "Click vào đường link sau để tạo mới mật khẩu của bạn:<br/>"+
-                        Helper.getHostUrl(request.getRequestURL().toString(),"/forgot") +"/confirm-forgot?token="+token
-                +"&email="+email
+                "<h2>Quên mật khẩu, làm mới mật khẩu</h2>" +
+                        "Click vào đường link sau để tạo mới mật khẩu của bạn:<br/>" +
+                        "dia chi frontend" + "/renew-password?token=" + token
+                        + "&email=" + email
         );
         return new Message("Successfully, please check mail to next step");
+    }
+
+    @Override
+    public Message resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        Staff staff = null;
+        Customer customer = null;
+        staff = staffRepository.findByToken(resetPasswordDTO.getToken());
+        if (staff == null) customer = customerRepository.findByToken(resetPasswordDTO.getToken());
+        if (staff != null) {
+            if (!staff.getEmail().equals(resetPasswordDTO.getEmail())) return new Message("Email is not correct");
+            staff.setPass(passwordEncoder.encode(resetPasswordDTO.getPassword()));
+            staff.setToken(null);
+            staffRepository.save(staff);
+            return new Message("Refresh password successfully");
+        } else if (customer != null) {
+            if (!customer.getEmail().equals(resetPasswordDTO.getEmail())) return new Message("Email is not correct");
+            customer.setPass(passwordEncoder.encode(resetPasswordDTO.getPassword()));
+            customer.setToken(null);
+            customerRepository.save(customer);
+            return new Message("Refresh password successfully");
+        } else return new Message("Refresh password failed");
     }
 
 
@@ -211,6 +239,7 @@ public class AccountServiceImpl implements AccountService {
     private static final String ALPHA_NUMERIC = alpha + alphaUpperCase + digits;
 
     private static Random generator = new Random();
+
     /**
      * Random string with a-zA-Z0-9, not included special characters
      */
@@ -223,6 +252,7 @@ public class AccountServiceImpl implements AccountService {
         }
         return sb.toString();
     }
+
     public static int randomNumber(int min, int max) {
         return generator.nextInt((max - min) + 1) + min;
     }

@@ -1,5 +1,6 @@
 package duantn.backend.service.impl;
 
+import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
@@ -10,6 +11,7 @@ import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,9 +31,13 @@ public class StaffServiceImpl implements StaffService {
     final
     PasswordEncoder passwordEncoder;
 
-    public StaffServiceImpl(StaffRepository staffRepository, PasswordEncoder passwordEncoder) {
+    final
+    CustomerRepository customerRepository;
+
+    public StaffServiceImpl(StaffRepository staffRepository, PasswordEncoder passwordEncoder, CustomerRepository customerRepository) {
         this.staffRepository = staffRepository;
         this.passwordEncoder = passwordEncoder;
+        this.customerRepository = customerRepository;
     }
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -89,6 +95,8 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) {
         try {
+            if(customerRepository.findByEmail(staffInsertDTO.getEmail())!=null)
+                return ResponseEntity.ok(new Message("Email is already in use"));
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
