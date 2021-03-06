@@ -11,22 +11,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/")
-public class ArtcleManage {
+public class ArticleManage {
     final
     ArticleService service;
 
-    public ArtcleManage(ArticleService service) {
+    public ArticleManage(ArticleService service) {
         this.service = service;
     }
 
-//    @GetMapping("articles")
-//    public List<ArticleOutputDTO> listArticle(@RequestParam(required = false) Integer page,
-//                                              @RequestParam(required = false) Integer limit) {
-//        return service.listArticle(page, limit);
-//    }
 
     @DeleteMapping("articles/{id}")
-    public ResponseEntity<String> bloclArticle(@PathVariable Integer id) {
+    public ResponseEntity<String> blockArticle(@PathVariable Integer id) {
         return service.deleteArticle(id);
 
     }
@@ -65,27 +60,4 @@ public class ArtcleManage {
         return service.filterArticle(status,start,end,wardId,districtId,cityId,sort,page,limit);
     }
 
-//    @GetMapping(value = "articles", params = "search")
-//    public List<ArticleOutputDTO> findbyTileAndPhone(@RequestParam String search,
-//                                                     @RequestParam(required = false) Integer page,
-//                                                     @RequestParam(required = false) Integer limit) {
-//        return service.findArticleByTitleAndPhone(search, page, limit);
-//    }
-//
-//    @GetMapping(value = "articles", params = "post-time=desc")
-//    public List<ArticleOutputDTO> findbyPostTimeDESC(@RequestParam(required = false) Integer page,
-//                                                     @RequestParam(required = false) Integer limit) {
-//        return service.findArticleByPostTimeDESC(page, limit);
-//    }
-//
-//    @GetMapping(value = "articles", params = "post-time=asc")
-//    public List<ArticleOutputDTO> finbyArticleAsc(@RequestParam(required = false) Integer page,
-//                                                  @RequestParam(required = false) Integer limit){
-//        return  service.findArticleByPostTimeAsc(page, limit);
-//    }
-//    @GetMapping("articles/status-true")
-//    public List<ArticleOutputDTO> listArticleStatusTrue(@RequestParam(required = false) Integer page,
-//                                                        @RequestParam(required = false) Integer limit){
-//        return service.ListAriticleStatusTrue(page, limit);
-//    }
 }

@@ -1,6 +1,7 @@
 package duantn.backend.model.dto.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import duantn.backend.model.entity.Article;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,6 @@ import java.util.Date;
 @Setter
 public class ArticleOutputDTO {
     private Integer articleId;
-    private Boolean deleted;
     private String title;
     private String content;
     private String image;
@@ -23,4 +23,5 @@ public class ArticleOutputDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date expiryDate;
     private boolean isVip;
+
 }

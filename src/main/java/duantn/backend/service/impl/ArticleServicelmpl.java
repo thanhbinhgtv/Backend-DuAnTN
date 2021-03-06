@@ -1,10 +1,11 @@
 package duantn.backend.service.impl;
 
-import duantn.backend.dao.ArticleReponsitory;
+import duantn.backend.dao.*;
 import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
-import duantn.backend.model.entity.Article;
+import duantn.backend.model.dto.output.Message;
+import duantn.backend.model.entity.*;
 import duantn.backend.service.ArticleService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -21,29 +22,13 @@ public class ArticleServicelmpl implements ArticleService {
     final
     ArticleReponsitory articleRepository;
 
+
     public ArticleServicelmpl(ArticleReponsitory articleRepository) {
         this.articleRepository = articleRepository;
     }
 
     private SimpleDateFormat DATE_FORMATER = new SimpleDateFormat("yyyy/mm/dd");
 
-//    @Override
-//    public List<ArticleOutputDTO> listArticle(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration()
-//                .setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByDeletedFalse(PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else
-//            articleList = articleRepository.findByDeletedFalse();
-//        List<ArticleOutputDTO> articleOutputDTO = new ArrayList<>();
-//        for (Article article : articleList) {
-//            articleOutputDTO.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTO;
-//    }
 
     @Override
     public ResponseEntity<?> insertArticle(ArticleInsertDTO articleInsertDTO) {
@@ -76,7 +61,7 @@ public class ArticleServicelmpl implements ArticleService {
 
     @Override
     public ResponseEntity<String> deleteArticle(Integer id) {
-        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
+        Article article = articleRepository.findByArticleId(id);
         if (article == null) {
             return ResponseEntity.badRequest().body("id" + id + "này không tồn tại");
         } else {
@@ -105,82 +90,13 @@ public class ArticleServicelmpl implements ArticleService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            return ResponseEntity.ok(modelMapper.map(articleRepository.findByArticleIdAndDeletedFalse(id),
+            return ResponseEntity.ok(modelMapper.map(articleRepository.findByArticleId(id),
                     ArticleOutputDTO.class));
         } catch (Exception e) {
             return ResponseEntity.ok("id: " + id + " không tìm thấy");
         }
     }
 
-//    @Override
-//    public List<ArticleOutputDTO> findArticleByTitleAndPhone(String search, Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByTitleLikeAndDeletedFalse
-//                    ("%" + search + "%", PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else articleList = articleRepository.findByTitleLikeAndDeletedFalse
-//                ("%" + search + "%");
-//        List<ArticleOutputDTO> ArticleOutputDTO = new ArrayList<>();
-//        for (Article article : articleList) {
-//            ArticleOutputDTO.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return ArticleOutputDTO;
-//    }
-//
-//    @Override
-//    public List<ArticleOutputDTO> findArticleByPostTimeDESC(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration()
-//                .setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByDeletedFalseOrderByPostTimeDesc(PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else
-//            articleList = articleRepository.findByDeletedFalseOrderByPostTimeDesc();
-//        List<ArticleOutputDTO> articleOutputDTO = new ArrayList<>();
-//        for (Article article : articleList) {
-//            articleOutputDTO.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTO;
-//    }
-//
-//    @Override
-//    public List<ArticleOutputDTO> findArticleByPostTimeAsc(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByDeletedFalseOrderByPostTimeAsc(PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else
-//            articleList = articleRepository.findByDeletedFalseOrderByPostTimeAsc();
-//        List<ArticleOutputDTO> articleOutputDTOS = new ArrayList<>();
-//        for (Article article : articleList) {
-//            articleOutputDTOS.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTOS;
-//    }
-//
-//    @Override
-//    public List<ArticleOutputDTO> ListAriticleStatusTrue(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if(page != null && limit != null){
-//            Page<Article> pages = articleRepository.findByDeletedTrue(PageRequest.of(page,limit));
-//            articleList= pages.toList();
-//        }else
-//            articleList = articleRepository.findByDeletedTrue();
-//        List<ArticleOutputDTO> articleOutputDTOS = new ArrayList<>();
-//        for (Article article: articleList){
-//            articleOutputDTOS.add(modelMapper.map(article,ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTOS;
-//    }
 
     @Override
     public List<ArticleOutputDTO> filterArticle(Boolean status,
@@ -240,7 +156,7 @@ public class ArticleServicelmpl implements ArticleService {
         return convertToDTO(articles);
     }
 
-    @Override
+
     public List<ArticleOutputDTO> searchArticle(String search,
                                                 Integer page, Integer limit) {
         List<Article> articles = articleRepository.findByTitleLikeOrPhoneLike("%" + search + "%", "%" + search + "%");
@@ -286,4 +202,8 @@ public class ArticleServicelmpl implements ArticleService {
         }
         return returnList;
     }
+
+
+
+
 }

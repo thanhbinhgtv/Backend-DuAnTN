@@ -17,7 +17,6 @@ public class ArticleInsertDTO {
     private String description;
     private String phone;
     private Boolean status;
-    //   private Date postTime= DateHeper.now();
     private Date expiryDate;
     private boolean isVip;
 
