@@ -21,4 +21,8 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     List<Staff> findByPhoneLikeAndDeletedFalse(String name);
 
     List<Staff> findByDeletedTrue();
+
+    Staff findByEmail(String email);
+
+    Staff findByToken(String token);
 }

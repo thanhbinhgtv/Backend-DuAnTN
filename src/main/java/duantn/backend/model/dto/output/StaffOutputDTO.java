@@ -19,12 +19,11 @@ public class StaffOutputDTO {
 
     private String cardId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-    private Date dob;
+    private Long dob;
 
-    private boolean gender;
+    private Boolean gender;
 
-    private boolean role;
+    private Boolean role;
 
     private String address;
 

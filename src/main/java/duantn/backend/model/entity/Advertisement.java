@@ -27,9 +27,7 @@ public class Advertisement extends BaseEntity implements Serializable{
     @Column(nullable = false)
     private String image;
 
-
     @ManyToOne
     @JoinColumn(name = "staffId")
     private Staff staff;
-
 }
