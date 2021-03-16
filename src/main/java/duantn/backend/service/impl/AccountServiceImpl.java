@@ -1,5 +1,6 @@
 package duantn.backend.service.impl;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.authentication.CustomUserDetailsService;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.component.MailSender;
@@ -108,6 +109,7 @@ public class AccountServiceImpl implements AccountService {
         if (customer != null) {
             if (!customer.getEmail().equals(email)) return new Message("Email is not correct");
             customer.setEnabled(true);
+            customer.setToken(null);
             customerRepository.save(customer);
 
             //nen lam redirect
@@ -122,8 +124,7 @@ public class AccountServiceImpl implements AccountService {
         if (customerRepository.findByEmail(loginDTO.getEmail()) == null ||
                 !customerRepository.findByEmail(loginDTO.getEmail()).getEnabled()) {
             if(staffRepository.findByEmail(loginDTO.getEmail()) == null){
-                returnMap.put("mess", "Email is not activated or account does not exist");
-                return returnMap;
+                throw new CustomException("EMAIL_NOT_ACTIVATED_OR_NOT_EXISTS");
             }
         }
         try {
@@ -145,6 +146,18 @@ public class AccountServiceImpl implements AccountService {
             role = "ADMIN";
         else role = "CUSTOMER";
 
+        if(role.equalsIgnoreCase("SUPER_ADMIN") ||
+                role.equalsIgnoreCase("ADMIN")){
+            Staff staff=staffRepository.findByEmail(loginDTO.getEmail());
+            returnMap.put("name", staff.getName());
+            returnMap.put("email", staff.getEmail());
+            returnMap.put("image", staff.getImage());
+        }else if(role.equalsIgnoreCase("CUSTOMER")){
+            Customer customer=customerRepository.findByEmail(loginDTO.getEmail());
+            returnMap.put("name", customer.getName());
+            returnMap.put("email", customer.getEmail());
+            returnMap.put("image", customer.getImage());
+        }
 
         returnMap.put("role", role);
         returnMap.put("token", token);

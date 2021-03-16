@@ -17,33 +17,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class ArticleServicelmpl implements ArticleService {
+public class ArticleServiceImpI implements ArticleService {
     final
     ArticleReponsitory articleRepository;
 
-    public ArticleServicelmpl(ArticleReponsitory articleRepository) {
+    public ArticleServiceImpI(ArticleReponsitory articleRepository) {
         this.articleRepository = articleRepository;
     }
-
-    private SimpleDateFormat DATE_FORMATER = new SimpleDateFormat("yyyy/mm/dd");
-
-//    @Override
-//    public List<ArticleOutputDTO> listArticle(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration()
-//                .setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByDeletedFalse(PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else
-//            articleList = articleRepository.findByDeletedFalse();
-//        List<ArticleOutputDTO> articleOutputDTO = new ArrayList<>();
-//        for (Article article : articleList) {
-//            articleOutputDTO.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTO;
-//    }
 
     @Override
     public ResponseEntity<?> insertArticle(ArticleInsertDTO articleInsertDTO) {
@@ -112,76 +92,6 @@ public class ArticleServicelmpl implements ArticleService {
         }
     }
 
-//    @Override
-//    public List<ArticleOutputDTO> findArticleByTitleAndPhone(String search, Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByTitleLikeAndDeletedFalse
-//                    ("%" + search + "%", PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else articleList = articleRepository.findByTitleLikeAndDeletedFalse
-//                ("%" + search + "%");
-//        List<ArticleOutputDTO> ArticleOutputDTO = new ArrayList<>();
-//        for (Article article : articleList) {
-//            ArticleOutputDTO.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return ArticleOutputDTO;
-//    }
-//
-//    @Override
-//    public List<ArticleOutputDTO> findArticleByPostTimeDESC(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration()
-//                .setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByDeletedFalseOrderByPostTimeDesc(PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else
-//            articleList = articleRepository.findByDeletedFalseOrderByPostTimeDesc();
-//        List<ArticleOutputDTO> articleOutputDTO = new ArrayList<>();
-//        for (Article article : articleList) {
-//            articleOutputDTO.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTO;
-//    }
-//
-//    @Override
-//    public List<ArticleOutputDTO> findArticleByPostTimeAsc(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if (page != null && limit != null) {
-//            Page<Article> pages = articleRepository.findByDeletedFalseOrderByPostTimeAsc(PageRequest.of(page, limit));
-//            articleList = pages.toList();
-//        } else
-//            articleList = articleRepository.findByDeletedFalseOrderByPostTimeAsc();
-//        List<ArticleOutputDTO> articleOutputDTOS = new ArrayList<>();
-//        for (Article article : articleList) {
-//            articleOutputDTOS.add(modelMapper.map(article, ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTOS;
-//    }
-//
-//    @Override
-//    public List<ArticleOutputDTO> ListAriticleStatusTrue(Integer page, Integer limit) {
-//        ModelMapper modelMapper = new ModelMapper();
-//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-//        List<Article> articleList;
-//        if(page != null && limit != null){
-//            Page<Article> pages = articleRepository.findByDeletedTrue(PageRequest.of(page,limit));
-//            articleList= pages.toList();
-//        }else
-//            articleList = articleRepository.findByDeletedTrue();
-//        List<ArticleOutputDTO> articleOutputDTOS = new ArrayList<>();
-//        for (Article article: articleList){
-//            articleOutputDTOS.add(modelMapper.map(article,ArticleOutputDTO.class));
-//        }
-//        return articleOutputDTOS;
-//    }
-
     @Override
     public List<ArticleOutputDTO> filterArticle(Boolean status,
                                                 Long start, Long end,
@@ -212,15 +122,11 @@ public class ArticleServicelmpl implements ArticleService {
         }
 
         //filter by ward - district -city
-        if (cityId != null && districtId != null && wardId != null) {
-            List<Article> articles1 = articleRepository.
-                    findByWard_District_City_CityIdAndWard_District_DistrictIdAndWard_WardId
-                            (cityId, districtId, wardId);
+        if (wardId != null) {
+            List<Article> articles1 = articleRepository.findByWard_WardId(wardId);
             articles = filter(articles1, articles);
-        } else if (cityId != null && districtId != null) {
-            List<Article> articles1 = articleRepository.
-                    findByWard_District_City_CityIdAndWard_District_DistrictId
-                            (cityId, districtId);
+        } else if (districtId != null) {
+            List<Article> articles1 = articleRepository.findByWard_District_DistrictId(districtId);
             articles = filter(articles1, articles);
         } else if (cityId != null) {
             List<Article> articles1 = articleRepository.findByWard_District_City_CityId(cityId);
@@ -249,7 +155,6 @@ public class ArticleServicelmpl implements ArticleService {
         if (page != null && limit != null) {
             articles = pageable(articles, page, limit);
         }
-
         return convertToDTO(articles);
     }
 

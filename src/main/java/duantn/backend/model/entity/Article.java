@@ -52,11 +52,11 @@ public class Article extends BaseEntity implements Serializable {
     private boolean isVip;
 
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "serviceId")
     private Service service;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "roommateId")
     private Roommate roommate;
 

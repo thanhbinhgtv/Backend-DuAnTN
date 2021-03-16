@@ -34,8 +34,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
             response.getOutputStream().write(body);
 
+            System.out.println("!= null");
+
         } else {
 
+            System.out.println("null");
             if (authException.getCause() != null) {
                 message = authException.getCause().toString() + " " + authException.getMessage();
             } else {

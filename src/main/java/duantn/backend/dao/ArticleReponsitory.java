@@ -43,14 +43,11 @@ public interface ArticleReponsitory extends JpaRepository<Article, Integer> {
     List<Article> findByPostTimeGreaterThanEqualAndPostTimeIsLessThanEqual
             (Date minDate, Date maxDate);
 
-    List<Article> findByWard_District_City_CityIdAndWard_District_DistrictIdAndWard_WardId
-            (Integer cityId, Integer districtId, Integer wardId);
+    List<Article> findByWard_WardId(Integer wardId);
 
-    List<Article> findByWard_District_City_CityIdAndWard_District_DistrictId
-            (Integer cityId, Integer districtId);
+    List<Article> findByWard_District_DistrictId(Integer districtId);
 
-    List<Article> findByWard_District_City_CityId
-            (Integer cityId);
+    List<Article> findByWard_District_City_CityId(Integer cityId);
 
     List<Article> findByTitleLikeOrPhoneLike(String title, String phone);
 }

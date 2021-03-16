@@ -51,6 +51,9 @@ public class Customer extends BaseEntity implements Serializable {
     @Column(nullable = true, unique = true)
     private String token;
 
+    @Column(nullable = true)
+    private String image;
+
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<FavoriteArticle> favoriteArticles;
 
