@@ -1,10 +1,10 @@
 package duantn.backend.model.entity;
 
+import duantn.backend.helper.DateHeper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -43,24 +43,20 @@ public class Article extends BaseEntity implements Serializable {
     private Boolean status;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "MM/dd/yyyy")
-    private Date postTime;
+    private Date postTime = DateHeper.now();
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "MM/dd/yyyy")
     private Date expiryDate;
 
     @Column(nullable = false)
     private boolean isVip;
 
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "serviceId")
     private Service service;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "roommateId")
     private Roommate roommate;
 
