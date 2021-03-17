@@ -67,14 +67,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message customerSignup(SignupDTO signupDTO, HttpServletRequest request) {
+    public Message customerSignup(SignupDTO signupDTO, HttpServletRequest request) throws CustomException{
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
 
         if (customerRepository.findByEmail(signupDTO.getEmail()) != null
                 || staffRepository.findByEmail(signupDTO.getEmail()) != null)
-            return new Message("Email is already in use");
+            throw new CustomException("EMAIL_IS_ALREADY_IN_USE");
 
         //create token
         String token;
@@ -104,17 +104,17 @@ public class AccountServiceImpl implements AccountService {
 
     //về sau chuyển thành void, return redirect
     @Override
-    public Message confirmEmail(String token, String email) {
+    public Message confirmEmail(String token, String email) throws CustomException{
         Customer customer = customerRepository.findByToken(token);
         if (customer != null) {
-            if (!customer.getEmail().equals(email)) return new Message("Email is not correct");
+            if (!customer.getEmail().equals(email)) throw new CustomException("EMAIL_IS_NOT_ CORRECT");
             customer.setEnabled(true);
             customer.setToken(null);
             customerRepository.save(customer);
 
             //nen lam redirect
             return new Message("Confirm email successfully");
-        } else return new Message("Confirm failed");
+        } else throw new CustomException("CONFIRM_EMAIL_FAILED");
     }
 
     @Override
@@ -178,7 +178,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message forgotPassword(String email) {
+    public Message forgotPassword(String email) throws CustomException{
         Staff staff = null;
         staff=staffRepository.findByEmail(email);
         Customer customer = null;
@@ -194,7 +194,7 @@ public class AccountServiceImpl implements AccountService {
             staff.setToken(token);
             staffRepository.save(staff);
         } else if (customer != null) {
-            if (!customer.getEnabled()) return new Message("Email is not activated");
+            if (!customer.getEnabled()) throw new CustomException("EMAIL_IS_NOT_ACTIVATED");
             while (true) {
                 token = randomAlphaNumeric(31);
                 if (customerRepository.findByToken(token) == null) break;
@@ -202,7 +202,7 @@ public class AccountServiceImpl implements AccountService {
             customer.setToken(token);
             customerRepository.save(customer);
         } else {
-            return new Message("Email not found");
+            throw new CustomException("EMAIL_NOT_FOUND");
         }
         //send mail
         mailSender.send(
@@ -217,24 +217,24 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message resetPassword(ResetPasswordDTO resetPasswordDTO) {
+    public Message resetPassword(ResetPasswordDTO resetPasswordDTO) throws CustomException{
         Staff staff = null;
         Customer customer = null;
         staff = staffRepository.findByToken(resetPasswordDTO.getToken());
         if (staff == null) customer = customerRepository.findByToken(resetPasswordDTO.getToken());
         if (staff != null) {
-            if (!staff.getEmail().equals(resetPasswordDTO.getEmail())) return new Message("Email is not correct");
+            if (!staff.getEmail().equals(resetPasswordDTO.getEmail())) throw new CustomException("EMAIL_IS_NOT_CORRECT");
             staff.setPass(passwordEncoder.encode(resetPasswordDTO.getPassword()));
             staff.setToken(null);
             staffRepository.save(staff);
             return new Message("Refresh password successfully");
         } else if (customer != null) {
-            if (!customer.getEmail().equals(resetPasswordDTO.getEmail())) return new Message("Email is not correct");
+            if (!customer.getEmail().equals(resetPasswordDTO.getEmail())) throw new CustomException("EMAIL_IS_NOT_CORRECT");
             customer.setPass(passwordEncoder.encode(resetPasswordDTO.getPassword()));
             customer.setToken(null);
             customerRepository.save(customer);
             return new Message("Refresh password successfully");
-        } else return new Message("Refresh password failed");
+        } else throw new CustomException("REFRESH_PASSWORD_FAILED");
     }
 
 

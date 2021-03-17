@@ -1,5 +1,6 @@
 package duantn.backend.controller.account;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.authentication.CustomUserDetailsService;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.model.dto.input.LoginDTO;
@@ -33,13 +34,13 @@ public class Account {
 
 
     @PostMapping("/sign-up")
-    public Message customerSignup(@RequestBody SignupDTO signupDTO, HttpServletRequest request) {
+    public Message customerSignup(@RequestBody SignupDTO signupDTO, HttpServletRequest request) throws CustomException{
         return accountService.customerSignup(signupDTO, request);
     }
 
     @GetMapping("/confirm")
     public Message confirmEmail(@RequestParam(value = "token-customer") String token,
-                                @RequestParam String email) {
+                                @RequestParam String email) throws CustomException{
         return accountService.confirmEmail(token, email);
     }
 
@@ -58,12 +59,12 @@ public class Account {
     }
 
     @GetMapping("/forgot")
-    public Message forgotPassword(@RequestParam String email){
+    public Message forgotPassword(@RequestParam String email) throws CustomException {
         return accountService.forgotPassword(email);
     }
 
     @PostMapping("/reset-password")
-    public Message resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO){
+    public Message resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) throws CustomException{
         return accountService.resetPassword(resetPasswordDTO);
     }
 }
