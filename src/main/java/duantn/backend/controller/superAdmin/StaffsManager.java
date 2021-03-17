@@ -1,9 +1,11 @@
 package duantn.backend.controller.superAdmin;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
+import duantn.backend.model.entity.Customer;
 import duantn.backend.service.StaffService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,25 +38,27 @@ public class StaffsManager {
 
     //    thêm nhân viên	Post/super-admin/staffs
     @PostMapping("/staffs")
-    public ResponseEntity<?> insertStaff(@RequestBody StaffInsertDTO staffInsertDTO) {
+    public ResponseEntity<?> insertStaff(@RequestBody StaffInsertDTO staffInsertDTO)
+            throws CustomException {
         return staffService.insertStaff(staffInsertDTO);
     }
 
     //    cập nhật thông tin nhân viên	Put/super-admin/staffs
     @PutMapping("/staffs")
-    public ResponseEntity<?> updateStaff(@RequestBody StaffUpdateDTO staffUpdateDTO) {
+    public ResponseEntity<?> updateStaff(@RequestBody StaffUpdateDTO staffUpdateDTO)
+    throws CustomException {
         return staffService.updateStaff(staffUpdateDTO);
     }
 
     //    block nhân viên	GET/super-admin/staffs/block/{id}
     @DeleteMapping("/staffs/{id}")
-    public Message blockStaff(@PathVariable Integer id) {
+    public Message blockStaff(@PathVariable Integer id) throws CustomException{
         return staffService.blockStaff(id);
     }
 
     //    active nhân viên	DELETE/super-admin/staffs/block/{id}
     @GetMapping("/staffs/active/{id}")
-    public Message activeStaff(@PathVariable Integer id) {
+    public Message activeStaff(@PathVariable Integer id) throws CustomException{
         return staffService.activeStaff(id);
     }
 

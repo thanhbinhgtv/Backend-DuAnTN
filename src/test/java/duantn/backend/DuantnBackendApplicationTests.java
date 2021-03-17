@@ -1,5 +1,6 @@
 package duantn.backend;
 
+import duantn.backend.authentication.CustomException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,13 +16,12 @@ class DuantnBackendApplicationTests {
     ApplicationContext applicationContext;
 
     @Test
-    void contextLoads() {
-        System.out.println("context path:" +servletContext.getContextPath());
-        System.out.println("getServletContextName():" +servletContext.getServletContextName());
-        System.out.println("getServerInfo(): "+servletContext.getServerInfo());
-
-        System.out.println(applicationContext.getApplicationName());
-        System.out.println(applicationContext.getDisplayName());
+    void contextLoads() throws CustomException{
+        System.out.println("1");
+        System.out.println("2");
+        if(true)
+        throw new CustomException("Loi");
+        System.out.println("3");
     }
 
 }

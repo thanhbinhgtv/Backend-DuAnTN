@@ -1,24 +1,20 @@
 package duantn.backend.service.impl;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
-import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -93,7 +89,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) {
+    public ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws CustomException{
         try {
             if(customerRepository.findByEmail(staffInsertDTO.getEmail())!=null)
                 return ResponseEntity.ok(new Message("Email is already in use"));
@@ -107,12 +103,12 @@ public class StaffServiceImpl implements StaffService {
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.ok(new Message("Insert failed"));
+            throw new CustomException("Error: "+ e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO) {
+    public ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO) throws CustomException{
         try {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
@@ -125,14 +121,14 @@ public class StaffServiceImpl implements StaffService {
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.ok(new Message("Update failed"));
+            throw new CustomException("Error: "+e.getMessage());
         }
     }
 
     @Override
-    public Message blockStaff(Integer id) {
+    public Message blockStaff(Integer id) throws CustomException{
         Staff staff = staffRepository.findByStaffIdAndDeletedFalse(id);
-        if (staff == null) return new Message("Block staff id: " + id + " failed");
+        if (staff == null) throw new CustomException("Error: staff id "+id+" not found");
         else {
             staff.setDeleted(true);
             staffRepository.save(staff);
@@ -141,9 +137,9 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Message activeStaff(Integer id) {
+    public Message activeStaff(Integer id) throws CustomException{
         Optional<Staff> optionalStaff = staffRepository.findById(id);
-        if (!optionalStaff.isPresent()) return new Message("StaffId: " + id + " is not found");
+        if (!optionalStaff.isPresent()) throw new CustomException("Error: staffId: " + id + " is not found");
         else {
             optionalStaff.get().setDeleted(false);
             staffRepository.save(optionalStaff.get());
@@ -160,7 +156,7 @@ public class StaffServiceImpl implements StaffService {
             return ResponseEntity.ok(modelMapper.map(staffRepository.findByStaffIdAndDeletedFalse(id),
                     StaffOutputDTO.class));
         } catch (Exception e) {
-            return ResponseEntity.ok(new Message("StaffId: " + id + " is not found"));
+            return ResponseEntity.badRequest().body(new Message("Error: staffId: " + id + " is not found"));
         }
     }
 
