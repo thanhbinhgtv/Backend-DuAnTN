@@ -72,6 +72,10 @@ public class AccountServiceImpl implements AccountService {
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
 
+        //validate
+        String numberMatcher="[0-9]+";
+        if(!signupDTO.getPhone().matches(numberMatcher))
+            throw new CustomException("PHONE_MUST_BE_NUMBER");
         if (customerRepository.findByEmail(signupDTO.getEmail()) != null
                 || staffRepository.findByEmail(signupDTO.getEmail()) != null)
             throw new CustomException("EMAIL_IS_ALREADY_IN_USE");
