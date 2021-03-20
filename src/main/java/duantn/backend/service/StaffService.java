@@ -22,7 +22,7 @@ public interface StaffService {
                                    @RequestParam(required = false) Integer limit);
 
     //    thêm nhân viên	Post/super-admin/staffs
-    ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws CustomException;
+    ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws Exception;
 
     //    cập nhật thông tin nhân viên	Put/super-admin/staffs
     ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO) throws CustomException;

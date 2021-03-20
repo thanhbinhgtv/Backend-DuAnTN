@@ -10,6 +10,7 @@ import duantn.backend.service.StaffService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -38,14 +39,14 @@ public class StaffsManager {
 
     //    thêm nhân viên	Post/super-admin/staffs
     @PostMapping("/staffs")
-    public ResponseEntity<?> insertStaff(@RequestBody StaffInsertDTO staffInsertDTO)
-            throws CustomException {
+    public ResponseEntity<?> insertStaff(@Valid @RequestBody StaffInsertDTO staffInsertDTO)
+            throws Exception {
         return staffService.insertStaff(staffInsertDTO);
     }
 
     //    cập nhật thông tin nhân viên	Put/super-admin/staffs
     @PutMapping("/staffs")
-    public ResponseEntity<?> updateStaff(@RequestBody StaffUpdateDTO staffUpdateDTO)
+    public ResponseEntity<?> updateStaff(@Valid @RequestBody StaffUpdateDTO staffUpdateDTO)
     throws CustomException {
         return staffService.updateStaff(staffUpdateDTO);
     }

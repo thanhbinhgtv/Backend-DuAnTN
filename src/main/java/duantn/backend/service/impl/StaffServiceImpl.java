@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -89,10 +90,22 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws CustomException{
+    public ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws Exception{
+        //validation
+        if(customerRepository.findByEmail(staffInsertDTO.getEmail())!=null)
+            throw new CustomException("EMAIL_IS_ALREADY_IN_USE");
+        if(staffRepository.findByEmail(staffInsertDTO.getEmail())!=null)
+            throw new CustomException("EMAIL_IS_ALREADY_IN_USE");
+        String matchNumber="[0-9]+";
+        if(!staffInsertDTO.getCardId().matches(matchNumber))
+            throw new CustomException("CARD_ID_MUST_BE_NUMBER");
+        if(!staffInsertDTO.getPhone().matches(matchNumber))
+            throw new CustomException("PHONE_MUST_BE_NUMBER");
+        if(staffInsertDTO.getBirthday()>=System.currentTimeMillis())
+            throw new CustomException("BIRTHDAY_MUST_BE_IN_PAST");
+
+        //insert
         try {
-            if(customerRepository.findByEmail(staffInsertDTO.getEmail())!=null)
-                return ResponseEntity.ok(new Message("Email is already in use"));
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
@@ -102,13 +115,23 @@ public class StaffServiceImpl implements StaffService {
             Staff newStaff = staffRepository.save(staff);
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException("Error: "+ e.getMessage());
+            //e.printStackTrace();
+            throw new CustomException("INSERT_FAILED");
         }
     }
 
     @Override
     public ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO) throws CustomException{
+        //validate
+        String matchNumber="[0-9]+";
+        if(!staffUpdateDTO.getCardId().matches(matchNumber))
+            throw new CustomException("CARD_ID_MUST_BE_NUMBER");
+        if(!staffUpdateDTO.getPhone().matches(matchNumber))
+            throw new CustomException("PHONE_MUST_BE_NUMBER");
+        if(staffUpdateDTO.getBirthday()>=System.currentTimeMillis())
+            throw new CustomException("BIRTHDAY_MUST_BE_IN_PAST");
+
+        //update
         try {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
@@ -120,8 +143,8 @@ public class StaffServiceImpl implements StaffService {
             Staff newStaff = staffRepository.save(staff);
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException("Error: "+e.getMessage());
+            //e.printStackTrace();
+            throw new CustomException("UPDATE_FAILED");
         }
     }
 

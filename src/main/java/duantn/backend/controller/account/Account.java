@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -34,7 +35,7 @@ public class Account {
 
 
     @PostMapping("/sign-up")
-    public Message customerSignup(@RequestBody SignupDTO signupDTO, HttpServletRequest request) throws CustomException{
+    public Message customerSignup(@Valid @RequestBody SignupDTO signupDTO, HttpServletRequest request) throws CustomException{
         return accountService.customerSignup(signupDTO, request);
     }
 
@@ -45,7 +46,7 @@ public class Account {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody LoginDTO loginDTO) throws Exception {
+    public Map<String, String> login(@Valid @RequestBody LoginDTO loginDTO) throws Exception {
         //login danh cho khach hang ->role: customer
         //login danh cho nhan vien -> role: admin, super admin
         return accountService.login(loginDTO);
@@ -64,7 +65,7 @@ public class Account {
     }
 
     @PostMapping("/reset-password")
-    public Message resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) throws CustomException{
+    public Message resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO) throws CustomException{
         return accountService.resetPassword(resetPasswordDTO);
     }
 }
