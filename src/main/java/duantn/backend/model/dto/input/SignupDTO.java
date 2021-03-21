@@ -25,7 +25,7 @@ public class SignupDTO {
     @NotBlank(message = "Email không được trống")
     private String email;
 
-    @Size(min = 6, max = 15, message = "Mật khẩu phải có 3-15 kí tự")
+    @Size(min = 6, max = 30, message = "Mật khẩu phải có 6-30 kí tự")
     private String pass;
 
     @Size(min = 9, max = 11, message = "SĐT phải có 9-11 số")

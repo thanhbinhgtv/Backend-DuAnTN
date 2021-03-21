@@ -226,7 +226,7 @@ public class StaffServiceImpl implements StaffService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Staff newStaff=staffRepository.findByStaffIdAndDeletedFalse(id);
+            Staff newStaff=staffRepository.findById(id).get();
             StaffOutputDTO staffOutputDTO=modelMapper.map(newStaff, StaffOutputDTO.class);
             staffOutputDTO.setBirthday(newStaff.getDob().getTime());
             return ResponseEntity.ok(staffOutputDTO);

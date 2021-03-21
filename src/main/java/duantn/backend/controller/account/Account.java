@@ -1,14 +1,24 @@
 package duantn.backend.controller.account;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.authentication.CustomJwtAuthenticationFilter;
 import duantn.backend.authentication.CustomUserDetailsService;
 import duantn.backend.authentication.JwtUtil;
-import duantn.backend.model.dto.input.LoginDTO;
-import duantn.backend.model.dto.input.ResetPasswordDTO;
-import duantn.backend.model.dto.input.SignupDTO;
+import duantn.backend.dao.StaffRepository;
+import duantn.backend.model.dto.input.*;
+import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.dto.output.Message;
+import duantn.backend.model.dto.output.StaffOutputDTO;
+import duantn.backend.model.entity.Staff;
 import duantn.backend.service.AccountService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,11 +38,15 @@ public class Account {
 
     private final JwtUtil jwtTokenUtil;
 
-    public Account(AccountService accountService, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil) {
+    final
+    StaffRepository staffRepository;
+
+    public Account(AccountService accountService, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil, StaffRepository staffRepository) {
         this.accountService = accountService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtTokenUtil = jwtTokenUtil;
+        this.staffRepository = staffRepository;
     }
 
 
@@ -69,5 +83,31 @@ public class Account {
     @PostMapping("/reset-password")
     public Message resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO) throws CustomException{
         return accountService.resetPassword(resetPasswordDTO);
+    }
+
+    @GetMapping("/admin/{id}")
+    public StaffOutputDTO staffProfile(@PathVariable Integer id, HttpServletRequest request)
+    throws CustomException{
+        return accountService.staffDetail(id, request);
+    }
+
+    @PostMapping("/admin/update-profile")
+    public StaffOutputDTO staffUpdateProfile(@RequestBody StaffPersonUpdateDTO staffPersonUpdateDTO,
+                                             HttpServletRequest request)
+        throws CustomException{
+        return accountService.staffUpdateProfile(staffPersonUpdateDTO, request);
+    }
+
+    @GetMapping("/customer/{id}")
+    public CustomerOutputDTO customerProfile(@PathVariable Integer id, HttpServletRequest request)
+            throws CustomException{
+        return accountService.customerProfile(id, request);
+    }
+
+    @PostMapping("/customer/update-profile")
+    public CustomerOutputDTO customerUpdateProfile(@RequestBody CustomerUpdateDTO customerUpdateDTO,
+                                             HttpServletRequest request)
+            throws CustomException{
+        return accountService.customerUpdateProfile(customerUpdateDTO, request);
     }
 }

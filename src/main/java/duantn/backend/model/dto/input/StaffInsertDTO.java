@@ -16,7 +16,7 @@ public class StaffInsertDTO {
     @NotBlank(message = "Email không được trống")
     private String email;
 
-    @Size(min = 6, max = 15, message = "Mật khẩu phải có 6-15 kí tự")
+    @Size(min = 6, max = 30, message = "Mật khẩu phải có 6-30 kí tự")
     private String pass;
 
     @Size(min = 3, max=50, message = "Tên phải có 3-50 kí tự")
