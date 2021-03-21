@@ -16,10 +16,10 @@ public interface StaffService {
     //sắp xếp theo name sort=asc, sort=desc
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
-    List<StaffOutputDTO> listStaff(@RequestParam(required = false) String search,
-                                   Boolean status, @RequestParam(required = false) String sort,
-                                   @RequestParam(required = false) Integer page,
-                                   @RequestParam(required = false) Integer limit);
+    List<StaffOutputDTO> listStaff(String search,
+                                   Boolean status, String sort,
+                                   Integer page,
+                                   Integer limit);
 
     //    thêm nhân viên	Post/super-admin/staffs
     ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws Exception;
@@ -37,5 +37,8 @@ public interface StaffService {
     ResponseEntity<?> findOneStaff(Integer id);
 
     //xóa cứng tất cả staff bị xóa mềm
-    Message deleteStaffs();
+    Message deleteAllStaffs();
+
+    //xóa cứng 1 list (mảng Integer Id) nhân viên bị xóa mềm
+    Message deleteStaffs(List<Integer> list) throws CustomException;
 }

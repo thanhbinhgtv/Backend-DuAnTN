@@ -5,24 +5,24 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class StaffOutputDTO {
-    private Integer staffId;
+public class CustomerOutputDTO {
+    private Integer customerId;
+
+    private String name;
+
+    private boolean gender;
 
     private String email;
 
-    private String name;
+    private String address;
+
+    private String phone;
 
     private String cardId;
 
     private Long birthday;
 
-    private Boolean gender;
-
-    private Boolean role;
-
-    private String address;
-
-    private String phone;
+    private int accountBalance;
 
     private String image;
 }

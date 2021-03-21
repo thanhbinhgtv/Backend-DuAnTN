@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 
@@ -41,6 +42,9 @@ public class Customer extends BaseEntity implements Serializable {
 
     @Column(nullable = true)
     private String cardId;
+
+    @Column
+    private Date dob;
 
     @Column(nullable = false)
     private int accountBalance;
