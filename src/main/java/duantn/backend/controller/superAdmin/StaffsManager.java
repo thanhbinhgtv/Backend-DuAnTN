@@ -31,10 +31,11 @@ public class StaffsManager {
     @GetMapping("/staffs")
     public List<StaffOutputDTO> listStaffs
             (@RequestParam(required = false) String search,
+             @RequestParam(required = false) Boolean deleted,
              @RequestParam(required = false) String sort,
-             @RequestParam(required = false) Integer page,
-             @RequestParam(required = false) Integer limit) {
-        return staffService.listStaff(search, sort, page, limit);
+             @RequestParam Integer page,
+             @RequestParam Integer limit) {
+        return staffService.listStaff(search, deleted, sort, page, limit);
     }
 
     //    thêm nhân viên	Post/super-admin/staffs

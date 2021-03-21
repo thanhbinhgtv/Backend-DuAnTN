@@ -26,10 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -75,10 +72,10 @@ public class AccountServiceImpl implements AccountService {
         //validate
         String numberMatcher="[0-9]+";
         if(!signupDTO.getPhone().matches(numberMatcher))
-            throw new CustomException("PHONE_MUST_BE_NUMBER");
+            throw new CustomException("Số điện thoại phải là số");
         if (customerRepository.findByEmail(signupDTO.getEmail()) != null
                 || staffRepository.findByEmail(signupDTO.getEmail()) != null)
-            throw new CustomException("EMAIL_IS_ALREADY_IN_USE");
+            throw new CustomException("Email đã được sử dụng");
 
         //create token
         String token;
@@ -103,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
                         Helper.getHostUrl(request.getRequestURL().toString(), "/sign-up") + "/confirm?token-customer=" + token
                         + "&email=" + signupDTO.getEmail()
         );
-        return new Message("Please check your mail to confirm");
+        return new Message("Bạn hãy check mail để xác nhận");
     }
 
     //về sau chuyển thành void, return redirect
@@ -111,14 +108,14 @@ public class AccountServiceImpl implements AccountService {
     public Message confirmEmail(String token, String email) throws CustomException{
         Customer customer = customerRepository.findByToken(token);
         if (customer != null) {
-            if (!customer.getEmail().equals(email)) throw new CustomException("EMAIL_IS_NOT_ CORRECT");
+            if (!customer.getEmail().equals(email)) throw new CustomException("Email không chính xác");
             customer.setEnabled(true);
             customer.setToken(null);
             customerRepository.save(customer);
 
             //nen lam redirect
-            return new Message("Confirm email successfully");
-        } else throw new CustomException("CONFIRM_EMAIL_FAILED");
+            return new Message("Xác nhận email thành công");
+        } else throw new CustomException("Xác nhận email thất bại");
     }
 
     @Override
@@ -128,16 +125,16 @@ public class AccountServiceImpl implements AccountService {
         if (customerRepository.findByEmail(loginDTO.getEmail()) == null ||
                 !customerRepository.findByEmail(loginDTO.getEmail()).getEnabled()) {
             if(staffRepository.findByEmail(loginDTO.getEmail()) == null){
-                throw new CustomException("EMAIL_NOT_ACTIVATED_OR_NOT_EXISTS");
+                throw new CustomException("Email chưa kích hoạt hoặc không tồn tại");
             }
         }
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDTO.getEmail(), loginDTO.getPass()));
         } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
+            throw new Exception("Người dùng vô hiệu", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            throw new Exception("Thông tin không hợp lệ", e);
         }
         final UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.getEmail());
 
@@ -198,7 +195,7 @@ public class AccountServiceImpl implements AccountService {
             staff.setToken(token);
             staffRepository.save(staff);
         } else if (customer != null) {
-            if (!customer.getEnabled()) throw new CustomException("EMAIL_IS_NOT_ACTIVATED");
+            if (!customer.getEnabled()) throw new CustomException("Email chưa được xác nhận");
             while (true) {
                 token = randomAlphaNumeric(31);
                 if (customerRepository.findByToken(token) == null) break;
@@ -206,7 +203,7 @@ public class AccountServiceImpl implements AccountService {
             customer.setToken(token);
             customerRepository.save(customer);
         } else {
-            throw new CustomException("EMAIL_NOT_FOUND");
+            throw new CustomException("Email không tồn tại");
         }
         //send mail
         mailSender.send(
@@ -217,7 +214,7 @@ public class AccountServiceImpl implements AccountService {
                         "dia chi frontend" + "/renew-password?token=" + token
                         + "&email=" + email
         );
-        return new Message("Successfully, please check mail to next step");
+        return new Message("Thành công, bạn hãy check mail để tiếp tục");
     }
 
     @Override
@@ -227,18 +224,18 @@ public class AccountServiceImpl implements AccountService {
         staff = staffRepository.findByToken(resetPasswordDTO.getToken());
         if (staff == null) customer = customerRepository.findByToken(resetPasswordDTO.getToken());
         if (staff != null) {
-            if (!staff.getEmail().equals(resetPasswordDTO.getEmail())) throw new CustomException("EMAIL_IS_NOT_CORRECT");
+            if (!staff.getEmail().equals(resetPasswordDTO.getEmail())) throw new CustomException("Email không chính xác");
             staff.setPass(passwordEncoder.encode(resetPasswordDTO.getPassword()));
             staff.setToken(null);
             staffRepository.save(staff);
-            return new Message("Refresh password successfully");
+            return new Message("Làm mới mật khẩu thành công");
         } else if (customer != null) {
-            if (!customer.getEmail().equals(resetPasswordDTO.getEmail())) throw new CustomException("EMAIL_IS_NOT_CORRECT");
+            if (!customer.getEmail().equals(resetPasswordDTO.getEmail())) throw new CustomException("Email không chính xác");
             customer.setPass(passwordEncoder.encode(resetPasswordDTO.getPassword()));
             customer.setToken(null);
             customerRepository.save(customer);
-            return new Message("Refresh password successfully");
-        } else throw new CustomException("REFRESH_PASSWORD_FAILED");
+            return new Message("Làm mới mật khẩu thành cồng");
+        } else throw new CustomException("Làm mới mật khẩu thất bại");
     }
 
 

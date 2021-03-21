@@ -17,7 +17,7 @@ public interface StaffService {
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
     List<StaffOutputDTO> listStaff(@RequestParam(required = false) String search,
-                                   @RequestParam(required = false) String sort,
+                                   Boolean status, @RequestParam(required = false) String sort,
                                    @RequestParam(required = false) Integer page,
                                    @RequestParam(required = false) Integer limit);
 

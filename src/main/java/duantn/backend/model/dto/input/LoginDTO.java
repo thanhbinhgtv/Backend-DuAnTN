@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Setter
@@ -13,9 +14,10 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginDTO {
-    @Email(message = "EMAIL_IS_NOT_VALID")
+    @Email(message = "Email không đúng định dạng")
+    @NotBlank(message = "Email không được trống")
     String email;
 
-    @Size(min = 6, max = 15, message = "PASSWORD_MUST_BE_3_TO_15_CHARACTER")
+    @Size(min = 6, max = 15, message = "Mật khẩu phải có 6-15 kí tự")
     String pass;
 }

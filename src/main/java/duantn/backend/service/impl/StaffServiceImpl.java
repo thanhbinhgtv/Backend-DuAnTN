@@ -11,14 +11,18 @@ import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StaffServiceImpl implements StaffService {
@@ -40,41 +44,76 @@ public class StaffServiceImpl implements StaffService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
-    public List<StaffOutputDTO> listStaff(String search, String sort,
+    public List<StaffOutputDTO> listStaff(String search, Boolean status, String sort,
                                           Integer page, Integer limit) {
-        //find all and sort
-        List<Staff> staffList = new ArrayList<>();
-        if(sort!=null && !sort.equals("")){
+        if(search==null || search.trim().equals("")) search="";
+        Page<Staff> staffPage;
+        if(sort==null || sort.equals("")){
+            if(status!=null){
+                if(status)
+                    staffPage=staffRepository.
+                            findByNameLikeAndDeletedTrueOrEmailLikeAndDeletedTrueOrPhoneLikeAndDeletedTrue(
+                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    PageRequest.of(page, limit)
+                            );
+                else
+                    staffPage=staffRepository.
+                            findByNameLikeAndDeletedFalseOrEmailLikeAndDeletedFalseOrPhoneLikeAndDeletedFalse(
+                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    PageRequest.of(page, limit)
+                            );
+            }else
+                staffPage=staffRepository.
+                        findByNameLikeOrEmailLikeOrPhoneLike(
+                                "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                PageRequest.of(page, limit)
+                        );
+        }else{
             if(sort.equalsIgnoreCase("desc")){
-                staffList=staffRepository.findByDeletedFalse(Sort.by("name").descending());
+                if(status!=null){
+                    if(status)
+                        staffPage=staffRepository.
+                                findByNameLikeAndDeletedTrueOrEmailLikeAndDeletedTrueOrPhoneLikeAndDeletedTrue(
+                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        PageRequest.of(page, limit, Sort.by("name").descending())
+                                );
+                    else
+                        staffPage=staffRepository.
+                                findByNameLikeAndDeletedFalseOrEmailLikeAndDeletedFalseOrPhoneLikeAndDeletedFalse(
+                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        PageRequest.of(page, limit, Sort.by("name").descending())
+                                );
+                }else
+                    staffPage=staffRepository.
+                            findByNameLikeOrEmailLikeOrPhoneLike(
+                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    PageRequest.of(page, limit, Sort.by("name").descending())
+                            );
             }else{
-                staffList=staffRepository.findByDeletedFalse(Sort.by("name").ascending());
+                if(status!=null){
+                    if(status)
+                        staffPage=staffRepository.
+                                findByNameLikeAndDeletedTrueOrEmailLikeAndDeletedTrueOrPhoneLikeAndDeletedTrue(
+                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        PageRequest.of(page, limit, Sort.by("name").ascending())
+                                );
+                    else
+                        staffPage=staffRepository.
+                                findByNameLikeAndDeletedFalseOrEmailLikeAndDeletedFalseOrPhoneLikeAndDeletedFalse(
+                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        PageRequest.of(page, limit, Sort.by("name").ascending())
+                                );
+                }else
+                    staffPage=staffRepository.
+                            findByNameLikeOrEmailLikeOrPhoneLike(
+                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    PageRequest.of(page, limit, Sort.by("name").ascending())
+                            );
             }
-        }else staffList=staffRepository.findByDeletedFalse();
 
-        //search
-        if(search!=null && !search.equals("")){
-            Set<Staff> searchStaff=new HashSet<>();
-            List<Staff> staffName=staffRepository.findByNameLikeAndDeletedFalse("%"+search+"%");
-            List<Staff> staffNameFilter=filter(staffName, staffList);
-            searchStaff.addAll(staffNameFilter);
-
-            List<Staff> staffEmail=staffRepository.findByEmailLikeAndDeletedFalse("%"+search+"%");
-            List<Staff> staffEmailFilter=filter(staffEmail, staffList);
-            searchStaff.addAll(staffEmailFilter);
-
-            List<Staff> staffPhone=staffRepository.findByPhoneLikeAndDeletedFalse("%"+search+"%");
-            List<Staff> staffPhoneFilter=filter(staffPhone, staffList);
-            searchStaff.addAll(staffPhoneFilter);
-
-            List<Staff> searchStaffList=new ArrayList<>(searchStaff);
-            staffList=filter(staffList, searchStaffList);
         }
 
-        //pageable
-        if(page!=null && limit!=null){
-            staffList=pageable(staffList, page,limit);
-        }
+        List<Staff> staffList=staffPage.toList();
 
         //convert sang StaffOutputDTO
         ModelMapper modelMapper = new ModelMapper();
@@ -93,16 +132,16 @@ public class StaffServiceImpl implements StaffService {
     public ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws Exception{
         //validation
         if(customerRepository.findByEmail(staffInsertDTO.getEmail())!=null)
-            throw new CustomException("EMAIL_IS_ALREADY_IN_USE");
+            throw new CustomException("Email đã khách hàng sử dụng");
         if(staffRepository.findByEmail(staffInsertDTO.getEmail())!=null)
-            throw new CustomException("EMAIL_IS_ALREADY_IN_USE");
+            throw new CustomException("Email đã được nhân viên sử dụng");
         String matchNumber="[0-9]+";
         if(!staffInsertDTO.getCardId().matches(matchNumber))
-            throw new CustomException("CARD_ID_MUST_BE_NUMBER");
+            throw new CustomException("Số CMND phải là số");
         if(!staffInsertDTO.getPhone().matches(matchNumber))
-            throw new CustomException("PHONE_MUST_BE_NUMBER");
+            throw new CustomException("Số điện thoại phải là số");
         if(staffInsertDTO.getBirthday()>=System.currentTimeMillis())
-            throw new CustomException("BIRTHDAY_MUST_BE_IN_PAST");
+            throw new CustomException("Ngày sinh phải trong quá khứ");
 
         //insert
         try {
@@ -116,7 +155,7 @@ public class StaffServiceImpl implements StaffService {
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
             //e.printStackTrace();
-            throw new CustomException("INSERT_FAILED");
+            throw new CustomException("Thêm mới nhân viên thất bại");
         }
     }
 
@@ -125,11 +164,11 @@ public class StaffServiceImpl implements StaffService {
         //validate
         String matchNumber="[0-9]+";
         if(!staffUpdateDTO.getCardId().matches(matchNumber))
-            throw new CustomException("CARD_ID_MUST_BE_NUMBER");
+            throw new CustomException("Số CMND phải là số");
         if(!staffUpdateDTO.getPhone().matches(matchNumber))
-            throw new CustomException("PHONE_MUST_BE_NUMBER");
+            throw new CustomException("Số điện thoại phải là số");
         if(staffUpdateDTO.getBirthday()>=System.currentTimeMillis())
-            throw new CustomException("BIRTHDAY_MUST_BE_IN_PAST");
+            throw new CustomException("Ngày sinh phải trong quá khứ");
 
         //update
         try {
@@ -144,29 +183,29 @@ public class StaffServiceImpl implements StaffService {
             return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
         } catch (Exception e) {
             //e.printStackTrace();
-            throw new CustomException("UPDATE_FAILED");
+            throw new CustomException("Cập nhật nhân viên thất bại");
         }
     }
 
     @Override
     public Message blockStaff(Integer id) throws CustomException{
         Staff staff = staffRepository.findByStaffIdAndDeletedFalse(id);
-        if (staff == null) throw new CustomException("Error: staff id "+id+" not found");
+        if (staff == null) throw new CustomException("Lỗi: id "+id+" không tồn tại");
         else {
             staff.setDeleted(true);
             staffRepository.save(staff);
-            return new Message("Block staff id: " + id + " successfully");
+            return new Message("Block nhân viên id " + id + " thành công");
         }
     }
 
     @Override
     public Message activeStaff(Integer id) throws CustomException{
         Optional<Staff> optionalStaff = staffRepository.findById(id);
-        if (!optionalStaff.isPresent()) throw new CustomException("Error: staffId: " + id + " is not found");
+        if (!optionalStaff.isPresent()) throw new CustomException("Lỗi: id " + id + " không tồn tại");
         else {
             optionalStaff.get().setDeleted(false);
             staffRepository.save(optionalStaff.get());
-            return new Message("Active staff id: " + id + " successfully");
+            return new Message("Kích hoạt nhân viên id: " + id + " thành công");
         }
     }
 
@@ -179,7 +218,7 @@ public class StaffServiceImpl implements StaffService {
             return ResponseEntity.ok(modelMapper.map(staffRepository.findByStaffIdAndDeletedFalse(id),
                     StaffOutputDTO.class));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new Message("Error: staffId: " + id + " is not found"));
+            return ResponseEntity.badRequest().body(new Message("Lỗi: nhân viên id " + id + " không tồn tại"));
         }
     }
 
@@ -189,24 +228,6 @@ public class StaffServiceImpl implements StaffService {
         for(Staff staff:staffList){
             staffRepository.delete(staff);
         }
-        return new Message("Deleted successfully");
-    }
-
-    public List<Staff> filter(List<Staff> minList, List<Staff> maxList) {
-        List<Staff> newList = new ArrayList<>();
-        for (Staff article : minList) {
-            if (maxList.contains(article)) newList.add(article);
-        }
-        return newList;
-    }
-
-    private List<Staff> pageable(List<Staff> users, Integer page, Integer limit) {
-        List<Staff> returnList = new ArrayList<>();
-        if (page * limit > users.size() - 1) return returnList;
-        int endIndex = Math.min((page + 1) * limit, users.size());
-        for (int i = page * limit; i < endIndex; i++) {
-            returnList.add(users.get(i));
-        }
-        return returnList;
+        return new Message("Xóa tất cả nhân viên bị xóa mềm thành công");
     }
 }

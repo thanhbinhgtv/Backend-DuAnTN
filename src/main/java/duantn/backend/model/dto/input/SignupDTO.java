@@ -15,19 +15,19 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SignupDTO {
-    @Size(min = 3, max=50, message = "NAME_MUST_BE_3_TO_50_CHARACTER")
+    @Size(min = 3, max=50, message = "Tên phải có 3-50 kí tự")
     private String name;
 
-    @NotNull(message = "GENDER_IS_NOT_NULL")
+    @NotNull(message = "Giới tính không được trống")
     private Boolean gender;
 
-    @Email(message = "EMAIL_IS_NOT_VALID")
-    @NotBlank(message = "EMAIL_IS_NOT_NULL")
+    @Email(message = "Email không đúng định dạng")
+    @NotBlank(message = "Email không được trống")
     private String email;
 
-    @Size(min = 6, max = 15, message = "PASSWORD_MUST_BE_3_TO_15_CHARACTER")
+    @Size(min = 6, max = 15, message = "Mật khẩu phải có 3-15 kí tự")
     private String pass;
 
-    @Size(min = 9, max = 11, message = "PHONE_MUST_BE_9_TO_11_NUMBER")
+    @Size(min = 9, max = 11, message = "SĐT phải có 9-11 số")
     private String phone;
 }
