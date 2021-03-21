@@ -15,6 +15,6 @@ public class ResetPasswordDTO {
     String token;
     String email;
 
-    @Size(min = 6, max = 15, message = "Mật khẩu phải có 6-15 kí tự")
+    @Size(min = 6, max = 30, message = "Mật khẩu phải có 6-30 kí tự")
     String password;
 }

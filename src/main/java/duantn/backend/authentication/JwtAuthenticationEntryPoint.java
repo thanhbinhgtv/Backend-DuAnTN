@@ -30,7 +30,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         if (exception != null) {
 
-            byte[] body = new ObjectMapper().writeValueAsBytes(Collections.singletonMap("cause", exception.toString()));
+            byte[] body = new ObjectMapper().writeValueAsBytes(Collections.singletonMap("mess", exception.toString()));
 
             response.getOutputStream().write(body);
 
@@ -45,7 +45,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 message = authException.getMessage();
             }
 
-            byte[] body = new ObjectMapper().writeValueAsBytes(Collections.singletonMap("error", message));
+            byte[] body = new ObjectMapper().writeValueAsBytes(Collections.singletonMap("mess", message));
 
             response.getOutputStream().write(body);
         }
