@@ -7,6 +7,7 @@ import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
+import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
 import org.modelmapper.ModelMapper;
@@ -122,7 +123,7 @@ public class StaffServiceImpl implements StaffService {
         List<StaffOutputDTO> staffOutputDTOList = new ArrayList<>();
         for (Staff staff : staffList) {
             StaffOutputDTO staffOutputDTO=modelMapper.map(staff, StaffOutputDTO.class);
-            staffOutputDTO.setDob(staff.getDob().getTime());
+            staffOutputDTO.setBirthday(staff.getDob().getTime());
             staffOutputDTOList.add(staffOutputDTO);
         }
         return staffOutputDTOList;
@@ -152,7 +153,9 @@ public class StaffServiceImpl implements StaffService {
             staff.setDob(new Date((staffInsertDTO.getBirthday())));
             staff.setPass(passwordEncoder.encode(staffInsertDTO.getPass()));
             Staff newStaff = staffRepository.save(staff);
-            return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
+            StaffOutputDTO staffOutputDTO=modelMapper.map(newStaff, StaffOutputDTO.class);
+            staffOutputDTO.setBirthday(newStaff.getDob().getTime());
+            return ResponseEntity.ok(staffOutputDTO);
         } catch (Exception e) {
             //e.printStackTrace();
             throw new CustomException("Thêm mới nhân viên thất bại");
@@ -175,12 +178,20 @@ public class StaffServiceImpl implements StaffService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Staff staff = modelMapper.map(staffUpdateDTO, Staff.class);
-            Staff oldStaff = staffRepository.findByStaffIdAndDeletedFalse(staffUpdateDTO.getStaffId());
-            staff.setPass(oldStaff.getPass());
+            Optional<Staff> optionalStaff = staffRepository.findById(staffUpdateDTO.getStaffId());
+            Staff staff= optionalStaff.get();
+            staff.setName(staffUpdateDTO.getName());
+            staff.setCardId(staffUpdateDTO.getCardId());
             staff.setDob(new Date(staffUpdateDTO.getBirthday()));
+            staff.setGender(staffUpdateDTO.isGender());
+            staff.setRole(staffUpdateDTO.isRole());
+            staff.setAddress(staffUpdateDTO.getAddress());
+            staff.setPhone(staffUpdateDTO.getPhone());
+            staff.setImage(staffUpdateDTO.getImage());
             Staff newStaff = staffRepository.save(staff);
-            return ResponseEntity.ok(modelMapper.map(newStaff, StaffOutputDTO.class));
+            StaffOutputDTO staffOutputDTO=modelMapper.map(newStaff, StaffOutputDTO.class);
+            staffOutputDTO.setBirthday(newStaff.getDob().getTime());
+            return ResponseEntity.ok(staffOutputDTO);
         } catch (Exception e) {
             //e.printStackTrace();
             throw new CustomException("Cập nhật nhân viên thất bại");
@@ -215,19 +226,36 @@ public class StaffServiceImpl implements StaffService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            return ResponseEntity.ok(modelMapper.map(staffRepository.findByStaffIdAndDeletedFalse(id),
-                    StaffOutputDTO.class));
+            Staff newStaff=staffRepository.findByStaffIdAndDeletedFalse(id);
+            StaffOutputDTO staffOutputDTO=modelMapper.map(newStaff, StaffOutputDTO.class);
+            staffOutputDTO.setBirthday(newStaff.getDob().getTime());
+            return ResponseEntity.ok(staffOutputDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Message("Lỗi: nhân viên id " + id + " không tồn tại"));
         }
     }
 
     @Override
-    public Message deleteStaffs() {
+    public Message deleteAllStaffs() {
         List<Staff> staffList=staffRepository.findByDeletedTrue();
         for(Staff staff:staffList){
             staffRepository.delete(staff);
         }
         return new Message("Xóa tất cả nhân viên bị xóa mềm thành công");
+    }
+
+    @Override
+    public Message deleteStaffs(List<Integer> list) throws CustomException{
+        String mess="";
+        for (Integer id : list) {
+            Optional<Staff> optionalStaff=staffRepository.findById(id);
+            if(!optionalStaff.isPresent() ||
+                    !optionalStaff.get().isDeleted()) mess=mess+", "+id;
+            else
+                staffRepository.deleteById(id);
+        }
+        if(!mess.equals(""))
+            throw new CustomException("Nhân viên có id: "+mess+" không tồn tại hoặc chưa bị xóa mềm");
+        return new Message("Xóa cứng một số nhân viên bị xóa mềm thành công");
     }
 }

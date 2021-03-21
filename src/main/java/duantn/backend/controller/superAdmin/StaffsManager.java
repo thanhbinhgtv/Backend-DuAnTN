@@ -1,17 +1,23 @@
 package duantn.backend.controller.superAdmin;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.dao.StaffRepository;
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 import duantn.backend.model.entity.Customer;
+import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/super-admin")
@@ -53,7 +59,7 @@ public class StaffsManager {
     }
 
     //    block nhân viên	GET/super-admin/staffs/block/{id}
-    @DeleteMapping("/staffs/{id}")
+    @GetMapping("/staffs/block/{id}")
     public Message blockStaff(@PathVariable Integer id) throws CustomException{
         return staffService.blockStaff(id);
     }
@@ -72,8 +78,12 @@ public class StaffsManager {
 
     // xóa toàn bộ những nhân viên đã bị xóa mềm
     @GetMapping("/delete")
-    public Message deleteStaffs(){
-        return staffService.deleteStaffs();
+    public Message deleteAllStaffs(){
+        return staffService.deleteAllStaffs();
     }
 
+    @PostMapping("/delete")
+    public Message deleteStaffs(@RequestBody List<Integer> list) throws CustomException{
+        return staffService.deleteStaffs(list);
+    }
 }
