@@ -8,6 +8,7 @@ import duantn.backend.model.dto.output.StaffOutputDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface StaffService {
@@ -22,7 +23,7 @@ public interface StaffService {
                                    Integer limit);
 
     //    thêm nhân viên	Post/super-admin/staffs
-    ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws Exception;
+    Message insertStaff(StaffInsertDTO staffInsertDTO, HttpServletRequest request) throws Exception;
 
     //    cập nhật thông tin nhân viên	Put/super-admin/staffs
     ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO) throws CustomException;

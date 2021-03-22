@@ -1,13 +1,14 @@
 package duantn.backend.service.impl;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.component.MailSender;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
+import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
-import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,10 +38,18 @@ public class StaffServiceImpl implements StaffService {
     final
     CustomerRepository customerRepository;
 
-    public StaffServiceImpl(StaffRepository staffRepository, PasswordEncoder passwordEncoder, CustomerRepository customerRepository) {
+    final
+    MailSender mailSender;
+
+    final
+    Helper helper;
+
+    public StaffServiceImpl(StaffRepository staffRepository, PasswordEncoder passwordEncoder, CustomerRepository customerRepository, MailSender mailSender, Helper helper) {
         this.staffRepository = staffRepository;
         this.passwordEncoder = passwordEncoder;
         this.customerRepository = customerRepository;
+        this.mailSender = mailSender;
+        this.helper = helper;
     }
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -53,19 +63,19 @@ public class StaffServiceImpl implements StaffService {
             if(status!=null){
                 if(status)
                     staffPage=staffRepository.
-                            findByNameLikeAndDeletedTrueOrEmailLikeAndDeletedTrueOrPhoneLikeAndDeletedTrue(
+                            findByNameLikeAndDeletedTrueAndEnabledTrueOrEmailLikeAndDeletedTrueAndEnabledTrueOrPhoneLikeAndDeletedTrueAndEnabledTrue(
                                     "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                     PageRequest.of(page, limit)
                             );
                 else
                     staffPage=staffRepository.
-                            findByNameLikeAndDeletedFalseOrEmailLikeAndDeletedFalseOrPhoneLikeAndDeletedFalse(
+                            findByNameLikeAndDeletedFalseAndEnabledTrueOrEmailLikeAndDeletedFalseAndEnabledTrueOrPhoneLikeAndDeletedFalseAndEnabledTrue(
                                     "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                     PageRequest.of(page, limit)
                             );
             }else
                 staffPage=staffRepository.
-                        findByNameLikeOrEmailLikeOrPhoneLike(
+                        findByNameLikeAndEnabledTrueOrEmailLikeAndEnabledTrueOrPhoneLikeAndEnabledTrue(
                                 "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                 PageRequest.of(page, limit)
                         );
@@ -74,19 +84,19 @@ public class StaffServiceImpl implements StaffService {
                 if(status!=null){
                     if(status)
                         staffPage=staffRepository.
-                                findByNameLikeAndDeletedTrueOrEmailLikeAndDeletedTrueOrPhoneLikeAndDeletedTrue(
+                                findByNameLikeAndDeletedTrueAndEnabledTrueOrEmailLikeAndDeletedTrueAndEnabledTrueOrPhoneLikeAndDeletedTrueAndEnabledTrue(
                                         "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                         PageRequest.of(page, limit, Sort.by("name").descending())
                                 );
                     else
                         staffPage=staffRepository.
-                                findByNameLikeAndDeletedFalseOrEmailLikeAndDeletedFalseOrPhoneLikeAndDeletedFalse(
+                                findByNameLikeAndDeletedFalseAndEnabledTrueOrEmailLikeAndDeletedFalseAndEnabledTrueOrPhoneLikeAndDeletedFalseAndEnabledTrue(
                                         "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                         PageRequest.of(page, limit, Sort.by("name").descending())
                                 );
                 }else
                     staffPage=staffRepository.
-                            findByNameLikeOrEmailLikeOrPhoneLike(
+                            findByNameLikeAndEnabledTrueOrEmailLikeAndEnabledTrueOrPhoneLikeAndEnabledTrue(
                                     "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                     PageRequest.of(page, limit, Sort.by("name").descending())
                             );
@@ -94,19 +104,19 @@ public class StaffServiceImpl implements StaffService {
                 if(status!=null){
                     if(status)
                         staffPage=staffRepository.
-                                findByNameLikeAndDeletedTrueOrEmailLikeAndDeletedTrueOrPhoneLikeAndDeletedTrue(
+                                findByNameLikeAndDeletedTrueAndEnabledTrueOrEmailLikeAndDeletedTrueAndEnabledTrueOrPhoneLikeAndDeletedTrueAndEnabledTrue(
                                         "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                         PageRequest.of(page, limit, Sort.by("name").ascending())
                                 );
                     else
                         staffPage=staffRepository.
-                                findByNameLikeAndDeletedFalseOrEmailLikeAndDeletedFalseOrPhoneLikeAndDeletedFalse(
+                                findByNameLikeAndDeletedFalseAndEnabledTrueOrEmailLikeAndDeletedFalseAndEnabledTrueOrPhoneLikeAndDeletedFalseAndEnabledTrue(
                                         "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                         PageRequest.of(page, limit, Sort.by("name").ascending())
                                 );
                 }else
                     staffPage=staffRepository.
-                            findByNameLikeOrEmailLikeOrPhoneLike(
+                            findByNameLikeAndEnabledTrueOrEmailLikeAndEnabledTrueOrPhoneLikeAndEnabledTrue(
                                     "%"+search+"%", "%"+search+"%", "%"+search+"%",
                                     PageRequest.of(page, limit, Sort.by("name").ascending())
                             );
@@ -130,7 +140,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ResponseEntity<?> insertStaff(StaffInsertDTO staffInsertDTO) throws Exception{
+    public Message insertStaff(StaffInsertDTO staffInsertDTO, HttpServletRequest request) throws Exception{
         //validation
         if(customerRepository.findByEmail(staffInsertDTO.getEmail())!=null)
             throw new CustomException("Email đã khách hàng sử dụng");
@@ -144,6 +154,11 @@ public class StaffServiceImpl implements StaffService {
         if(staffInsertDTO.getBirthday()>=System.currentTimeMillis())
             throw new CustomException("Ngày sinh phải trong quá khứ");
 
+        //create token
+        String token= helper.createToken(30);
+        Date expDate = new Date(new Date().getTime() + 2 * 24 * 3600 * 1000);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
         //insert
         try {
             ModelMapper modelMapper = new ModelMapper();
@@ -152,10 +167,23 @@ public class StaffServiceImpl implements StaffService {
             Staff staff = modelMapper.map(staffInsertDTO, Staff.class);
             staff.setDob(new Date((staffInsertDTO.getBirthday())));
             staff.setPass(passwordEncoder.encode(staffInsertDTO.getPass()));
+            staff.setToken(token);
             Staff newStaff = staffRepository.save(staff);
             StaffOutputDTO staffOutputDTO=modelMapper.map(newStaff, StaffOutputDTO.class);
             staffOutputDTO.setBirthday(newStaff.getDob().getTime());
-            return ResponseEntity.ok(staffOutputDTO);
+
+            //send mail
+            mailSender.send(
+                    staffInsertDTO.getEmail(),
+                    "Xác nhận địa chỉ email",
+                    "<h2>Xác nhận địa chỉ email</h2>" +
+                            "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
+                            helper.getHostUrl(request.getRequestURL().toString(), "/super-admin") + "/confirm?token-customer=" + token
+                            + "&email=" + staffInsertDTO.getEmail()
+                            + "</br></br> <p><i style='color:red'>Thời hạn xác nhận, trước 00:00:00 ngày " +
+                            sdf.format(expDate) + "</i></p>"
+            );
+            return new Message("Bạn hãy check mail để xác nhận, trước 00:00:00 ngày " + sdf.format(expDate));
         } catch (Exception e) {
             //e.printStackTrace();
             throw new CustomException("Thêm mới nhân viên thất bại");
@@ -200,7 +228,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public Message blockStaff(Integer id) throws CustomException{
-        Staff staff = staffRepository.findByStaffIdAndDeletedFalse(id);
+        Staff staff = staffRepository.findByStaffIdAndDeletedFalseAndEnabledTrue(id);
         if (staff == null) throw new CustomException("Lỗi: id "+id+" không tồn tại");
         else {
             staff.setDeleted(true);
@@ -237,7 +265,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public Message deleteAllStaffs() {
-        List<Staff> staffList=staffRepository.findByDeletedTrue();
+        List<Staff> staffList=staffRepository.findByDeletedTrueAndEnabledTrue();
         for(Staff staff:staffList){
             staffRepository.delete(staff);
         }

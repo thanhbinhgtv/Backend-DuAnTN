@@ -179,7 +179,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Message blockCustomer(Integer id) throws CustomException{
-        Customer customer = customerRepository.findByCustomerIdAndDeletedFalse(id);
+        Customer customer = customerRepository.findByCustomerIdAndDeletedFalseAndEnabledTrue(id);
         if (customer == null) throw new CustomException("Lỗi: id "+id+" không tồn tại, hoặc đã block rồi");
         else {
             customer.setDeleted(true);
@@ -216,7 +216,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Message deleteAllCustomers() {
-        List<Customer> customerList=customerRepository.findByDeletedTrue();
+        List<Customer> customerList=customerRepository.findByDeletedTrueAndEnabledTrue();
         for(Customer customer:customerList){
             customerRepository.delete(customer);
         }

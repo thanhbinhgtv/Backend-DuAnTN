@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -24,7 +25,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     Page<Customer> findByNameLikeAndEnabledTrueOrPhoneLikeAndEnabledTrueOrEmailLikeAndEnabledTrue
             (String name, String phone, String email, Pageable pageable);
 
-    Customer findByCustomerIdAndDeletedFalse(Integer id);
+    Customer findByCustomerIdAndDeletedFalseAndEnabledTrue(Integer id);
 
-    List<Customer> findByDeletedTrue();
+    List<Customer> findByDeletedTrueAndEnabledTrue();
+
+    List<Customer> findByEnabledFalseAndTimeCreatedLessThanEqual(Date date);
 }

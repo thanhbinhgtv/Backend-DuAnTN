@@ -9,25 +9,28 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Integer> {
-    Page<Staff> findByNameLikeAndDeletedFalseOrEmailLikeAndDeletedFalseOrPhoneLikeAndDeletedFalse(
+    Page<Staff> findByNameLikeAndDeletedFalseAndEnabledTrueOrEmailLikeAndDeletedFalseAndEnabledTrueOrPhoneLikeAndDeletedFalseAndEnabledTrue(
             String name, String email, String phone, Pageable pageable
     );
-    Page<Staff> findByNameLikeAndDeletedTrueOrEmailLikeAndDeletedTrueOrPhoneLikeAndDeletedTrue(
+    Page<Staff> findByNameLikeAndDeletedTrueAndEnabledTrueOrEmailLikeAndDeletedTrueAndEnabledTrueOrPhoneLikeAndDeletedTrueAndEnabledTrue(
             String name, String email, String phone, Pageable pageable
     );
-    Page<Staff> findByNameLikeOrEmailLikeOrPhoneLike(
+    Page<Staff> findByNameLikeAndEnabledTrueOrEmailLikeAndEnabledTrueOrPhoneLikeAndEnabledTrue(
             String name, String email, String phone, Pageable pageable
     );
 
-    Staff findByStaffIdAndDeletedFalse(Integer staffId);
+    Staff findByStaffIdAndDeletedFalseAndEnabledTrue(Integer staffId);
 
-    List<Staff> findByDeletedTrue();
+    List<Staff> findByDeletedTrueAndEnabledTrue();
 
     Staff findByEmail(String email);
 
     Staff findByToken(String token);
+
+    List<Staff> findByEnabledFalseAndTimeCreatedLessThanEqual(Date date);
 }

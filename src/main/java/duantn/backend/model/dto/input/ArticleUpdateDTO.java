@@ -1,6 +1,6 @@
 package duantn.backend.model.dto.input;
 
-import duantn.backend.helper.DateHeper;
+import duantn.backend.helper.DateHelper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +17,7 @@ public class ArticleUpdateDTO {
     private String description;
     private String phone;
     private Boolean status;
-    private Date postTime= DateHeper.now();
+    private Date postTime= DateHelper.now();
     private Date expiryDate;
     private boolean isVip;
 
