@@ -132,7 +132,7 @@ public class CustomerServiceImpl implements CustomerService {
         List<CustomerOutputDTO> customerOutputDTOList = new ArrayList<>();
         for (Customer customer : customerList) {
             CustomerOutputDTO customerOutputDTO=modelMapper.map(customer, CustomerOutputDTO.class);
-            customerOutputDTO.setBirthday(customer.getDob().getTime());
+            if(customer.getDob()!=null) customerOutputDTO.setBirthday(customer.getDob().getTime());
             customerOutputDTOList.add(customerOutputDTO);
         }
         return customerOutputDTOList;
@@ -169,7 +169,7 @@ public class CustomerServiceImpl implements CustomerService {
             customer.setImage(customerUpdateDTO.getImage());
             Customer newCustomer = customerRepository.save(customer);
             CustomerOutputDTO customerOutputDTO=modelMapper.map(newCustomer, CustomerOutputDTO.class);
-            customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
+            if(customer.getDob()!=null) customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
             return ResponseEntity.ok(customerOutputDTO);
         } catch (Exception e) {
             //e.printStackTrace();
@@ -207,7 +207,7 @@ public class CustomerServiceImpl implements CustomerService {
                     .setMatchingStrategy(MatchingStrategies.STRICT);
             Customer customer=customerRepository.findById(id).get();
             CustomerOutputDTO customerOutputDTO=modelMapper.map(customer, CustomerOutputDTO.class);
-            customerOutputDTO.setBirthday(customer.getDob().getTime());
+            if(customer.getDob()!=null) customerOutputDTO.setBirthday(customer.getDob().getTime());
             return ResponseEntity.ok(customerOutputDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Message("Lỗi: khách hàng id " + id + " không tồn tại"));

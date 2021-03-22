@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Component
 public class AppSchedule {
-    @Scheduled(cron = "* * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void AutoCreatTimekeeping() {
         System.out.println(new Date().toString());
     }

@@ -1,7 +1,6 @@
 package duantn.backend.controller.account;
 
 import duantn.backend.authentication.CustomException;
-import duantn.backend.authentication.CustomJwtAuthenticationFilter;
 import duantn.backend.authentication.CustomUserDetailsService;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.dao.StaffRepository;
@@ -9,22 +8,12 @@ import duantn.backend.model.dto.input.*;
 import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
-import duantn.backend.model.entity.Staff;
 import duantn.backend.service.AccountService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -85,7 +74,7 @@ public class Account {
         return accountService.resetPassword(resetPasswordDTO);
     }
 
-    @GetMapping("/admin/{id}")
+    @GetMapping("/admin/profile/{id}")
     public StaffOutputDTO staffProfile(@PathVariable Integer id, HttpServletRequest request)
     throws CustomException{
         return accountService.staffDetail(id, request);
@@ -98,7 +87,7 @@ public class Account {
         return accountService.staffUpdateProfile(staffPersonUpdateDTO, request);
     }
 
-    @GetMapping("/customer/{id}")
+    @GetMapping("/customer/profile/{id}")
     public CustomerOutputDTO customerProfile(@PathVariable Integer id, HttpServletRequest request)
             throws CustomException{
         return accountService.customerProfile(id, request);
