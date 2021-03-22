@@ -52,6 +52,9 @@ public class Staff extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private String image;
 
+    @Column(nullable = false)
+    private Boolean enabled=false;
+
     @Column(nullable = true, unique = true)
     private String token;
 

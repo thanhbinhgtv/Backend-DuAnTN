@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +47,10 @@ public class StaffsManager {
 
     //    thêm nhân viên	Post/super-admin/staffs
     @PostMapping("/staffs")
-    public ResponseEntity<?> insertStaff(@Valid @RequestBody StaffInsertDTO staffInsertDTO)
+    public Message insertStaff(@Valid @RequestBody StaffInsertDTO staffInsertDTO,
+                                         HttpServletRequest request)
             throws Exception {
-        return staffService.insertStaff(staffInsertDTO);
+        return staffService.insertStaff(staffInsertDTO, request);
     }
 
     //    cập nhật thông tin nhân viên	Put/super-admin/staffs

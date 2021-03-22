@@ -1,6 +1,6 @@
 package duantn.backend.model.entity;
 
-import duantn.backend.helper.DateHeper;
+import duantn.backend.helper.DateHelper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,7 +43,7 @@ public class Article extends BaseEntity implements Serializable {
     private Boolean status;
 
     @Column(nullable = false)
-    private Date postTime = DateHeper.now();
+    private Date postTime = DateHelper.now();
 
     @Column(nullable = false)
     private Date expiryDate;
