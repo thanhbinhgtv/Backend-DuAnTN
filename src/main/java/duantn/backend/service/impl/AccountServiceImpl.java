@@ -316,7 +316,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new CustomException("Người dùng không hợp lệ, không được phép truy cập");
 
             CustomerOutputDTO customerOutputDTO=modelMapper.map(customer, CustomerOutputDTO.class);
-            customerOutputDTO.setBirthday(customer.getDob().getTime());
+            if(customer.getDob()!=null) customerOutputDTO.setBirthday(customer.getDob().getTime());
             return customerOutputDTO;
         } catch (Exception e) {
             throw new CustomException("Lỗi: người dùng không hợp lệ hoặc không tồn tại");
@@ -360,7 +360,7 @@ public class AccountServiceImpl implements AccountService {
             customer.setImage(customerUpdateDTO.getImage());
             Customer newCustomer = customerRepository.save(customer);
             CustomerOutputDTO customerOutputDTO=modelMapper.map(newCustomer, CustomerOutputDTO.class);
-            customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
+            if(customer.getDob()!=null) customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
             return customerOutputDTO;
         } catch (Exception e) {
             //e.printStackTrace();
