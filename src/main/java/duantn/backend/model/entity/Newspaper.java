@@ -22,13 +22,13 @@ public class Newspaper extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(length = 65535, columnDefinition = "text", nullable = false)
     private String content;
 
     @Column(nullable = false)
     private String image;
 
     @ManyToOne
-    @JoinColumn(name = "staffId")
+    @JoinColumn(name = "staffId", nullable = false)
     private Staff staff;
 }

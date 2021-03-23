@@ -169,11 +169,13 @@ public class AccountServiceImpl implements AccountService {
         if (role.equalsIgnoreCase("SUPER_ADMIN") ||
                 role.equalsIgnoreCase("ADMIN")) {
             Staff staff = staffRepository.findByEmail(loginDTO.getEmail());
+            returnMap.put("id", staff.getStaffId().toString());
             returnMap.put("name", staff.getName());
             returnMap.put("email", staff.getEmail());
             returnMap.put("image", staff.getImage());
         } else if (role.equalsIgnoreCase("CUSTOMER")) {
             Customer customer = customerRepository.findByEmail(loginDTO.getEmail());
+            returnMap.put("id", customer.getCustomerId().toString());
             returnMap.put("name", customer.getName());
             returnMap.put("email", customer.getEmail());
             returnMap.put("image", customer.getImage());

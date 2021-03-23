@@ -34,7 +34,7 @@ public class Customer extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private String pass;
 
-    @Column(nullable = true)
+    @Column(length = 65535, columnDefinition = "text")
     private String address;
 
     @Column(nullable = false)

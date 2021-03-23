@@ -19,13 +19,13 @@ public class Service extends BaseEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer serviceId;
 
-    @Column(nullable = false)
+    @Column
     private int waterPrice;
 
-    @Column(nullable = false)
+    @Column
     private int electricPrice;
 
-    @Column(nullable = false)
+    @Column
     private int wifiPrice;
 
 }
