@@ -24,16 +24,16 @@ public class Article extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(length = 65535, columnDefinition = "text", nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    @Column(length = 65535, columnDefinition = "text", nullable = false)
     private String image;
 
     @Column(nullable = false)
     private int roomPrice;
 
-    @Column(nullable = true)
+    @Column(length = 65535, columnDefinition = "text")
     private String description;
 
     @Column(nullable = false)
@@ -43,7 +43,7 @@ public class Article extends BaseEntity implements Serializable {
     private Boolean status;
 
     @Column(nullable = false)
-    private Date postTime = DateHelper.now();
+    private Date postTime;
 
     @Column(nullable = false)
     private Date expiryDate;
@@ -60,7 +60,6 @@ public class Article extends BaseEntity implements Serializable {
     @JoinColumn(name = "roommateId")
     private Roommate roommate;
 
-
     @ManyToOne
     @JoinColumn(name = "staffId")
     private Staff staff;
@@ -72,7 +71,7 @@ public class Article extends BaseEntity implements Serializable {
 
 
     @ManyToOne
-    @JoinColumn(name = "wardId")
+    @JoinColumn(name = "wardId", nullable = false)
     private Ward ward;
 
     @OneToMany(mappedBy = "article", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
