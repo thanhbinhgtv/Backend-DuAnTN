@@ -5,6 +5,8 @@ import duantn.backend.dao.StaffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -59,5 +61,18 @@ public class Helper {
 
     public int randomNumber(int min, int max) {
         return generator.nextInt((max - min) + 1) + min;
+    }
+
+    public String listToText(List<String> list){
+        String string="";
+        for (String s:list){
+            string=string+s+"___";
+        }
+        return string;
+    }
+
+    public List<String> textToList(String text){
+        String[] mang=text.split("___");
+        return Arrays.asList(mang);
     }
 }
