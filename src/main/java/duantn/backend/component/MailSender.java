@@ -18,7 +18,7 @@ public class MailSender {
     public void send(String to, String cc, String bcc,
                      String subject, String body, String attachment){
         try {
-            String from="echsut102017@gmail.com";
+            String from="minhduc102017@gmail.com";
 
             //create mail
             MimeMessage mimeMailMessage = javaMailSender.createMimeMessage();

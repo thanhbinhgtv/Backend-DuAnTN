@@ -139,7 +139,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Map<String, String> login(LoginDTO loginDTO) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
-
+        //validate
         if (customerRepository.findByEmail(loginDTO.getEmail()) == null ||
                 !customerRepository.findByEmail(loginDTO.getEmail()).getEnabled()) {
             if (staffRepository.findByEmail(loginDTO.getEmail()) == null ||
@@ -147,6 +147,8 @@ public class AccountServiceImpl implements AccountService {
                 throw new CustomException("Email chưa kích hoạt hoặc không tồn tại");
             }
         }
+
+        //login
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDTO.getEmail(), loginDTO.getPass()));
