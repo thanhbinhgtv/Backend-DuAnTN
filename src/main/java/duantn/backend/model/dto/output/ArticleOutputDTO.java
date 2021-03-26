@@ -1,26 +1,46 @@
 package duantn.backend.model.dto.output;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import duantn.backend.model.entity.Roommate;
+import duantn.backend.model.entity.Service;
+import duantn.backend.model.entity.Ward;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.util.Map;
 
 @Getter
 @Setter
 public class ArticleOutputDTO {
     private Integer articleId;
-    private Boolean deleted;
+
     private String title;
+
     private String content;
+
     private String image;
-    private int roomPrice;
+
+    private Integer roomPrice;
+
     private String description;
-    private String phone;
-    private Boolean status;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-    private Date postTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-    private Date expiryDate;
-    private boolean isVip;
+
+    private Long createTime;
+
+    private Long lastUpdateTime;
+
+    private Long expDate;
+
+    private Boolean vip;
+
+    private String status;
+
+    private Service service;
+
+    private Roommate roommate;
+
+    private Map<String, String> customer;
+
+    private Map<String, String> moderator;
+
+    private Map<String, String> address;
+    //private Ward ward;
 }

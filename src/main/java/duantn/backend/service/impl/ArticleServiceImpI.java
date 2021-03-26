@@ -1,194 +1,267 @@
 package duantn.backend.service.impl;
 
-import duantn.backend.dao.ArticleReponsitory;
-import duantn.backend.model.dto.input.ArticleInsertDTO;
-import duantn.backend.model.dto.input.ArticleUpdateDTO;
+import duantn.backend.authentication.CustomException;
+import duantn.backend.authentication.JwtUtil;
+import duantn.backend.component.MailSender;
+import duantn.backend.dao.ArticleRepository;
+import duantn.backend.dao.StaffArticleRepository;
+import duantn.backend.dao.StaffRepository;
+import duantn.backend.helper.Helper;
+import duantn.backend.model.dto.input.ContactCustomerDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
+import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Article;
+import duantn.backend.model.entity.Staff;
+import duantn.backend.model.entity.StaffArticle;
 import duantn.backend.service.ArticleService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.text.ParseException;
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
 public class ArticleServiceImpI implements ArticleService {
     final
-    ArticleReponsitory articleRepository;
+    ArticleRepository articleRepository;
 
-    public ArticleServiceImpI(ArticleReponsitory articleRepository) {
+    final
+    StaffArticleRepository staffArticleRepository;
+
+    final
+    MailSender mailSender;
+
+    final
+    JwtUtil jwtUtil;
+
+    final
+    StaffRepository staffRepository;
+
+    final
+    Helper helper;
+
+
+    public ArticleServiceImpI(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, MailSender mailSender, JwtUtil jwtUtil, StaffRepository staffRepository, Helper helper) {
         this.articleRepository = articleRepository;
+        this.staffArticleRepository = staffArticleRepository;
+        this.mailSender = mailSender;
+        this.jwtUtil = jwtUtil;
+        this.staffRepository = staffRepository;
+        this.helper = helper;
     }
 
     @Override
-    public ResponseEntity<?> insertArticle(ArticleInsertDTO articleInsertDTO) {
-        try {
-
-            ModelMapper modelMapper = new ModelMapper();
-            modelMapper.getConfiguration()
-                    .setMatchingStrategy(MatchingStrategies.STRICT);
-            Article article = modelMapper.map(articleInsertDTO, Article.class);
-            Article newArticle = articleRepository.save(article);
-            return ResponseEntity.ok(modelMapper.map(newArticle, ArticleOutputDTO.class));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.ok("Insert failed");
+    public List<ArticleOutputDTO> listArticle(String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer page, Integer limit) {
+        List<ArticleOutputDTO> articleOutputDTOList=new ArrayList<>();
+        List<Article> articleList=
+                articleRepository.findCustom(sort, start,end,ward,district,city,
+                        roommate,status,vip,search,page,limit);
+        for (Article article:articleList){
+            articleOutputDTOList.add(convertToOutputDTO(article));
         }
+        return articleOutputDTOList;
+    }
+
+    private SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+    @Override
+    public Message contactToCustomer(Integer id,
+                                     ContactCustomerDTO contactCustomerDTO,
+                                     HttpServletRequest request) throws CustomException {
+        Optional<Article> articleOptional=articleRepository.findById(id);
+        if(articleOptional.isPresent()){
+            Staff staff=findStaffByJWT(request);
+
+            String to=articleOptional.get().getCustomer().getEmail();
+
+            String note="Nhân viên liên hệ: "+staff.getName()+"<br/>"
+                    +"Email: "+staff.getEmail()+"<br/>"
+                    +"Thời gian: "+simpleDateFormat.format(new Date());
+
+            mailSender.send(to, contactCustomerDTO.getTitle(), contactCustomerDTO.getContent(), note);
+            return new Message("Gửi mail thành công");
+        }else throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
     }
 
     @Override
-    public ResponseEntity<?> updateArticle(ArticleUpdateDTO articleUpdateDTO) {
-        try {
-            ModelMapper modelMapper = new ModelMapper();
-            Article article = modelMapper.map(articleUpdateDTO, Article.class);
-            Article newArticle = articleRepository.save(article);
-            return ResponseEntity.ok(modelMapper.map(newArticle, ArticleOutputDTO.class));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.ok("Update failed");
-        }
-    }
+    public Message activeArticle(Integer id, HttpServletRequest request) throws CustomException {
+        Optional<Article> articleOptional=articleRepository.findById(id);
+        if(articleOptional.isPresent()){
+            Staff staff=findStaffByJWT(request);
 
-    @Override
-    public ResponseEntity<String> deleteArticle(Integer id) {
-        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
-        if (article == null) {
-            return ResponseEntity.badRequest().body("id" + id + "này không tồn tại");
-        } else {
+            //duyệt bài
+            //chuyển deleted thành true
+            Article article=articleOptional.get();
             article.setDeleted(true);
-            article.setStatus(true);
-            articleRepository.save(article);
-        }
-        return ResponseEntity.ok("bài viết này đã được ẩn ");
+            //tạo bản ghi staffArticle
+            StaffArticle staffArticle=new StaffArticle();
+            staffArticle.setTime(new Date());
+            staffArticle.setStaff(staff);
+            staffArticle.setArticle(article);
+            staffArticle.setAction(true);
+            //lưu
+            staffArticleRepository.save(staffArticle);
+            ArticleOutputDTO articleOutputDTO= convertToOutputDTO(articleRepository.save(article));
+
+            //gửi thư
+            String to=article.getCustomer().getEmail();
+            String note="Nhân viên duyệt bài: "+staff.getName()+"<br/>"
+                    +"Email: "+staff.getEmail()+"<br/>"
+                    +"Thời gian: "+simpleDateFormat.format(new Date());
+            String title="Bài đăng số: "+article.getArticleId()+" đã được duyệt";
+            String content="<p>Bài đăng số: "+article.getArticleId()+"</p>\n" +
+                    "\n" +
+                    "<p>Tiêu đề: "+article.getTitle()+"</p>\n" +
+                    "\n" +
+                    "<p>Người đăng: "+article.getCustomer().getName()+"</p>\n" +
+                    "\n" +
+                    "<p>Email: "+article.getCustomer().getEmail()+"</p>\n" +
+                    "\n" +
+                    "<p>SĐT: "+article.getCustomer().getPhone()+"</p>\n" +
+                    "\n" +
+                    "<p>Thời gian đăng: "+simpleDateFormat.format(article.getTimeCreated())+"</p>\n" +
+                    "\n" +
+                    "<p>Số lượng ngày đăng mong muốn: "+article.getNumberDate()+"</p>\n" +
+                    "\n" +
+                    "<p>Thời gian duyệt bài: "+simpleDateFormat.format(new Date())+"</p>\n" +
+                    "\n" +
+                    "<p>Trạng thái: <strong><span style=\"color:#2980b9\">đã được duyệt</span></strong></p>\n" +
+                    "\n" +
+                    "<p>Thời gian hết hạn (ước tính): <span style=\"color:#c0392b\">"+simpleDateFormat.format(new Date(articleOutputDTO.getExpDate()))+"</span></p>\n" +
+                    "\n" +
+                    "<p>Bài đăng của bạn đã được nhân viên <em><strong>"+staff.getName()+" </strong></em>(email: <em><strong>"+staff.getEmail()+"</strong></em>) duyệt vào lúc <em><strong>"+simpleDateFormat.format(new Date())+"</strong></em>.</p>\n" +
+                    "\n" +
+                    "<p>Bạn có thể vào theo đường dẫn sau để xem bài viết của mình:</p>\n" +
+                    "\n" +
+                    "<p>"+helper.getHostUrl(request.getRequestURL().toString(),"/admin")+"</p>\n";
+            mailSender.send(to, title, content, note);
+            return new Message("Duyệt bài thành công");
+        }else throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
     }
 
     @Override
-    public ResponseEntity<String> activeArticle(Integer id) {
-        Optional<Article> articles = articleRepository.findById(id);
-        if (!articles.isPresent()) {
-            return ResponseEntity.badRequest().body("id " + id + " không tồn tại");
-        } else {
-            articles.get().setDeleted(false);
-            articleRepository.save(articles.get());
-        }
-        return ResponseEntity.ok("bài viết đã được hiển thị");
+    public Message hiddenArticle(Integer id, String reason,HttpServletRequest request) throws CustomException {
+        Optional<Article> articleOptional=articleRepository.findById(id);
+        if(articleOptional.isPresent()){
+            Staff staff=findStaffByJWT(request);
+
+            //duyệt bài
+            //chuyển deleted thành true
+            Article article=articleOptional.get();
+            article.setDeleted(false);
+            //tạo bản ghi staffArticle
+            StaffArticle staffArticle=new StaffArticle();
+            staffArticle.setTime(new Date());
+            staffArticle.setStaff(staff);
+            staffArticle.setArticle(article);
+            staffArticle.setAction(false);
+            //lưu
+            staffArticleRepository.save(staffArticle);
+            ArticleOutputDTO articleOutputDTO= convertToOutputDTO(articleRepository.save(article));
+
+            //gửi thư
+            if(reason==null || reason.trim().equals("")) reason="không có lý do cụ thể";
+            String to=article.getCustomer().getEmail();
+            String note="Nhân viên duyệt bài: "+staff.getName()+"<br/>"
+                    +"Email: "+staff.getEmail()+"<br/>"
+                    +"Thời gian: "+simpleDateFormat.format(new Date());
+            String title="Bài đăng số: "+article.getArticleId()+" đã bị ẩn";
+            String content="<p>Bài đăng số: "+article.getArticleId()+"</p>\n" +
+                    "\n" +
+                    "<p>Tiêu đề: "+article.getTitle()+"</p>\n" +
+                    "\n" +
+                    "<p>Người đăng: "+article.getCustomer().getName()+"</p>\n" +
+                    "\n" +
+                    "<p>Email: "+article.getCustomer().getEmail()+"</p>\n" +
+                    "\n" +
+                    "<p>SĐT: "+article.getCustomer().getPhone()+"</p>\n" +
+                    "\n" +
+                    "<p>Thời gian đăng: "+simpleDateFormat.format(article.getTimeCreated())+"</p>\n" +
+                    "\n" +
+                    "<p>Số lượng ngày đăng mong muốn: "+article.getNumberDate()+"</p>\n" +
+                    "\n" +
+                    "<p>Thời gian ẩn bài: "+simpleDateFormat.format(new Date())+"</p>\n" +
+                    "\n" +
+                    "<p>Trạng thái: <strong><span style=\"color:red\">đã bị ẩn</span></strong></p>\n" +
+                    "\n" +
+                    "<p>Lý do: <strong><span style=\"color:blue\">"+reason+"</span></strong></p>\n" +
+                    "\n" +
+                    "<p>Bài đăng của bạn đã bị nhân viên <em><strong>"+staff.getName()+" </strong></em>(email: <em><strong>"+staff.getEmail()+"</strong></em>) ẩn vào lúc <em><strong>"+simpleDateFormat.format(new Date())+"</strong></em>.</p>\n" +
+                    "\n" +
+                    "<p>Chúng tôi rất tiếc về điều này, bạn vui lòng xem lại bài đăng của mình đã phù hợp với nội quy website chưa. Mọi thắc mắc xin liên hệ theo email nhân viên đã duyệt bài.</p>\n";
+            mailSender.send(to, title, content, note);
+            return new Message("Ẩn bài thành công");
+        }else throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
     }
 
-    @Override
-    public ResponseEntity<?> findOneArticle(Integer id) {
-        try {
-            ModelMapper modelMapper = new ModelMapper();
-            modelMapper.getConfiguration()
-                    .setMatchingStrategy(MatchingStrategies.STRICT);
-            return ResponseEntity.ok(modelMapper.map(articleRepository.findByArticleIdAndDeletedFalse(id),
-                    ArticleOutputDTO.class));
-        } catch (Exception e) {
-            return ResponseEntity.ok("id: " + id + " không tìm thấy");
+    public ArticleOutputDTO convertToOutputDTO(Article article){
+        ModelMapper modelMapper=new ModelMapper();
+        modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT);
+        ArticleOutputDTO articleOutputDTO=modelMapper.map(article, ArticleOutputDTO.class);
+        articleOutputDTO.setCreateTime(article.getTimeCreated().getTime());
+        articleOutputDTO.setLastUpdateTime(article.getUpdateTime().getTime());
+        if(article.getDeleted()!=null){
+            if(article.getDeleted()) articleOutputDTO.setStatus("Đang đăng");
+            else articleOutputDTO.setStatus("Đã ẩn");
+        } else articleOutputDTO.setStatus("Chưa duyệt");
+
+        StaffArticle staffArticle=staffArticleRepository.
+                findFirstByArticle_ArticleId(article.getArticleId(), Sort.by("time").descending());
+
+
+        if(staffArticle!=null){
+            Map<String, String> moderator=new HashMap<>();
+            moderator.put("staffId", staffArticle.getStaff().getStaffId()+"");
+            moderator.put("name", staffArticle.getStaff().getName());
+            moderator.put("email", staffArticle.getStaff().getEmail());
+            articleOutputDTO.setModerator(moderator);
         }
+
+        Map<String, String> customer=new HashMap<>();
+        customer.put("customerId", article.getCustomer().getCustomerId()+"");
+        customer.put("name", article.getCustomer().getName());
+        customer.put("email", article.getCustomer().getEmail());
+        articleOutputDTO.setCustomer(customer);
+
+        if(article.getDeleted()==true && staffArticle!=null){
+            articleOutputDTO.
+                    setExpDate(staffArticle.getTime().getTime()+article.getNumberDate()*24*3600*1000);
+        }
+
+        Map<String, String> address=new HashMap<>();
+        address.put("wardId", article.getWard().getWardId()+"");
+        address.put("wardName", article.getWard().getWardName());
+        address.put("districtId", article.getWard().getDistrict().getDistrictId()+"");
+        address.put("districtName", article.getWard().getDistrict().getDistrictName());
+        address.put("cityId", article.getWard().getDistrict().getCity().getCityId()+"");
+        address.put("cityName", article.getWard().getDistrict().getCity().getCityName());
+        articleOutputDTO.setAddress(address);
+
+        return articleOutputDTO;
     }
 
-    @Override
-    public List<ArticleOutputDTO> filterArticle(Boolean status,
-                                                Long start, Long end,
-                                                Integer wardId, Integer districtId, Integer cityId,
-                                                String sort,
-                                                Integer page, Integer limit) {
-        //find all articles - sort by postTime desc
-        List<Article> articles = articleRepository.findAll(Sort.by("postTime").descending());
-
-        //filter by status
-        if (status != null) {
-            List<Article> articlesStatus = articleRepository.findByStatus(status);
-            articles = filter(articlesStatus, articles);
-        }
-        //filter by startDate - endDate
-        if (start != null && end != null) {
-            Date startDate = new Date(start);
-            Date endDate = new Date(end);
-            try {
-                List<Article> articlesDate = articleRepository.
-                        findByPostTimeGreaterThanEqualAndPostTimeIsLessThanEqual(
-                                changeTime(startDate, "00:00:00"),
-                                changeTime(endDate, "23:59:59"));
-                articles = filter(articlesDate, articles);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        //filter by ward - district -city
-        if (wardId != null) {
-            List<Article> articles1 = articleRepository.findByWard_WardId(wardId);
-            articles = filter(articles1, articles);
-        } else if (districtId != null) {
-            List<Article> articles1 = articleRepository.findByWard_District_DistrictId(districtId);
-            articles = filter(articles1, articles);
-        } else if (cityId != null) {
-            List<Article> articles1 = articleRepository.findByWard_District_City_CityId(cityId);
-            articles = filter(articles1, articles);
-        }
-
-        //sort
-        if (sort != null && sort.equalsIgnoreCase("asc")) {
-            Collections.reverse(articles);
-        }
-
-        //pageable
-        if (page != null && limit != null) {
-            articles = pageable(articles, page, limit);
-        }
-
-        return convertToDTO(articles);
+    private Staff findStaffByJWT(HttpServletRequest request){
+        String jwt=extractJwtFromRequest(request);
+        if(jwt==null || jwt.trim().equals("")) throw new CustomException("Không có JWT");
+        String email=jwtUtil.getUsernameFromToken(jwt);
+        if(email==null || email.trim().equals("")) throw new CustomException("JWT không hợp lệ");
+        Staff staff=staffRepository.findByEmail(email);
+        if(staff==null) throw new CustomException("JWT không hợp lệ");
+        return staff;
     }
 
-    @Override
-    public List<ArticleOutputDTO> searchArticle(String search,
-                                                Integer page, Integer limit) {
-        List<Article> articles = articleRepository.findByTitleLikeOrPhoneLike("%" + search + "%", "%" + search + "%");
-
-        //pageable
-        if (page != null && limit != null) {
-            articles = pageable(articles, page, limit);
+    private String extractJwtFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7, bearerToken.length());
         }
-        return convertToDTO(articles);
+        return null;
     }
 
-    private List<ArticleOutputDTO> convertToDTO(List<Article> articles) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        List<ArticleOutputDTO> articleOutputDTOS = new ArrayList<>();
-        for (Article article : articles) {
-            articleOutputDTOS.add(modelMapper.map(article, ArticleOutputDTO.class));
-        }
-        return articleOutputDTOS;
-    }
-
-    public List<Article> filter(List<Article> sourceList, List<Article> filterList) {
-        List<Article> newList = new ArrayList<>();
-        for (Article article : sourceList) {
-            if (filterList.contains(article)) newList.add(article);
-        }
-        return newList;
-    }
-
-    public Date changeTime(Date date, String time) throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        return simpleDateFormat1.parse(simpleDateFormat.format(date) + " " + time);
-    }
-
-    private List<Article> pageable(List<Article> users, Integer page, Integer limit) {
-        List<Article> returnList = new ArrayList<>();
-        if (page * limit > users.size() - 1) return returnList;
-        int endIndex = Math.min((page + 1) * limit, users.size());
-        for (int i = page * limit; i < endIndex; i++) {
-            returnList.add(users.get(i));
-        }
-        return returnList;
-    }
 }

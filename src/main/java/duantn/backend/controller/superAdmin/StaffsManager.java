@@ -79,7 +79,7 @@ public class StaffsManager {
     }
 
     // xóa toàn bộ những nhân viên đã bị xóa mềm
-    @GetMapping("/delete")
+    @DeleteMapping("/delete")
     public Message deleteAllStaffs(){
         return staffService.deleteAllStaffs();
     }

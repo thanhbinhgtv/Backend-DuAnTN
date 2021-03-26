@@ -1,0 +1,13 @@
+package duantn.backend.dao;
+
+import duantn.backend.model.entity.Article;
+
+import java.util.List;
+
+public interface CustomArticleRepository {
+    List<Article> findCustom(String sort, Long start, Long end,
+                             Integer ward, Integer district, Integer city,
+                             Boolean roommate,
+                             String status, Boolean vip, String search,
+                             Integer page, Integer limit);
+}

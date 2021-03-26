@@ -13,19 +13,19 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Service extends BaseEntity implements Serializable {
+public class Service implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer serviceId;
 
     @Column
-    private int waterPrice;
+    private Integer waterPrice;
 
     @Column
-    private int electricPrice;
+    private Integer electricPrice;
 
     @Column
-    private int wifiPrice;
+    private Integer wifiPrice;
 
 }
