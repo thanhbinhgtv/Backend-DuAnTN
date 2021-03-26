@@ -101,12 +101,10 @@ public class AccountServiceImpl implements AccountService {
         mailSender.send(
                 signupDTO.getEmail(),
                 "Xác nhận địa chỉ email",
-                "<h2>Xác nhận địa chỉ email</h2>" +
-                        "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
+                "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
                         helper.getHostUrl(request.getRequestURL().toString(), "/sign-up") + "/confirm?token-customer=" + token
-                        + "&email=" + signupDTO.getEmail()
-                        + "</br></br> <p><i style='color:red'>Thời hạn xác nhận, trước 00:00:00 ngày " +
-                        sdf.format(expDate) + "</i></p>"
+                        + "&email=" + signupDTO.getEmail(),
+                "Thời hạn xác nhận, trước 00:00:00 ngày " + sdf.format(expDate)
         );
         return new Message("Bạn hãy check mail để xác nhận, trước 00:00:00 ngày " + sdf.format(expDate));
     }
@@ -231,10 +229,10 @@ public class AccountServiceImpl implements AccountService {
         mailSender.send(
                 email,
                 "Quên mật khẩu",
-                "<h2>Quên mật khẩu, làm mới mật khẩu</h2>" +
-                        "Click vào đường link sau để tạo mới mật khẩu của bạn:<br/>" +
+                "Click vào đường link sau để tạo mới mật khẩu của bạn:<br/>" +
                         "dia chi frontend" + "/renew-password?token=" + token
-                        + "&email=" + email
+                        + "&email=" + email,
+                "Chúc bạn thành công"
         );
         return new Message("Thành công, bạn hãy check mail để tiếp tục");
     }

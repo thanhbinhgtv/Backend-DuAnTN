@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Roommate extends BaseEntity implements Serializable {
+public class Roommate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer roommateId;
@@ -24,6 +24,6 @@ public class Roommate extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = true)
+    @Column(columnDefinition = "text")
     private String description;
 }

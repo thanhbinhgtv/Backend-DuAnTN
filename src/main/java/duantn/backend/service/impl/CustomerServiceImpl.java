@@ -229,7 +229,7 @@ public class CustomerServiceImpl implements CustomerService {
             for (Integer id : list) {
                 Optional<Customer> optionalCustomer=customerRepository.findById(id);
                 if(!optionalCustomer.isPresent() ||
-                !optionalCustomer.get().isDeleted()) mess=mess+", "+id;
+                !optionalCustomer.get().getDeleted()) mess=mess+", "+id;
                 else
                 customerRepository.deleteById(id);
             }

@@ -37,23 +37,16 @@ public class Article extends BaseEntity implements Serializable {
     private String description;
 
     @Column(nullable = false)
-    private String phone;
+    private Date updateTime;
 
     @Column(nullable = false)
-    private Boolean status;
+    private Integer numberDate;
 
     @Column(nullable = false)
-    private Date postTime;
-
-    @Column(nullable = false)
-    private Date expiryDate;
-
-    @Column(nullable = false)
-    private boolean isVip;
-
+    private Boolean vip;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "serviceId")
+    @JoinColumn(name = "serviceId", nullable = false)
     private Service service;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -61,12 +54,7 @@ public class Article extends BaseEntity implements Serializable {
     private Roommate roommate;
 
     @ManyToOne
-    @JoinColumn(name = "staffId")
-    private Staff staff;
-
-
-    @ManyToOne
-    @JoinColumn(name = "customerId")
+    @JoinColumn(name = "customerId", nullable = false)
     private Customer customer;
 
 
@@ -76,4 +64,7 @@ public class Article extends BaseEntity implements Serializable {
 
     @OneToMany(mappedBy = "article", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<FavoriteArticle> favoriteArticles;
+
+    @OneToMany(mappedBy = "article", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<StaffArticle> staffArticles;
 }

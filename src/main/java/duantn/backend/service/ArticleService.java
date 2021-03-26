@@ -1,36 +1,33 @@
 package duantn.backend.service;
 
-import duantn.backend.model.dto.input.ArticleInsertDTO;
-import duantn.backend.model.dto.input.ArticleUpdateDTO;
+import duantn.backend.authentication.CustomException;
+import duantn.backend.model.dto.input.ContactCustomerDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
-import org.springframework.http.ResponseEntity;
+import duantn.backend.model.dto.output.Message;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface ArticleService {
-    //thêm bài viết Post/admin/articles
-    // lưa ý các bài viết được thêm vào thì mặc ddinjhj của nó là true có nghĩa là chưa được hiển thị
-    ResponseEntity<?> insertArticle(ArticleInsertDTO articleInsertDTO);
+    List<ArticleOutputDTO> listArticle(
+            String sort,
+            Long start, Long end,
+            Integer ward,
+            Integer district,
+            Integer city,
+            Boolean roommate,
+            String status,
+            Boolean vip,
+            String search,
+            Integer page,
+            Integer limit
+    );
 
-    //cập nhật bài viết Put/admin/articles
-    ResponseEntity<?> updateArticle(ArticleUpdateDTO articleUpdateDTO);
-
-    //xóa bài viết Delete/admin/articles/{id}
-    ResponseEntity<String> deleteArticle(Integer id);
-
-    //duyệt bài viết  Get/admin/articles/active/{id}
-    ResponseEntity<String> activeArticle(Integer id);
-
-    //xem bài viết Get/admin/articles/{id}
-    ResponseEntity<?> findOneArticle(Integer id);
-
-    // bộ lọc kết hợp
-    List<ArticleOutputDTO> filterArticle(Boolean status,
-                                        Long start, Long end,
-                                        Integer wardId, Integer districtId, Integer cityId,
-                                        String sort,
-                                         Integer page, Integer limit);
-
-    List<ArticleOutputDTO> searchArticle(String search,
-                                         Integer page, Integer limit);
+//    contact với khách hàng (gửi mail cho khách hàng về bài viết này)	/admin/article/contact/{id}
+    Message contactToCustomer(Integer id, ContactCustomerDTO contactCustomerDTO,
+                              HttpServletRequest request) throws CustomException;
+//    duyệt bài đăng (hiện) (gửi mail)	/admin/article/active/{id}
+    Message activeArticle(Integer id, HttpServletRequest request) throws CustomException;
+//    ẩn bài đăng (gửi mail)	/admin/article/block/{id}
+    Message hiddenArticle(Integer id, String reason, HttpServletRequest request) throws CustomException;
 }
