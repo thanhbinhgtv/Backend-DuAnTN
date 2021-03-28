@@ -25,6 +25,7 @@ public class ArticleInsertDTO {
     private String content;
 
     @NotBlank(message = "Ảnh không được trống")
+    @NotNull(message = "Ảnh không được null")
     private String image;
 
     @Min(value = 1000, message = "Giá phòng phải lớn hơn 1000 đồng")

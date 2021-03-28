@@ -35,10 +35,11 @@ public class CustomerManager {
     }
 
     //cập nhật thông tin nhân viên	POST/admin/customers
-    @PostMapping("/customers")
-    public ResponseEntity<?> updateCustomer(@Valid @RequestBody CustomerUpdateDTO customerUpdateDTO)
+    @PostMapping("/customers/{id}")
+    public ResponseEntity<?> updateCustomer(@Valid @RequestBody CustomerUpdateDTO customerUpdateDTO,
+                                            @PathVariable Integer id)
             throws CustomException {
-        return customerService.updateCustomer(customerUpdateDTO);
+        return customerService.updateCustomer(customerUpdateDTO, id);
     }
 
     //    block nhân viên	GET/admin/customers/block/{id}
@@ -60,14 +61,13 @@ public class CustomerManager {
     }
 
     // xóa toàn bộ những nhân viên đã bị xóa mềm
-    @GetMapping("/delete")
+    @DeleteMapping("/customer")
     public Message deleteAllCustomers(){
         return customerService.deleteAllCustomers();
     }
 
-    //xóa 1 vài nhân viên đã bị xóa mềm (mảng id integer)
-    @PostMapping("/delete")
-    public Message deleteCustomers(@RequestBody List<Integer> list) throws CustomException{
-        return customerService.deleteCustomers(list);
+    @DeleteMapping("/customer/{id}")
+    public Message deleteCustomers(@PathVariable Integer id) throws CustomException{
+        return customerService.deleteCustomers(id);
     }
 }

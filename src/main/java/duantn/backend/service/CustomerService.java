@@ -20,7 +20,8 @@ public interface CustomerService {
                                          String balanceSort, Integer page, Integer limit);
 
     //    cập nhật thông tin khách hàng	Put/super-admin/customers
-    ResponseEntity<?> updateCustomer(CustomerUpdateDTO customerUpdateDTO) throws CustomException;
+    ResponseEntity<?> updateCustomer(CustomerUpdateDTO customerUpdateDTO,
+                                     Integer id) throws CustomException;
 
     //    block khách hàng	DELETE/super-admin/customers/{id}
     Message blockCustomer(Integer id) throws CustomException;
@@ -35,5 +36,5 @@ public interface CustomerService {
     Message deleteAllCustomers();
 
     //xóa cứng 1 list (mảng Integer Id) khách hàng bị xóa mềm
-    Message deleteCustomers(List<Integer> list) throws CustomException;
+    Message deleteCustomers(Integer id) throws CustomException;
 }

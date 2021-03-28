@@ -45,85 +45,84 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerOutputDTO> listCustomer(String search, Boolean deleted, String nameSort,
-                                          String balanceSort, Integer page, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
-        String sort=null;
-        String sortBy=null;
-        if(balanceSort !=null && !balanceSort.trim().equals("")){
-            sort=balanceSort;
-            sortBy="accountBalance";
-        }
-        else if(nameSort !=null && !nameSort.trim().equals("")){
-            sort=nameSort;
-            sortBy="name";
+                                                String balanceSort, Integer page, Integer limit) {
+        if (search == null || search.trim().equals("")) search = "";
+        String sort = null;
+        String sortBy = null;
+        if (balanceSort != null && !balanceSort.trim().equals("")) {
+            sort = balanceSort;
+            sortBy = "accountBalance";
+        } else if (nameSort != null && !nameSort.trim().equals("")) {
+            sort = nameSort;
+            sortBy = "name";
         }
         Page<Customer> customerPage;
-        if(sort==null){
-            if(deleted!=null){
-                if(deleted)
-                    customerPage=customerRepository.
+        if (sort == null) {
+            if (deleted != null) {
+                if (deleted)
+                    customerPage = customerRepository.
                             findByNameLikeAndEnabledTrueAndDeletedTrueOrPhoneLikeAndEnabledTrueAndDeletedTrueOrEmailLikeAndEnabledTrueAndDeletedTrue(
-                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                     PageRequest.of(page, limit)
                             );
                 else
-                    customerPage=customerRepository.
+                    customerPage = customerRepository.
                             findByNameLikeAndEnabledTrueAndDeletedFalseOrPhoneLikeAndEnabledTrueAndDeletedFalseOrEmailLikeAndEnabledTrueAndDeletedFalse(
-                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                     PageRequest.of(page, limit)
                             );
-            }else
-                customerPage=customerRepository.
+            } else
+                customerPage = customerRepository.
                         findByNameLikeAndEnabledTrueOrPhoneLikeAndEnabledTrueOrEmailLikeAndEnabledTrue(
-                                "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                 PageRequest.of(page, limit)
                         );
-        }else{
-            if(sort.equalsIgnoreCase("desc")){
-                if(deleted!=null){
-                    if(deleted)
-                        customerPage=customerRepository.
+        } else {
+            if (sort.equalsIgnoreCase("desc")) {
+                if (deleted != null) {
+                    if (deleted)
+                        customerPage = customerRepository.
                                 findByNameLikeAndEnabledTrueAndDeletedTrueOrPhoneLikeAndEnabledTrueAndDeletedTrueOrEmailLikeAndEnabledTrueAndDeletedTrue(
-                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                         PageRequest.of(page, limit, Sort.by(sortBy).descending())
                                 );
                     else
-                        customerPage=customerRepository.
+                        customerPage = customerRepository.
                                 findByNameLikeAndEnabledTrueAndDeletedFalseOrPhoneLikeAndEnabledTrueAndDeletedFalseOrEmailLikeAndEnabledTrueAndDeletedFalse(
-                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                         PageRequest.of(page, limit, Sort.by(sortBy).descending())
                                 );
-                }else
-                    customerPage=customerRepository.
+                } else
+                    customerPage = customerRepository.
                             findByNameLikeAndEnabledTrueOrPhoneLikeAndEnabledTrueOrEmailLikeAndEnabledTrue(
-                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                     PageRequest.of(page, limit, Sort.by(sortBy).descending())
                             );
-            }else{
-                if(deleted!=null){
-                    if(deleted)
-                        customerPage=customerRepository.
+            } else {
+                if (deleted != null) {
+                    if (deleted)
+                        customerPage = customerRepository.
                                 findByNameLikeAndEnabledTrueAndDeletedTrueOrPhoneLikeAndEnabledTrueAndDeletedTrueOrEmailLikeAndEnabledTrueAndDeletedTrue(
-                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                         PageRequest.of(page, limit, Sort.by(sortBy).ascending())
                                 );
                     else
-                        customerPage=customerRepository.
+                        customerPage = customerRepository.
                                 findByNameLikeAndEnabledTrueAndDeletedFalseOrPhoneLikeAndEnabledTrueAndDeletedFalseOrEmailLikeAndEnabledTrueAndDeletedFalse(
-                                        "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                        "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                         PageRequest.of(page, limit, Sort.by(sortBy).ascending())
                                 );
-                }else
-                    customerPage=customerRepository.
+                } else
+                    customerPage = customerRepository.
                             findByNameLikeAndEnabledTrueOrPhoneLikeAndEnabledTrueOrEmailLikeAndEnabledTrue(
-                                    "%"+search+"%", "%"+search+"%", "%"+search+"%",
+                                    "%" + search + "%", "%" + search + "%", "%" + search + "%",
                                     PageRequest.of(page, limit, Sort.by(sortBy).ascending())
                             );
             }
 
         }
 
-        List<Customer> customerList=customerPage.toList();
+        List<Customer> customerList = customerPage.toList();
 
         //convert sang CustomerOutputDTO
         ModelMapper modelMapper = new ModelMapper();
@@ -131,26 +130,27 @@ public class CustomerServiceImpl implements CustomerService {
                 .setMatchingStrategy(MatchingStrategies.STRICT);
         List<CustomerOutputDTO> customerOutputDTOList = new ArrayList<>();
         for (Customer customer : customerList) {
-            CustomerOutputDTO customerOutputDTO=modelMapper.map(customer, CustomerOutputDTO.class);
-            if(customer.getDob()!=null) customerOutputDTO.setBirthday(customer.getDob().getTime());
+            CustomerOutputDTO customerOutputDTO = modelMapper.map(customer, CustomerOutputDTO.class);
+            if (customer.getDob() != null) customerOutputDTO.setBirthday(customer.getDob().getTime());
             customerOutputDTOList.add(customerOutputDTO);
         }
         return customerOutputDTOList;
     }
 
     @Override
-    public ResponseEntity<?> updateCustomer(CustomerUpdateDTO customerUpdateDTO) throws CustomException{
+    public ResponseEntity<?> updateCustomer(CustomerUpdateDTO customerUpdateDTO,
+                                            Integer id) throws CustomException {
         //validate
-        String matchNumber="[0-9]+";
-        if(customerUpdateDTO.getCardId()!=null && !customerUpdateDTO.getCardId().equals("")){
-            if(!customerUpdateDTO.getCardId().matches(matchNumber))
+        String matchNumber = "[0-9]+";
+        if (customerUpdateDTO.getCardId() != null && !customerUpdateDTO.getCardId().equals("")) {
+            if (!customerUpdateDTO.getCardId().matches(matchNumber))
                 throw new CustomException("Số CMND phải là số");
-            else if(customerUpdateDTO.getCardId().length()<9||customerUpdateDTO.getCardId().length()>12)
+            else if (customerUpdateDTO.getCardId().length() < 9 || customerUpdateDTO.getCardId().length() > 12)
                 throw new CustomException("Số CMND phải gồm 9-12 số");
         }
-        if(!customerUpdateDTO.getPhone().matches(matchNumber))
+        if (!customerUpdateDTO.getPhone().matches(matchNumber))
             throw new CustomException("Số điện thoại phải là số");
-        if(customerUpdateDTO.getBirthday()>=System.currentTimeMillis())
+        if (customerUpdateDTO.getBirthday() >= System.currentTimeMillis())
             throw new CustomException("Ngày sinh phải trong quá khứ");
 
         //update
@@ -158,8 +158,8 @@ public class CustomerServiceImpl implements CustomerService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Optional<Customer> optionalCustomer = customerRepository.findById(customerUpdateDTO.getCustomerId());
-            Customer customer= optionalCustomer.get();
+            Optional<Customer> optionalCustomer = customerRepository.findById(id);
+            Customer customer = optionalCustomer.get();
             customer.setName(customerUpdateDTO.getName());
             customer.setGender(customerUpdateDTO.isGender());
             customer.setAddress(customerUpdateDTO.getAddress());
@@ -168,8 +168,8 @@ public class CustomerServiceImpl implements CustomerService {
             customer.setDob(new Date(customerUpdateDTO.getBirthday()));
             customer.setImage(customerUpdateDTO.getImage());
             Customer newCustomer = customerRepository.save(customer);
-            CustomerOutputDTO customerOutputDTO=modelMapper.map(newCustomer, CustomerOutputDTO.class);
-            if(customer.getDob()!=null) customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
+            CustomerOutputDTO customerOutputDTO = modelMapper.map(newCustomer, CustomerOutputDTO.class);
+            if (customer.getDob() != null) customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
             return ResponseEntity.ok(customerOutputDTO);
         } catch (Exception e) {
             //e.printStackTrace();
@@ -178,9 +178,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Message blockCustomer(Integer id) throws CustomException{
+    public Message blockCustomer(Integer id) throws CustomException {
         Customer customer = customerRepository.findByCustomerIdAndDeletedFalseAndEnabledTrue(id);
-        if (customer == null) throw new CustomException("Lỗi: id "+id+" không tồn tại, hoặc đã block rồi");
+        if (customer == null) throw new CustomException("Lỗi: id " + id + " không tồn tại, hoặc đã block rồi");
         else {
             customer.setDeleted(true);
             customerRepository.save(customer);
@@ -189,7 +189,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Message activeCustomer(Integer id) throws CustomException{
+    public Message activeCustomer(Integer id) throws CustomException {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
         if (!optionalCustomer.isPresent()) throw new CustomException("Lỗi: id " + id + " không tồn tại");
         else {
@@ -205,9 +205,9 @@ public class CustomerServiceImpl implements CustomerService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Customer customer=customerRepository.findById(id).get();
-            CustomerOutputDTO customerOutputDTO=modelMapper.map(customer, CustomerOutputDTO.class);
-            if(customer.getDob()!=null) customerOutputDTO.setBirthday(customer.getDob().getTime());
+            Customer customer = customerRepository.findById(id).get();
+            CustomerOutputDTO customerOutputDTO = modelMapper.map(customer, CustomerOutputDTO.class);
+            if (customer.getDob() != null) customerOutputDTO.setBirthday(customer.getDob().getTime());
             return ResponseEntity.ok(customerOutputDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Message("Lỗi: khách hàng id " + id + " không tồn tại"));
@@ -216,25 +216,18 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Message deleteAllCustomers() {
-        List<Customer> customerList=customerRepository.findByDeletedTrueAndEnabledTrue();
-        for(Customer customer:customerList){
+        List<Customer> customerList = customerRepository.findByDeletedTrueAndEnabledTrue();
+        for (Customer customer : customerList) {
             customerRepository.delete(customer);
         }
         return new Message("Xóa tất cả khách hàng bị xóa mềm thành công");
     }
 
     @Override
-    public Message deleteCustomers(List<Integer> list) throws CustomException{
-        String mess="";
-            for (Integer id : list) {
-                Optional<Customer> optionalCustomer=customerRepository.findById(id);
-                if(!optionalCustomer.isPresent() ||
-                !optionalCustomer.get().getDeleted()) mess=mess+", "+id;
-                else
-                customerRepository.deleteById(id);
-            }
-            if(!mess.equals(""))
-                throw new CustomException("Khách hàng có id: "+mess+" không tồn tại hoặc chưa bị xóa mềm");
-            return new Message("Xóa cứng một số khách hàng bị xóa mềm thành công");
+    public Message deleteCustomers(Integer id) throws CustomException {
+        Customer customer = customerRepository.findByCustomerIdAndEnabledTrue(id);
+        if (customer == null) throw new CustomException("Khách hàng với id " + id + " không tồn tại");
+        customerRepository.delete(customer);
+        return new Message("Xóa hách hàng id " + id + " thành công");
     }
 }

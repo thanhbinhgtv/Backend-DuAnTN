@@ -14,10 +14,8 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 public class CustomerUpdateDTO {
-    @NotNull(message = "Customer id không được trống")
-    private Integer customerId;
-
     @Size(min = 3, max=50, message = "Tên phải có từ 3 đến 50 kí tự")
+    @NotNull(message = "Tên không được trống")
     private String name;
 
     @NotNull(message = "Giới tính không được trống")
@@ -26,6 +24,7 @@ public class CustomerUpdateDTO {
     private String address;
 
     @Size(min=9,max = 11,message = "SĐT phải có 9-11 kí tự")
+    @NotNull(message = "Số điện thoại không được null")
     private String phone;
 
     private String cardId;
@@ -34,5 +33,6 @@ public class CustomerUpdateDTO {
     private long birthday;
 
     @NotBlank(message = "Ảnh không được trống")
+    @NotNull(message = "Ảnh không được null")
     private String image;
 }

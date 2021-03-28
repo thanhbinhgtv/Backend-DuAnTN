@@ -74,11 +74,12 @@ public class CustomerArticleManager {
     }
 
     //    sửa bài đăng	/customer/article
-    @PutMapping("/article")
+    @PutMapping("/article/{id}")
     public ArticleOutputDTO updateArticle(@Valid @RequestBody ArticleUpdateDTO articleUpdateDTO,
+                                          Integer id,
                                           HttpServletRequest request) throws CustomException {
         String email = (String) request.getAttribute("email");
-        return customerArticleService.updateArticle(email, articleUpdateDTO);
+        return customerArticleService.updateArticle(email, articleUpdateDTO, id);
     }
 
     //    ẩn bài đăng	/customer/article/hidden/{id}

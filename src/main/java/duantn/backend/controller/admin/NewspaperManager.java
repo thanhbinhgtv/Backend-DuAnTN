@@ -41,10 +41,11 @@ public class NewspaperManager {
         return newspaperService.insertNewspaper(newspaperInsertDTO);
     }
 
-    @PutMapping("/new")
-    public NewspaperOutputDTO updateNewspaper(@Valid @RequestBody NewspaperUpdateDTO newspaperUpdateDTO)
+    @PutMapping("/new/{id}")
+    public NewspaperOutputDTO updateNewspaper(@Valid @RequestBody NewspaperUpdateDTO newspaperUpdateDTO,
+                                              @PathVariable Integer id)
             throws CustomException {
-        return newspaperService.updateNewspaper(newspaperUpdateDTO);
+        return newspaperService.updateNewspaper(newspaperUpdateDTO, id);
     }
 
     @GetMapping("/new/hidden/{id}")

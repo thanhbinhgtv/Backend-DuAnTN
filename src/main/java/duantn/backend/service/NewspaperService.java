@@ -21,7 +21,8 @@ public interface NewspaperService {
     NewspaperOutputDTO insertNewspaper(NewspaperInsertDTO newspaperInsertDTO) throws CustomException;
 
 //    sửa tin tức
-    NewspaperOutputDTO updateNewspaper(NewspaperUpdateDTO newspaperUpdateDTO) throws CustomException;
+    NewspaperOutputDTO updateNewspaper(NewspaperUpdateDTO newspaperUpdateDTO,
+                                       Integer id) throws CustomException;
 //    ẩn 1 tin tức
     Message hiddenNewspaper(Integer id) throws CustomException;
 //    hiện 1 tin tức
