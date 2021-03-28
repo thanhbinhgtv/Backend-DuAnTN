@@ -187,7 +187,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO) throws CustomException {
+    public ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO, Integer id) throws CustomException {
         //validate
         String matchNumber = "[0-9]+";
         if (!staffUpdateDTO.getCardId().matches(matchNumber))
@@ -202,7 +202,7 @@ public class StaffServiceImpl implements StaffService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Optional<Staff> optionalStaff = staffRepository.findById(staffUpdateDTO.getStaffId());
+            Optional<Staff> optionalStaff = staffRepository.findById(id);
             Staff staff = optionalStaff.get();
             staff.setName(staffUpdateDTO.getName());
             staff.setCardId(staffUpdateDTO.getCardId());

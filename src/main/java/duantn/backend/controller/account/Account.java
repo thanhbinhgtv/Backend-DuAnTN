@@ -60,7 +60,7 @@ public class Account {
     //Brear Token
     //isRefreshToken = true (Header)
     @GetMapping("/refreshtoken")
-    public Map<String, String> refreshtoken(HttpServletRequest request) throws Exception {
+    public Map<String, String> refreshtoken(HttpServletRequest request) throws CustomException {
         return accountService.refreshtoken(request);
     }
 

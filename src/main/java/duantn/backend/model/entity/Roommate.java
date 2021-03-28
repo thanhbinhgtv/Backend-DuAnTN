@@ -19,10 +19,10 @@ public class Roommate implements Serializable {
     private Integer roommateId;
 
     @Column(nullable = false)
-    private boolean gender;
+    private Boolean gender;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(columnDefinition = "text")
     private String description;

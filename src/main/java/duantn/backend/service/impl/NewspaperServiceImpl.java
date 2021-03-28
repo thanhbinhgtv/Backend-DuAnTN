@@ -39,7 +39,7 @@ public class NewspaperServiceImpl implements NewspaperService {
     @Override
     public List<NewspaperOutputDTO> listNewspaper(String sort, Boolean hidden, String title,
                                                   Integer page, Integer limit) {
-        if(title==null) title="";
+        if (title == null) title = "";
         Page<Newspaper> newspaperPage;
         if (hidden != null) {
             if (sort != null && sort.equals("asc")) {
@@ -75,85 +75,88 @@ public class NewspaperServiceImpl implements NewspaperService {
     @Override
     public NewspaperOutputDTO findOneNewspaper(Integer id) throws CustomException {
         Optional<Newspaper> newspaperOptional = newspaperRepository.findById(id);
-        if(newspaperOptional.isPresent()){
+        if (newspaperOptional.isPresent()) {
             return convertToOutputDTO(newspaperOptional.get());
-        }else{
-            throw new CustomException("Tin tức với id "+id+" không tồn tại");
+        } else {
+            throw new CustomException("Tin tức với id " + id + " không tồn tại");
         }
     }
 
     @Override
     public NewspaperOutputDTO insertNewspaper(NewspaperInsertDTO newspaperInsertDTO) throws CustomException {
-        try{
+        Optional<Staff> staffOptional = staffRepository.findById(newspaperInsertDTO.getStaffId());
+        if(!staffOptional.isPresent())
+            throw new CustomException("Nhân viên với id " + newspaperInsertDTO.getStaffId() + " không tồn tại");
+
+        try {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Newspaper newspaper=modelMapper.map(newspaperInsertDTO, Newspaper.class);
-            Optional<Staff> staffOptional=staffRepository.findById(newspaperInsertDTO.getStaffId());
+            Newspaper newspaper = modelMapper.map(newspaperInsertDTO, Newspaper.class);
             newspaper.setStaff(staffOptional.get());
             return convertToOutputDTO(newspaperRepository.save(newspaper));
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException("Thêm mới thất bại");
         }
     }
 
     @Override
     public NewspaperOutputDTO updateNewspaper(NewspaperUpdateDTO newspaperUpdateDTO) throws CustomException {
-        try{
-            Optional<Newspaper> newspaperOptional=newspaperRepository.findById(newspaperUpdateDTO.getNewId());
-            if(newspaperOptional.isPresent()){
-                Newspaper newspaper=newspaperOptional.get();
+        Optional<Staff> staffOptional = staffRepository.findById(newspaperUpdateDTO.getStaffId());
+        if (!staffOptional.isPresent())
+            throw new CustomException("Nhân viên với id " + newspaperUpdateDTO.getStaffId() + " không tồn tại");
+        Optional<Newspaper> newspaperOptional = newspaperRepository.findById(newspaperUpdateDTO.getNewId());
+        if (!newspaperOptional.isPresent())
+            throw new CustomException("Bản tin với id " + newspaperUpdateDTO.getNewId() + " không tồn tại");
+        try {
+                Newspaper newspaper = newspaperOptional.get();
                 newspaper.setTitle(newspaperUpdateDTO.getTitle());
                 newspaper.setContent(newspaperUpdateDTO.getContent());
                 newspaper.setImage(newspaperUpdateDTO.getImage());
-                Optional<Staff> staffOptional=staffRepository.findById(newspaperUpdateDTO.getStaffId());
-                if(staffOptional.isPresent()) newspaper.setStaff(staffOptional.get());
-                else throw new CustomException("Nhân viên với id "+newspaperUpdateDTO.getStaffId()+" không tồn tại");
+                newspaper.setStaff(staffOptional.get());
                 return convertToOutputDTO(newspaperRepository.save(newspaper));
-            }else throw new CustomException("Bản tin với id "+newspaperUpdateDTO.getNewId()+" không tồn tại");
-
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException("Cập nhật thất bại");
         }
     }
 
     @Override
     public Message hiddenNewspaper(Integer id) throws CustomException {
-        Optional<Newspaper> newspaperOptional=newspaperRepository.findById(id);
-        if(newspaperOptional.isPresent()){
-            Newspaper newspaper=newspaperOptional.get();
+        Optional<Newspaper> newspaperOptional = newspaperRepository.findById(id);
+        if (newspaperOptional.isPresent()) {
+            Newspaper newspaper = newspaperOptional.get();
             newspaper.setDeleted(true);
             newspaperRepository.save(newspaper);
             return new Message("Ẩn bài viết thành công");
-        }else{
-            throw new CustomException("Tin tức với id "+id+" không tồn tại");
+        } else {
+            throw new CustomException("Tin tức với id " + id + " không tồn tại");
         }
     }
 
     @Override
     public Message activeNewspaper(Integer id) throws CustomException {
-        Optional<Newspaper> newspaperOptional=newspaperRepository.findById(id);
-        if(newspaperOptional.isPresent()){
-            Newspaper newspaper=newspaperOptional.get();
+        Optional<Newspaper> newspaperOptional = newspaperRepository.findById(id);
+        if (newspaperOptional.isPresent()) {
+            Newspaper newspaper = newspaperOptional.get();
             newspaper.setDeleted(false);
             newspaperRepository.save(newspaper);
             return new Message("Hiện bài viết thành công");
-        }else{
-            throw new CustomException("Tin tức với id "+id+" không tồn tại");
+        } else {
+            throw new CustomException("Tin tức với id " + id + " không tồn tại");
         }
     }
 
     @Override
     public Message deleteNewspaper(Integer id) throws CustomException {
-        try{
+        try {
             newspaperRepository.deleteById(id);
             return new Message("Xoá bài viết thành công");
-        }catch (Exception e){
-            throw new CustomException("Tin tức với id "+id+" không tồn tại");
+        } catch (Exception e) {
+            throw new CustomException("Tin tức với id " + id + " không tồn tại");
         }
     }
 
-    public NewspaperOutputDTO convertToOutputDTO(Newspaper newspaper){
+    public NewspaperOutputDTO convertToOutputDTO(Newspaper newspaper) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);

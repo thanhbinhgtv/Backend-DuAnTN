@@ -199,6 +199,15 @@ public class ArticleServiceImpI implements ArticleService {
         }else throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
     }
 
+    @Override
+    public ArticleOutputDTO detailArticle(Integer id) throws CustomException {
+        Optional<Article> articleOptional=articleRepository.findById(id);
+        if(!articleOptional.isPresent())
+            throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
+        Article article=articleOptional.get();
+        return convertToOutputDTO(article);
+    }
+
     public ArticleOutputDTO convertToOutputDTO(Article article){
         ModelMapper modelMapper=new ModelMapper();
         modelMapper.getConfiguration()
@@ -229,7 +238,7 @@ public class ArticleServiceImpI implements ArticleService {
         customer.put("email", article.getCustomer().getEmail());
         articleOutputDTO.setCustomer(customer);
 
-        if(article.getDeleted()==true && staffArticle!=null){
+        if(article.getDeleted()!=null && article.getDeleted()==true && staffArticle!=null){
             articleOutputDTO.
                     setExpDate(staffArticle.getTime().getTime()+article.getNumberDate()*24*3600*1000);
         }

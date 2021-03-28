@@ -14,11 +14,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/")
-public class ArticleManage {
+public class ArticleManager {
     final
     ArticleService articleService;
 
-    public ArticleManage(ArticleService articleService) {
+    public ArticleManager(ArticleService articleService) {
         this.articleService = articleService;
     }
 
@@ -71,5 +71,10 @@ public class ArticleManage {
                                  HttpServletRequest request)
             throws CustomException {
         return articleService.hiddenArticle(id, message.getMess(), request);
+    }
+
+    @GetMapping("/article/{id}")
+    public ArticleOutputDTO detailArticle(@PathVariable Integer id) throws CustomException{
+        return articleService.detailArticle(id);
     }
 }

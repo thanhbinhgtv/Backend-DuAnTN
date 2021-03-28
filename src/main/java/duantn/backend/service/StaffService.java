@@ -26,7 +26,7 @@ public interface StaffService {
     Message insertStaff(StaffInsertDTO staffInsertDTO, HttpServletRequest request) throws Exception;
 
     //    cập nhật thông tin nhân viên	Put/super-admin/staffs
-    ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO) throws CustomException;
+    ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO, Integer id) throws CustomException;
 
     //    block nhân viên	DELETE/super-admin/staffs/{id}
     Message blockStaff(Integer id) throws CustomException;
