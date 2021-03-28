@@ -188,15 +188,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Map<String, String> refreshtoken(HttpServletRequest request) throws Exception {
-        // From the HttpRequest get the claims
-        DefaultClaims claims = (io.jsonwebtoken.impl.DefaultClaims) request.getAttribute("claims");
+    public Map<String, String> refreshtoken(HttpServletRequest request) throws CustomException {
+        try {
+            // From the HttpRequest get the claims
+            DefaultClaims claims = (io.jsonwebtoken.impl.DefaultClaims) request.getAttribute("claims");
 
-        Map<String, Object> expectedMap = getMapFromIoJsonwebtokenClaims(claims);
-        String token = jwtTokenUtil.doGenerateToken(expectedMap, expectedMap.get("sub").toString());
-        Map<String, String> returnMap = new HashMap<>();
-        returnMap.put("token", token);
-        return returnMap;
+            Map<String, Object> expectedMap = getMapFromIoJsonwebtokenClaims(claims);
+            String token = jwtTokenUtil.doGenerateToken(expectedMap, expectedMap.get("sub").toString());
+            Map<String, String> returnMap = new HashMap<>();
+            returnMap.put("token", token);
+            return returnMap;
+        } catch (Exception e) {
+            //e.printStackTrace();
+            throw new CustomException("Refresh token thất bại");
+        }
     }
 
     @Override
@@ -277,6 +282,8 @@ public class AccountServiceImpl implements AccountService {
             StaffOutputDTO staffOutputDTO = modelMapper.map(newStaff, StaffOutputDTO.class);
             staffOutputDTO.setBirthday(newStaff.getDob().getTime());
             return staffOutputDTO;
+        } catch (CustomException e) {
+            throw new CustomException(e.getMessage());
         } catch (Exception e) {
             throw new CustomException("Lỗi: người dùng không hợp lệ hoặc không tồn tại");
         }
@@ -318,6 +325,8 @@ public class AccountServiceImpl implements AccountService {
             StaffOutputDTO staffOutputDTO = modelMapper.map(newStaff, StaffOutputDTO.class);
             staffOutputDTO.setBirthday(newStaff.getDob().getTime());
             return staffOutputDTO;
+        } catch (CustomException e) {
+            throw new CustomException(e.getMessage());
         } catch (Exception e) {
             //e.printStackTrace();
             throw new CustomException("Cập nhật thông tin cá nhân thất bại");
@@ -340,6 +349,8 @@ public class AccountServiceImpl implements AccountService {
             CustomerOutputDTO customerOutputDTO = modelMapper.map(customer, CustomerOutputDTO.class);
             if (customer.getDob() != null) customerOutputDTO.setBirthday(customer.getDob().getTime());
             return customerOutputDTO;
+        } catch (CustomException e) {
+            throw new CustomException(e.getMessage());
         } catch (Exception e) {
             throw new CustomException("Lỗi: người dùng không hợp lệ hoặc không tồn tại");
         }
@@ -384,7 +395,10 @@ public class AccountServiceImpl implements AccountService {
             CustomerOutputDTO customerOutputDTO = modelMapper.map(newCustomer, CustomerOutputDTO.class);
             if (customer.getDob() != null) customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
             return customerOutputDTO;
-        } catch (Exception e) {
+        } catch (CustomException e){
+            throw new CustomException(e.getMessage());
+        }
+        catch (Exception e) {
             //e.printStackTrace();
             throw new CustomException("Cập nhật thông tin cá nhân thất bại");
         }

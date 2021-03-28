@@ -3,6 +3,7 @@ package duantn.backend.service;
 import duantn.backend.authentication.CustomException;
 import duantn.backend.model.dto.input.ContactCustomerDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
+import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.dto.output.Message;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,4 +31,7 @@ public interface ArticleService {
     Message activeArticle(Integer id, HttpServletRequest request) throws CustomException;
 //    ẩn bài đăng (gửi mail)	/admin/article/block/{id}
     Message hiddenArticle(Integer id, String reason, HttpServletRequest request) throws CustomException;
+
+    //chi tiết bài đăng
+    ArticleOutputDTO detailArticle(Integer id) throws CustomException;
 }

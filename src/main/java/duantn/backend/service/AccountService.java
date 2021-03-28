@@ -18,7 +18,7 @@ public interface AccountService {
 
     Map<String, String> login(LoginDTO loginDTO) throws Exception;
 
-    Map<String, String> refreshtoken(HttpServletRequest request) throws Exception;
+    Map<String, String> refreshtoken(HttpServletRequest request) throws CustomException;
 
     Message forgotPassword(String email) throws CustomException;
 

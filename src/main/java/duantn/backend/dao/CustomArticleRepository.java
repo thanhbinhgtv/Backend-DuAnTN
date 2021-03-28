@@ -10,4 +10,10 @@ public interface CustomArticleRepository {
                              Boolean roommate,
                              String status, Boolean vip, String search,
                              Integer page, Integer limit);
+
+    List<Article> findCustomAndEmail(String email, String sort, Long start, Long end,
+                             Integer ward, Integer district, Integer city,
+                             Boolean roommate,
+                             String status, Boolean vip, String search,
+                             Integer page, Integer limit);
 }

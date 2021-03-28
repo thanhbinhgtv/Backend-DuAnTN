@@ -54,19 +54,20 @@ public class StaffsManager {
     }
 
     //    cập nhật thông tin nhân viên	Put/super-admin/staffs
-    @PutMapping("/staffs")
-    public ResponseEntity<?> updateStaff(@Valid @RequestBody StaffUpdateDTO staffUpdateDTO)
+    @PutMapping("/staffs/{id}")
+    public ResponseEntity<?> updateStaff(@Valid @RequestBody StaffUpdateDTO staffUpdateDTO,
+                                         @PathVariable Integer id)
     throws CustomException {
-        return staffService.updateStaff(staffUpdateDTO);
+        return staffService.updateStaff(staffUpdateDTO, id);
     }
 
-    //    block nhân viên	GET/super-admin/staffs/block/{id}
+
     @GetMapping("/staffs/block/{id}")
     public Message blockStaff(@PathVariable Integer id) throws CustomException{
         return staffService.blockStaff(id);
     }
 
-    //    active nhân viên	DELETE/super-admin/staffs/block/{id}
+
     @GetMapping("/staffs/active/{id}")
     public Message activeStaff(@PathVariable Integer id) throws CustomException{
         return staffService.activeStaff(id);

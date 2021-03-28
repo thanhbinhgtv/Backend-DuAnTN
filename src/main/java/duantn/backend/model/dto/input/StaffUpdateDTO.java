@@ -11,9 +11,6 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 public class StaffUpdateDTO {
-    @NotNull(message = "Staff id không được trống")
-    private Integer staffId;
-
     @Size(min = 3, max=50, message = "Tên phải có từ 3 đến 50 kí tự")
     private String name;
 
