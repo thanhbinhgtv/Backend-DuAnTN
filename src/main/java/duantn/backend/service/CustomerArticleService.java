@@ -24,7 +24,8 @@ public interface CustomerArticleService {
             throws CustomException;
 
     //    sửa bài đăng	/customer/article
-    ArticleOutputDTO updateArticle(String email, ArticleUpdateDTO articleUpdateDTO)
+    ArticleOutputDTO updateArticle(String email, ArticleUpdateDTO articleUpdateDTO,
+                                   Integer id)
             throws CustomException;
 
     //    ẩn bài đăng	/customer/article/hidden/{id}

@@ -13,9 +13,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class ArticleUpdateDTO {
-    @NotNull(message = "Article ID không được trống")
-    private Integer articleId;
-
     @Size(min = 3, max = 220, message = "Tiêu đề phải có từ 3-220 kí tự")
     @NotNull(message = "Tiêu đề không được trống")
     private String title;
@@ -38,10 +35,13 @@ public class ArticleUpdateDTO {
 
     //numberDate
 
+    @Min(value = 1000, message = "Giá nước phải lớn hơn 1000 đồng")
     private Integer waterPrice;
 
+    @Min(value = 1000, message = "Giá điện phải lớn hơn 1000 đồng")
     private Integer electricPrice;
 
+    @Min(value = 1000, message = "Giá wifi phải lớn hơn 1000 đồng")
     private Integer wifiPrice;
 
     //lưu ý

@@ -101,13 +101,14 @@ public class NewspaperServiceImpl implements NewspaperService {
     }
 
     @Override
-    public NewspaperOutputDTO updateNewspaper(NewspaperUpdateDTO newspaperUpdateDTO) throws CustomException {
+    public NewspaperOutputDTO updateNewspaper(NewspaperUpdateDTO newspaperUpdateDTO,
+                                              Integer id) throws CustomException {
         Optional<Staff> staffOptional = staffRepository.findById(newspaperUpdateDTO.getStaffId());
         if (!staffOptional.isPresent())
             throw new CustomException("Nhân viên với id " + newspaperUpdateDTO.getStaffId() + " không tồn tại");
-        Optional<Newspaper> newspaperOptional = newspaperRepository.findById(newspaperUpdateDTO.getNewId());
+        Optional<Newspaper> newspaperOptional = newspaperRepository.findById(id);
         if (!newspaperOptional.isPresent())
-            throw new CustomException("Bản tin với id " + newspaperUpdateDTO.getNewId() + " không tồn tại");
+            throw new CustomException("Bản tin với id " + id + " không tồn tại");
         try {
                 Newspaper newspaper = newspaperOptional.get();
                 newspaper.setTitle(newspaperUpdateDTO.getTitle());

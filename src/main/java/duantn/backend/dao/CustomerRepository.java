@@ -30,4 +30,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<Customer> findByDeletedTrueAndEnabledTrue();
 
     List<Customer> findByEnabledFalseAndTimeCreatedLessThanEqual(Date date);
+
+    Customer findByCustomerIdAndEnabledTrue(Integer id);
 }

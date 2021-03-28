@@ -101,7 +101,8 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     }
 
     @Override
-    public ArticleOutputDTO updateArticle(String email, ArticleUpdateDTO articleUpdateDTO) throws CustomException {
+    public ArticleOutputDTO updateArticle(String email, ArticleUpdateDTO articleUpdateDTO,
+                                          Integer id) throws CustomException {
         Customer customer=customerRepository.findByEmail(email);
         if(customer==null) throw new CustomException("Khách hàng không hợp lệ");
         try{
@@ -109,8 +110,8 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
 
-            Optional<Article> articleOptional=articleRepository.findById(articleUpdateDTO.getArticleId());
-            if(!articleOptional.isPresent()) throw new CustomException("Article id không hợp lệ");
+            Optional<Article> articleOptional=articleRepository.findById(id);
+            if(!articleOptional.isPresent()) throw new CustomException("Bài đăng id không hợp lệ");
             Article article=articleOptional.get();
 
             article.setTitle(articleUpdateDTO.getTitle());
