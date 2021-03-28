@@ -80,12 +80,12 @@ public class StaffsManager {
     }
 
     // xóa toàn bộ những nhân viên đã bị xóa mềm
-    @DeleteMapping("")
+    @DeleteMapping("/staffs")
     public Message deleteAllStaffs(){
         return staffService.deleteAllStaffs();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/staffs/{id}")
     public Message deleteStaffs(@PathVariable Integer id) throws CustomException{
         return staffService.deleteStaffs(id);
     }
