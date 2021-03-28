@@ -266,18 +266,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public StaffOutputDTO staffDetail(Integer id, HttpServletRequest request) throws CustomException {
+    public StaffOutputDTO staffDetail(HttpServletRequest request) throws CustomException {
         try {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Staff newStaff = staffRepository.findById(id).get();
 
             String jwt = extractJwtFromRequest(request);
             String email = jwtTokenUtil.getUsernameFromToken(jwt);
+            Staff newStaff = staffRepository.findByEmail(email);
 
-            if (!newStaff.getEmail().equals(email))
-                throw new CustomException("Người dùng không hợp lệ, không được phép truy cập");
+            if (newStaff==null)
+                throw new CustomException("Token không hợp lệ");
 
             StaffOutputDTO staffOutputDTO = modelMapper.map(newStaff, StaffOutputDTO.class);
             staffOutputDTO.setBirthday(newStaff.getDob().getTime());
@@ -332,17 +332,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public CustomerOutputDTO customerProfile(Integer id, HttpServletRequest request) throws CustomException {
+    public CustomerOutputDTO customerProfile(HttpServletRequest request) throws CustomException {
         try {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Customer customer = customerRepository.findById(id).get();
 
             String jwt = extractJwtFromRequest(request);
             String email = jwtTokenUtil.getUsernameFromToken(jwt);
-            if (!customer.getEmail().equals(email))
-                throw new CustomException("Người dùng không hợp lệ, không được phép truy cập");
+            Customer customer = customerRepository.findByEmail(email);
+
+
+            if (customer==null)
+                throw new CustomException("Token không hợp lệ");
 
             CustomerOutputDTO customerOutputDTO = modelMapper.map(customer, CustomerOutputDTO.class);
             if (customer.getDob() != null) customerOutputDTO.setBirthday(customer.getDob().getTime());
