@@ -41,5 +41,5 @@ public interface StaffService {
     Message deleteAllStaffs();
 
     //xóa cứng 1 list (mảng Integer Id) nhân viên bị xóa mềm
-    Message deleteStaffs(List<Integer> list) throws CustomException;
+    Message deleteStaffs(Integer id) throws CustomException;
 }

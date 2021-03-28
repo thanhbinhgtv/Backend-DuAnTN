@@ -269,17 +269,11 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Message deleteStaffs(List<Integer> list) throws CustomException {
-        String mess = "";
-        for (Integer id : list) {
-            Optional<Staff> optionalStaff = staffRepository.findById(id);
-            if (!optionalStaff.isPresent() ||
-                    !optionalStaff.get().getDeleted()) mess = mess + ", " + id;
-            else
-                staffRepository.deleteById(id);
-        }
-        if (!mess.equals(""))
-            throw new CustomException("Nhân viên có id: " + mess + " không tồn tại hoặc chưa bị xóa mềm");
-        return new Message("Xóa cứng một số nhân viên bị xóa mềm thành công");
+    public Message deleteStaffs(Integer id) throws CustomException {
+        Staff staff=staffRepository.
+                findByEnabledTrueAndStaffId(id);
+        if(staff==null) throw new CustomException("Nhân viên id: "+id+" không tồn tại");
+        staffRepository.delete(staff);
+        return new Message("Xóa nhân viên "+id+" thành công");
     }
 }
