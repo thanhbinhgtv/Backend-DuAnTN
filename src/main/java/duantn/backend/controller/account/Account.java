@@ -74,27 +74,27 @@ public class Account {
         return accountService.resetPassword(resetPasswordDTO);
     }
 
-    @GetMapping("/admin/profile/{id}")
-    public StaffOutputDTO staffProfile(@PathVariable Integer id, HttpServletRequest request)
+    @GetMapping("/admin/profile")
+    public StaffOutputDTO staffProfile(HttpServletRequest request)
     throws CustomException{
-        return accountService.staffDetail(id, request);
+        return accountService.staffDetail(request);
     }
 
     @PostMapping("/admin/update-profile")
-    public StaffOutputDTO staffUpdateProfile(@RequestBody StaffPersonUpdateDTO staffPersonUpdateDTO,
+    public StaffOutputDTO staffUpdateProfile(@Valid @RequestBody StaffPersonUpdateDTO staffPersonUpdateDTO,
                                              HttpServletRequest request)
         throws CustomException{
         return accountService.staffUpdateProfile(staffPersonUpdateDTO, request);
     }
 
-    @GetMapping("/customer/profile/{id}")
-    public CustomerOutputDTO customerProfile(@PathVariable Integer id, HttpServletRequest request)
+    @GetMapping("/customer/profile")
+    public CustomerOutputDTO customerProfile(HttpServletRequest request)
             throws CustomException{
-        return accountService.customerProfile(id, request);
+        return accountService.customerProfile(request);
     }
 
     @PostMapping("/customer/update-profile")
-    public CustomerOutputDTO customerUpdateProfile(@RequestBody CustomerUpdateDTO customerUpdateDTO,
+    public CustomerOutputDTO customerUpdateProfile(@Valid @RequestBody CustomerUpdateDTO customerUpdateDTO,
                                              HttpServletRequest request)
             throws CustomException{
         return accountService.customerUpdateProfile(customerUpdateDTO, request);

@@ -24,12 +24,12 @@ public interface AccountService {
 
     Message resetPassword(ResetPasswordDTO resetPasswordDTO) throws CustomException;
 
-    StaffOutputDTO staffDetail(Integer id, HttpServletRequest request) throws CustomException;
+    StaffOutputDTO staffDetail(HttpServletRequest request) throws CustomException;
 
     StaffOutputDTO staffUpdateProfile(StaffPersonUpdateDTO staffPersonUpdateDTO,
                                       HttpServletRequest request) throws CustomException;
 
-    CustomerOutputDTO customerProfile(Integer id, HttpServletRequest request) throws CustomException;
+    CustomerOutputDTO customerProfile(HttpServletRequest request) throws CustomException;
 
     CustomerOutputDTO customerUpdateProfile(CustomerUpdateDTO customerUpdateDTO,
                                             HttpServletRequest request) throws CustomException;
