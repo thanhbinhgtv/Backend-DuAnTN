@@ -305,10 +305,8 @@ public class AccountServiceImpl implements AccountService {
         try {
             String jwt = extractJwtFromRequest(request);
             String email = jwtTokenUtil.getUsernameFromToken(jwt);
-            Optional<Staff> optionalStaff = staffRepository.findById(staffPersonUpdateDTO.getStaffId());
-            Staff staff = optionalStaff.get();
-            if (!staff.getEmail().equals(email))
-                throw new CustomException("Người dùng không hợp lệ, không được phép cập nhật");
+            Staff staff = staffRepository.findByEmail(email);
+            if (staff==null) throw new CustomException("Token không hợp lệ");
 
             staff.setName(staffPersonUpdateDTO.getName());
             staff.setCardId(staffPersonUpdateDTO.getCardId());
@@ -373,16 +371,13 @@ public class AccountServiceImpl implements AccountService {
 
         //update
         try {
+            String jwt = extractJwtFromRequest(request);
+            String email = jwtTokenUtil.getUsernameFromToken(jwt);
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
-            Optional<Customer> optionalCustomer = customerRepository.findById(customerUpdateDTO.getCustomerId());
-            Customer customer = optionalCustomer.get();
-
-            String jwt = extractJwtFromRequest(request);
-            String email = jwtTokenUtil.getUsernameFromToken(jwt);
-            if (!customer.getEmail().equals(email))
-                throw new CustomException("Người dùng không hợp lệ, không được phép cập nhật");
+            Customer customer = customerRepository.findByEmail(email);
+            if(customer==null) throw new CustomException("Token không hợp lệ");
 
             customer.setName(customerUpdateDTO.getName());
             customer.setGender(customerUpdateDTO.isGender());
