@@ -401,6 +401,36 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
+    public Message changePassword(String oldPass, String newPass,
+                                  HttpServletRequest request) throws CustomException {
+        try{
+            String token=extractJwtFromRequest(request);
+            String email=jwtTokenUtil.getUsernameFromToken(token);
+            if(email==null || email.trim().equals(""))
+                throw new CustomException("Token không hợp lệ");
+            Staff staff=null;
+            Customer customer=customerRepository.findByEmail(email);
+            if(customer==null) staff=staffRepository.findByEmail(email);
+            if(staff!=null){
+                if(staff.getPass()!=oldPass) throw new CustomException("Mật khẩu cũ không chính xác");
+                staff.setPass(newPass);
+                staffRepository.save(staff);
+                return new Message("Đổi mật khẩu cho nhân viên: "+staff.getEmail()+" thành công");
+            } else if(customer!=null){
+                if(customer.getPass()!=oldPass)
+                    throw new CustomException("Mật khẩu cũ không chính xác");
+                customer.setPass(newPass);
+                customerRepository.save(customer);
+                return new Message("Đổi mật khẩu khách hàng: "+customer.getEmail()+ "thành công");
+            }else throw new CustomException("Không tìm thấy người dùng hợp lệ");
+        }catch (CustomException e){
+            throw new CustomException(e.getMessage());
+        }catch (Exception e){
+            throw new CustomException("Đổi mật khẩu thất bại");
+        }
+    }
+
     private String extractJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {

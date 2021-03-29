@@ -33,4 +33,7 @@ public interface AccountService {
 
     CustomerOutputDTO customerUpdateProfile(CustomerUpdateDTO customerUpdateDTO,
                                             HttpServletRequest request) throws CustomException;
+
+    Message changePassword(String oldPass, String newPass,
+                           HttpServletRequest request) throws CustomException;
 }

@@ -40,13 +40,13 @@ public class Account {
 
 
     @PostMapping("/sign-up")
-    public Message customerSignup(@Valid @RequestBody SignupDTO signupDTO, HttpServletRequest request) throws CustomException{
+    public Message customerSignup(@Valid @RequestBody SignupDTO signupDTO, HttpServletRequest request) throws CustomException {
         return accountService.customerSignup(signupDTO, request);
     }
 
     @GetMapping("/confirm")
     public Message confirmEmail(@RequestParam(value = "token-customer") String token,
-                                @RequestParam String email) throws CustomException{
+                                @RequestParam String email) throws CustomException {
         return accountService.confirmEmail(token, email);
     }
 
@@ -70,33 +70,41 @@ public class Account {
     }
 
     @PostMapping("/reset-password")
-    public Message resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO) throws CustomException{
+    public Message resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO) throws CustomException {
         return accountService.resetPassword(resetPasswordDTO);
     }
 
     @GetMapping("/admin/profile")
     public StaffOutputDTO staffProfile(HttpServletRequest request)
-    throws CustomException{
+            throws CustomException {
         return accountService.staffDetail(request);
     }
 
     @PostMapping("/admin/update-profile")
     public StaffOutputDTO staffUpdateProfile(@Valid @RequestBody StaffPersonUpdateDTO staffPersonUpdateDTO,
                                              HttpServletRequest request)
-        throws CustomException{
+            throws CustomException {
         return accountService.staffUpdateProfile(staffPersonUpdateDTO, request);
     }
 
     @GetMapping("/customer/profile")
     public CustomerOutputDTO customerProfile(HttpServletRequest request)
-            throws CustomException{
+            throws CustomException {
         return accountService.customerProfile(request);
     }
 
     @PostMapping("/customer/update-profile")
     public CustomerOutputDTO customerUpdateProfile(@Valid @RequestBody CustomerUpdateDTO customerUpdateDTO,
-                                             HttpServletRequest request)
-            throws CustomException{
+                                                   HttpServletRequest request)
+            throws CustomException {
         return accountService.customerUpdateProfile(customerUpdateDTO, request);
+    }
+
+    @PostMapping("/change-password")
+    public Message changePassword(@Valid @RequestBody ChangePassDTO changePassDTO,
+                                  HttpServletRequest request)
+            throws CustomException {
+        return accountService.changePassword(changePassDTO.getOldPass(),
+                changePassDTO.getNewPass(), request);
     }
 }
