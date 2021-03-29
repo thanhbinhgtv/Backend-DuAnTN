@@ -26,6 +26,6 @@ public class Ward implements Serializable {
     @JoinColumn(name = "districtId", nullable = false)
     private District district;
 
-    @OneToMany(mappedBy = "ward", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ward", fetch = FetchType.LAZY)
     private Set<Article> articles;
 }

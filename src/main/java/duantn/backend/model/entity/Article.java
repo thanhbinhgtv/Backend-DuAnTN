@@ -57,14 +57,13 @@ public class Article extends BaseEntity implements Serializable {
     @JoinColumn(name = "customerId", nullable = false)
     private Customer customer;
 
-
     @ManyToOne
     @JoinColumn(name = "wardId", nullable = false)
     private Ward ward;
 
-    @OneToMany(mappedBy = "article", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<FavoriteArticle> favoriteArticles;
 
-    @OneToMany(mappedBy = "article", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<StaffArticle> staffArticles;
 }

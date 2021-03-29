@@ -22,6 +22,6 @@ public class City implements Serializable {
     @Column(nullable = false)
     private String cityName;
 
-    @OneToMany(mappedBy = "city", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "city", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<District> districts;
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Date;
 
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, Integer>, CustomArticleRepository {
+public interface ArticleRepository extends JpaRepository<Article, Integer>, CustomArticleRepository{
     Article findByDeletedFalseAndArticleId(Integer id);
+    Article findByArticleId(Integer id);
 }
