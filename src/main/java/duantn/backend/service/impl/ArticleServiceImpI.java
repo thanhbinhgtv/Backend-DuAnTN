@@ -4,6 +4,7 @@ import duantn.backend.authentication.CustomException;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.component.MailSender;
 import duantn.backend.dao.ArticleRepository;
+import duantn.backend.dao.CustomArticleRepository;
 import duantn.backend.dao.StaffArticleRepository;
 import duantn.backend.dao.StaffRepository;
 import duantn.backend.helper.Helper;
@@ -224,7 +225,7 @@ public class ArticleServiceImpI implements ArticleService {
                 findFirstByArticle_ArticleId(article.getArticleId(), Sort.by("time").descending());
 
 
-        if(staffArticle!=null){
+        if(staffArticle!=null && article.getDeleted()!=null){
             Map<String, String> moderator=new HashMap<>();
             moderator.put("staffId", staffArticle.getStaff().getStaffId()+"");
             moderator.put("name", staffArticle.getStaff().getName());

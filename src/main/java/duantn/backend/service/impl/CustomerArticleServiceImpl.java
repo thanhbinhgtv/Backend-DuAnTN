@@ -1,10 +1,7 @@
 package duantn.backend.service.impl;
 
 import duantn.backend.authentication.CustomException;
-import duantn.backend.dao.ArticleRepository;
-import duantn.backend.dao.CustomerRepository;
-import duantn.backend.dao.StaffArticleRepository;
-import duantn.backend.dao.WardRepository;
+import duantn.backend.dao.*;
 import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.input.RoommateInsertDTO;
@@ -110,9 +107,9 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
 
-            Optional<Article> articleOptional=articleRepository.findById(id);
-            if(!articleOptional.isPresent()) throw new CustomException("Bài đăng id không hợp lệ");
-            Article article=articleOptional.get();
+            Article article=articleRepository.findByArticleId(id);
+            if(article==null) throw new CustomException("Bài đăng id không hợp lệ");
+            
 
             article.setTitle(articleUpdateDTO.getTitle());
             article.setContent(articleUpdateDTO.getContent());
@@ -140,7 +137,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             article.setWard(wardOptional.get());
 
             article.setUpdateTime(new Date());
-            article.setDeleted(null);
+            if(article.getDeleted()==true) article.setDeleted(null);
 
             return convertToOutputDTO(articleRepository.save(article));
         } catch (CustomException e){
@@ -154,10 +151,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
     @Override
     public Message hiddenArticle(String email, Integer id) throws CustomException{
-        Optional<Article> articleOptional=articleRepository.findById(id);
-        if(!articleOptional.isPresent())
+        Article article=articleRepository.findByArticleId(id);
+        if(article==null)
             throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
-        Article article=articleOptional.get();
+        
         if(!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
         article.setDeleted(false);
@@ -167,10 +164,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
     @Override
     public Message deleteArticle(String email, Integer id) throws CustomException {
-        Optional<Article> articleOptional=articleRepository.findById(id);
-        if(!articleOptional.isPresent())
+        Article article=articleRepository.findByArticleId(id);
+        if(article==null)
             throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
-        Article article=articleOptional.get();
+        
         if(!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
         articleRepository.delete(article);
@@ -179,10 +176,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
     @Override
     public Message extensionExp(String email, Integer id, Integer days) throws CustomException {
-        Optional<Article> articleOptional=articleRepository.findById(id);
-        if(!articleOptional.isPresent())
+        Article article=articleRepository.findByArticleId(id);
+        if(article==null)
             throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
-        Article article=articleOptional.get();
+        
         if(!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
         article.setNumberDate(article.getNumberDate()+days);
@@ -205,10 +202,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
     @Override
     public ArticleOutputDTO detailArticle(String email, Integer id) throws CustomException {
-        Optional<Article> articleOptional=articleRepository.findById(id);
-        if(!articleOptional.isPresent())
+        Article article=articleRepository.findByArticleId(id);
+        if(article==null)
             throw new CustomException("Bài đăng với id: "+id+" không tồn tại");
-        Article article=articleOptional.get();
+        
         System.out.println("email: "+email);
         System.out.println("customer: "+article.getCustomer().getEmail());
         if(!email.equals(article.getCustomer().getEmail()))
@@ -233,7 +230,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
                 findFirstByArticle_ArticleId(article.getArticleId(), Sort.by("time").descending());
 
 
-        if(staffArticle!=null){
+        if(staffArticle!=null && article.getDeleted()!=null){
             Map<String, String> moderator=new HashMap<>();
             moderator.put("staffId", staffArticle.getStaff().getStaffId()+"");
             moderator.put("name", staffArticle.getStaff().getName());

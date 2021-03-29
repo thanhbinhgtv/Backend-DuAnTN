@@ -16,4 +16,5 @@ public interface CustomArticleRepository {
                              Boolean roommate,
                              String status, Boolean vip, String search,
                              Integer page, Integer limit);
+
 }
