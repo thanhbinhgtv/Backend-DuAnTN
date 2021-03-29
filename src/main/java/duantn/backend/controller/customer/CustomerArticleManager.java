@@ -1,22 +1,15 @@
 package duantn.backend.controller.customer;
 
 import duantn.backend.authentication.CustomException;
-import duantn.backend.authentication.JwtUtil;
 import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.service.CustomerArticleService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.swagger.models.auth.In;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
