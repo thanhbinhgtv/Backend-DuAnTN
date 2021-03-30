@@ -15,3 +15,12 @@ spring:
       max-file-size: 512MB
       max-request-size: 512MB
       enabled: true
+
+paypal:
+  mode: sandbox
+  client:
+    app: AaQJG77Cznkn1lerQBXotCWZJE26t_MzGG-egY1-dQWlYKgk1RV3i6MiVVIo-gM1IsmYqeBKAyanf67F
+    secret: EJK9Jw94NGuECSqwgYr3rI8_kQdxkpLdATY7_XE9OU5rBryNAX0kLuJfYF7cWe7DIGKOrZVKbn8JRJAS
+
+duantn:
+  rate: 23100

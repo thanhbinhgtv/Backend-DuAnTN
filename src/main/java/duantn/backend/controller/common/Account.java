@@ -1,4 +1,4 @@
-package duantn.backend.controller.account;
+package duantn.backend.controller.common;
 
 import duantn.backend.authentication.CustomException;
 import duantn.backend.authentication.CustomUserDetailsService;
