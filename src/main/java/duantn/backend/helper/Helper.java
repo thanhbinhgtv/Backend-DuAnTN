@@ -1,10 +1,14 @@
 package duantn.backend.helper;
 
+import duantn.backend.authentication.CustomException;
+import duantn.backend.authentication.CustomJwtAuthenticationFilter;
+import duantn.backend.authentication.JwtUtil;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -15,10 +19,16 @@ public class Helper {
     CustomerRepository customerRepository;
     final
     StaffRepository staffRepository;
+    final
+    JwtUtil jwtUtil;
+    final
+    CustomJwtAuthenticationFilter customJwtAuthenticationFilter;
 
-    public Helper(CustomerRepository customerRepository, StaffRepository staffRepository) {
+    public Helper(CustomerRepository customerRepository, StaffRepository staffRepository, JwtUtil jwtUtil, CustomJwtAuthenticationFilter customJwtAuthenticationFilter) {
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
+        this.jwtUtil = jwtUtil;
+        this.customJwtAuthenticationFilter = customJwtAuthenticationFilter;
     }
 
 
@@ -26,6 +36,33 @@ public class Helper {
         int index = url.indexOf(substring);
         String hostUrl = url.substring(0, index);
         return hostUrl;
+    }
+
+    public String getBaseURL(HttpServletRequest request) {
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+        String contextPath = request.getContextPath();
+        StringBuffer url =  new StringBuffer();
+        url.append(scheme).append("://").append(serverName);
+        if ((serverPort != 80) && (serverPort != 443)) {
+            url.append(":").append(serverPort);
+        }
+        url.append(contextPath);
+        if(url.toString().endsWith("/")){
+            url.append("/");
+        }
+        return url.toString();
+    }
+
+    public String getEmailFromRequest(HttpServletRequest request) throws CustomException {
+        try{
+            String token= customJwtAuthenticationFilter.extractJwtFromRequest(request);
+            String email=jwtUtil.getUsernameFromToken(token);
+            return email;
+        }catch (Exception e){
+            throw new CustomException("Token bị thiếu, hoặc không hợp lệ");
+        }
     }
 
     public String createToken(int sl) {
