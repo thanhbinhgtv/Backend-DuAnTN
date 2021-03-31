@@ -162,7 +162,7 @@ public class AccountServiceImpl implements AccountService {
             throw new Exception("Người dùng vô hiệu", e);
         } catch (BadCredentialsException e) {
             //throw new Exception("Bad credentials", e);
-            throw new CustomException("Sai mật khẩu");
+            throw new CustomException("Mật khẩu không đúng");
         }
         final UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.getEmail());
 
