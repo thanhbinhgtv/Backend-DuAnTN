@@ -15,4 +15,6 @@ public class NewspaperOutputDTO {
     private String image;
 
     private String author;
+
+    private Long updateTime;
 }

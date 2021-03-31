@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +116,7 @@ public class NewspaperServiceImpl implements NewspaperService {
                 newspaper.setContent(newspaperUpdateDTO.getContent());
                 newspaper.setImage(newspaperUpdateDTO.getImage());
                 newspaper.setStaff(staffOptional.get());
+                newspaper.setTimeCreated(new Date());
                 return convertToOutputDTO(newspaperRepository.save(newspaper));
         } catch (Exception e) {
             throw new CustomException("Cập nhật thất bại");
@@ -163,6 +165,7 @@ public class NewspaperServiceImpl implements NewspaperService {
                 .setMatchingStrategy(MatchingStrategies.STRICT);
         NewspaperOutputDTO newspaperOutputDTO = modelMapper.map(newspaper, NewspaperOutputDTO.class);
         newspaperOutputDTO.setAuthor(newspaper.getStaff().getName() + " (" + newspaper.getStaff().getEmail() + ")");
+        newspaperOutputDTO.setUpdateTime(newspaper.getTimeCreated().getTime());
         return newspaperOutputDTO;
     }
 }
