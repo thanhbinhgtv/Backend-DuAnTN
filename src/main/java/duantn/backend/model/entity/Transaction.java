@@ -26,12 +26,8 @@ public class Transaction extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private int amount;
 
-    @Column(nullable = false)
-    private Date time;
-
     @Column(nullable = true)
     private String description;
-
 
     @ManyToOne
     @JoinColumn(name = "customerId")

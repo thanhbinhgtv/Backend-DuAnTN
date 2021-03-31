@@ -84,29 +84,33 @@ public class AccountServiceImpl implements AccountService {
                 || staffRepository.findByEmail(signupDTO.getEmail()) != null)
             throw new CustomException("Email đã được sử dụng");
 
-        //create token
-        String token = helper.createToken(30);
+        try{
+            //create token
+            String token = helper.createToken(30);
 
-        //create customer
-        Customer customer = modelMapper.map(signupDTO, Customer.class);
-        customer.setAccountBalance(0);
-        customer.setPass(passwordEncoder.encode(signupDTO.getPass()));
-        customer.setToken(token);
-        customerRepository.save(customer);
+            //create customer
+            Customer customer = modelMapper.map(signupDTO, Customer.class);
+            customer.setAccountBalance(0);
+            customer.setPass(passwordEncoder.encode(signupDTO.getPass()));
+            customer.setToken(token);
+            customerRepository.save(customer);
 
-        Date expDate = new Date(new Date().getTime() + 2 * 24 * 3600 * 1000);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Date expDate = new Date(new Date().getTime() + 2 * 24 * 3600 * 1000);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-        //send mail
-        mailSender.send(
-                signupDTO.getEmail(),
-                "Xác nhận địa chỉ email",
-                "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
-                        helper.getHostUrl(request.getRequestURL().toString(), "/sign-up") + "/confirm?token-customer=" + token
-                        + "&email=" + signupDTO.getEmail(),
-                "Thời hạn xác nhận, trước 00:00:00 ngày " + sdf.format(expDate)
-        );
-        return new Message("Bạn hãy check mail để xác nhận, trước 00:00:00 ngày " + sdf.format(expDate));
+            //send mail
+            mailSender.send(
+                    signupDTO.getEmail(),
+                    "Xác nhận địa chỉ email",
+                    "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
+                            helper.getHostUrl(request.getRequestURL().toString(), "/sign-up") + "/confirm?token-customer=" + token
+                            + "&email=" + signupDTO.getEmail(),
+                    "Thời hạn xác nhận, trước 00:00:00 ngày " + sdf.format(expDate)
+            );
+            return new Message("Bạn hãy check mail để xác nhận, trước 00:00:00 ngày " + sdf.format(expDate));
+        }catch (Exception e){
+            throw new CustomException("Đăng kí thất bại");
+        }
     }
 
     //về sau chuyển thành void, return redirect
@@ -138,13 +142,18 @@ public class AccountServiceImpl implements AccountService {
     public Map<String, String> login(LoginDTO loginDTO) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
         //validate
-        if (customerRepository.findByEmail(loginDTO.getEmail()) == null ||
-                !customerRepository.findByEmail(loginDTO.getEmail()).getEnabled()) {
-            if (staffRepository.findByEmail(loginDTO.getEmail()) == null ||
-                    !staffRepository.findByEmail(loginDTO.getEmail()).getEnabled()) {
-                throw new CustomException("Email chưa kích hoạt hoặc không tồn tại");
-            }
-        }
+        if (customerRepository.findByEmail(loginDTO.getEmail()) == null) {
+            if (staffRepository.findByEmail(loginDTO.getEmail()) == null) {
+                throw new CustomException("Email không tồn tại");
+            }else if(!staffRepository.findByEmail(loginDTO.getEmail()).getEnabled())
+                throw new CustomException("Email chưa kích hoạt");
+            else if(staffRepository.findByEmail(loginDTO.getEmail()).getDeleted())
+                throw new CustomException("Nhân viên đang bị khóa");
+            else throw new CustomException("Email không tồn tại");
+        }else if(!customerRepository.findByEmail(loginDTO.getEmail()).getEnabled())
+            throw new CustomException("Email chưa được kích hoạt");
+        else if(customerRepository.findByEmail(loginDTO.getEmail()).getDeleted())
+            throw new CustomException("Khách hàng đang bị khóa");
 
         //login
         try {
@@ -153,7 +162,8 @@ public class AccountServiceImpl implements AccountService {
         } catch (DisabledException e) {
             throw new Exception("Người dùng vô hiệu", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("Thông tin không hợp lệ", e);
+            //throw new Exception("Bad credentials", e);
+            throw new CustomException("Sai mật khẩu");
         }
         final UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.getEmail());
 
