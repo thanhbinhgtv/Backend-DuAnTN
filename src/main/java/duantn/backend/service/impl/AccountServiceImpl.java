@@ -149,7 +149,6 @@ public class AccountServiceImpl implements AccountService {
                 throw new CustomException("Email chưa kích hoạt");
             else if(staffRepository.findByEmail(loginDTO.getEmail()).getDeleted())
                 throw new CustomException("Nhân viên đang bị khóa");
-            else throw new CustomException("Email không tồn tại");
         }else if(!customerRepository.findByEmail(loginDTO.getEmail()).getEnabled())
             throw new CustomException("Email chưa được kích hoạt");
         else if(customerRepository.findByEmail(loginDTO.getEmail()).getDeleted())

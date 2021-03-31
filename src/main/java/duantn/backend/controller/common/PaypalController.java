@@ -69,7 +69,7 @@ public class PaypalController {
     public String pay(HttpServletRequest request, HttpServletResponse response,
                       @RequestParam("price") double price,
                       @RequestParam("email") String email,
-                      @RequestParam("description") String description)
+                      @RequestParam(required = false) String description)
             throws CustomException {
         String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
         String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
