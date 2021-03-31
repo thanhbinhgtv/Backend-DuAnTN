@@ -8,13 +8,15 @@ import duantn.backend.config.paypal.PaypalPaymentIntent;
 import duantn.backend.config.paypal.PaypalPaymentMethod;
 import duantn.backend.config.paypal.PaypalService;
 import duantn.backend.dao.CustomerRepository;
+import duantn.backend.dao.TransactionRepository;
 import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Customer;
+import duantn.backend.model.entity.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 
 
 @RestController
@@ -35,6 +38,7 @@ public class PaypalController {
     public static final String URL_PAYPAL_SUCCESS = "pay/success";
     public static final String URL_PAYPAL_CANCEL = "pay/cancel";
     private double value;
+    private String description;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -44,12 +48,16 @@ public class PaypalController {
     final
     CustomerRepository customerRepository;
 
+    final
+    TransactionRepository transactionRepository;
+
     private final PaypalService paypalService;
 
-    public PaypalController(PaypalService paypalService, Helper helper, CustomerRepository customerRepository) {
+    public PaypalController(PaypalService paypalService, Helper helper, CustomerRepository customerRepository, TransactionRepository transactionRepository) {
         this.paypalService = paypalService;
         this.helper = helper;
         this.customerRepository = customerRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @GetMapping("/")
@@ -60,7 +68,8 @@ public class PaypalController {
     @GetMapping("/pay")
     public String pay(HttpServletRequest request, HttpServletResponse response,
                       @RequestParam("price") double price,
-                      @RequestParam("email") String email)
+                      @RequestParam("email") String email,
+                      @RequestParam("description") String description)
             throws CustomException {
         String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
         String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
@@ -68,13 +77,15 @@ public class PaypalController {
             value = Math.round(price * 100.0) / 100.0;
             //email = helper.getEmailFromRequest(request);
             this.email=email;
+            if(description==null||description.trim().equals("")) this.description="Nạp "+value+" USD";
+            else this.description=description;
             if (email == null || email.trim().equals("")) throw new CustomException("Token không hợp lệ");
             Payment payment = paypalService.createPayment(
                     value,
                     "USD",
                     PaypalPaymentMethod.paypal,
                     PaypalPaymentIntent.sale,
-                    "payment description",
+                    this.description,
                     cancelUrl,
                     successUrl);
             for (Links links : payment.getLinks()) {
@@ -109,6 +120,7 @@ public class PaypalController {
                 int increase = (int) (value * rate);
                 customer.setAccountBalance(customer.getAccountBalance() + increase);
                 customerRepository.save(customer);
+                creatTransaction(customer, increase);
                 return new Message("Thanh toán thành công, số tiền: "+value+" USD - tức "+increase+" VNĐ");
             }
         } catch (PayPalRESTException e) {
@@ -116,6 +128,16 @@ public class PaypalController {
         }
         //return "redirect:/";
         throw new CustomException("Không xác định");
+    }
+
+    private void creatTransaction(Customer customer, Integer money){
+        Transaction transaction=new Transaction();
+        transaction.setAmount(money);
+        transaction.setType(true);
+        transaction.setDescription(description);
+        transaction.setTimeCreated(new Date());
+        transaction.setCustomer(customer);
+        transactionRepository.save(transaction);
     }
 
 }
