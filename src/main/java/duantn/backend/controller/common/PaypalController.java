@@ -66,7 +66,7 @@ public class PaypalController {
     }
 
     @GetMapping("/pay")
-    public String pay(HttpServletRequest request, HttpServletResponse response,
+    public Message (HttpServletRequest request, //HttpServletResponse response,
                       @RequestParam("price") double price,
                       @RequestParam("email") String email,
                       @RequestParam(required = false) String description)
@@ -90,11 +90,11 @@ public class PaypalController {
                     successUrl);
             for (Links links : payment.getLinks()) {
                 if (links.getRel().equals("approval_url")) {
-                    response.sendRedirect(links.getHref());
-                    return links.getHref();
+                    //response.sendRedirect(links.getHref());
+                    return new Message(links.getHref());
                 }
             }
-        } catch (PayPalRESTException | IOException e) {
+        } catch (PayPalRESTException e) {
             e.printStackTrace();
             log.error(e.getMessage());
             throw new CustomException("Thanh toán thất bại");
