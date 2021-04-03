@@ -17,11 +17,7 @@ class DuantnBackendApplicationTests {
 
     @Test
     void contextLoads() throws CustomException{
-        System.out.println("1");
-        System.out.println("2");
-        if(true)
-        throw new CustomException("Loi");
-        System.out.println("3");
+
     }
 
 }

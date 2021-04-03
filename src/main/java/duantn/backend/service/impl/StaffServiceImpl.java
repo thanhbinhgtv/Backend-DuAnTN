@@ -9,8 +9,10 @@ import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
+import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
+import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
@@ -154,8 +156,6 @@ public class StaffServiceImpl implements StaffService {
 
         //create token
         String token = helper.createToken(30);
-        Date expDate = new Date(new Date().getTime() + 2 * 24 * 3600 * 1000);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
         //insert
         try {
@@ -167,8 +167,8 @@ public class StaffServiceImpl implements StaffService {
             staff.setPass(passwordEncoder.encode(staffInsertDTO.getPass()));
             staff.setToken(token);
             Staff newStaff = staffRepository.save(staff);
-            StaffOutputDTO staffOutputDTO = modelMapper.map(newStaff, StaffOutputDTO.class);
-            staffOutputDTO.setBirthday(newStaff.getDob().getTime());
+            //StaffOutputDTO staffOutputDTO = modelMapper.map(newStaff, StaffOutputDTO.class);
+            //staffOutputDTO.setBirthday(newStaff.getDob().getTime());
 
             //send mail
             mailSender.send(
@@ -177,9 +177,23 @@ public class StaffServiceImpl implements StaffService {
                     "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
                             helper.getHostUrl(request.getRequestURL().toString(), "/super-admin") + "/confirm?token-customer=" + token
                             + "&email=" + staffInsertDTO.getEmail(),
-                    "Thời hạn xác nhận, trước 00:00:00 ngày " + sdf.format(expDate)
+                    "Thời hạn xác nhận email: 10 phút kể từ khi đăng kí"
             );
-            return new Message("Bạn hãy check mail để xác nhận, trước 00:00:00 ngày " + sdf.format(expDate));
+
+            Thread deleteDisabledStaff = new Thread() {
+                @SneakyThrows
+                @Override
+                public void run() {
+                    Thread.sleep(10*60*1000);
+                    Optional<Staff> optionalStaff=
+                            staffRepository.findByStaffIdAndEnabledFalse(newStaff.getStaffId());
+                    if(optionalStaff.isPresent())
+                        staffRepository.delete(optionalStaff.get());
+                }
+            };
+            deleteDisabledStaff.start();
+
+            return new Message("Bạn hãy check mail để xác nhận, thời hạn 10 phút kể từ khi đăng kí");
         } catch (Exception e) {
             //e.printStackTrace();
             throw new CustomException("Thêm mới nhân viên thất bại");

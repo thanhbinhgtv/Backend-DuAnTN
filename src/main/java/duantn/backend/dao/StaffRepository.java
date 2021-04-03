@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Integer> {
@@ -35,4 +36,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     List<Staff> findByEnabledFalseAndTimeCreatedLessThanEqual(Date date);
 
     Staff findByEnabledTrueAndStaffId(Integer id);
+
+    Optional<Staff> findByStaffIdAndEnabledFalse(Integer id);
 }

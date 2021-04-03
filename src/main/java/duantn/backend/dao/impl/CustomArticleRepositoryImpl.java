@@ -23,6 +23,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                     Integer ward, Integer district, Integer city,
                                     Boolean roommate,
                                     String status, Boolean vip, String search,
+                                    Integer minAcreage, Integer maxAcreage,
                                     Integer page, Integer limit) {
         if(search==null || search.trim().equals("")) search="";
 
@@ -46,10 +47,23 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         searchByTitle=builder.or(searchByTitle, searchByEmail, searchByPhone, searchByName);
 
         //tìm khoảng thời gian
-        if(start !=null && end !=null){
+        if(start !=null){
             Predicate findByGreaterTime = builder.greaterThanOrEqualTo(root.<Date>get("updateTime"), new Date(start));
+            searchByTitle= builder.and(searchByTitle, findByGreaterTime);
+        }
+        if(end !=null){
             Predicate findByLessTime = builder.lessThanOrEqualTo(root.<Date>get("updateTime"), new Date(end));
-            searchByTitle= builder.and(searchByTitle, findByGreaterTime, findByLessTime);
+            searchByTitle= builder.and(searchByTitle, findByLessTime);
+        }
+
+        //lọc theo diện tích
+        if(minAcreage!=null){
+            Predicate findByGreaterAcreage=builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
+            searchByTitle=builder.and(searchByTitle, findByGreaterAcreage);
+        }
+        if(maxAcreage!=null){
+            Predicate findByLessAcreage=builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
+            searchByTitle=builder.and(searchByTitle, findByLessAcreage);
         }
 
         //tìm theo xã, huyện, tỉnh
@@ -109,7 +123,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer page, Integer limit) {
+    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage,Integer page, Integer limit) {
         if(search==null || search.trim().equals("")) search="";
 
         //tạo builder
@@ -133,10 +147,23 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 
 
         //tìm khoảng thời gian
-        if(start !=null && end !=null){
+        if(start !=null){
             Predicate findByGreaterTime = builder.greaterThanOrEqualTo(root.<Date>get("updateTime"), new Date(start));
+            searchByTitle= builder.and(searchByTitle, findByGreaterTime);
+        }
+        if(end !=null){
             Predicate findByLessTime = builder.lessThanOrEqualTo(root.<Date>get("updateTime"), new Date(end));
-            searchByTitle= builder.and(searchByTitle, findByGreaterTime, findByLessTime);
+            searchByTitle= builder.and(searchByTitle, findByLessTime);
+        }
+
+        //lọc theo diện tích
+        if(minAcreage!=null){
+            Predicate findByGreaterAcreage=builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
+            searchByTitle=builder.and(searchByTitle, findByGreaterAcreage);
+        }
+        if(maxAcreage!=null){
+            Predicate findByLessAcreage=builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
+            searchByTitle=builder.and(searchByTitle, findByLessAcreage);
         }
 
         //tìm theo xã, huyện, tỉnh

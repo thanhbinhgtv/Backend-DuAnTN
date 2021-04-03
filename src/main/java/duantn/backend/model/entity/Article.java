@@ -25,9 +25,6 @@ public class Article extends BaseEntity implements Serializable {
     private String title;
 
     @Column(length = 65535, columnDefinition = "text", nullable = false)
-    private String content;
-
-    @Column(length = 65535, columnDefinition = "text", nullable = false)
     private String image;
 
     @Column(nullable = false)
@@ -39,11 +36,25 @@ public class Article extends BaseEntity implements Serializable {
     @Column(nullable = false)
     private Date updateTime;
 
-    @Column(nullable = false)
-    private Integer numberDate;
+    @Column
+    private Date expTime;
+
+    @Column
+    private Integer number;
+    @Column
+    private String type;
+
 
     @Column(nullable = false)
     private Boolean vip;
+
+    @Column(nullable = false)
+    private Integer acreage;
+
+    @Column(nullable = false, columnDefinition = "text")
+    private String address;
+
+    private String video;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "serviceId", nullable = false)

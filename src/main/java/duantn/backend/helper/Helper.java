@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class Helper {
@@ -111,5 +109,31 @@ public class Helper {
     public List<String> textToList(String text){
         String[] mang=text.split("___");
         return Arrays.asList(mang);
+    }
+
+    public Integer calculateDays(int number, String type, Date starTime){
+        Calendar start=Calendar.getInstance();
+        start.setTime(starTime);
+        long millisecond;
+        if(type.trim().equals("week")){
+            Calendar end=Calendar.getInstance();
+            end.setTime(starTime);
+            end.add(Calendar.WEEK_OF_YEAR, number);
+            millisecond=end.getTime().getTime()-start.getTime().getTime();
+        }else if(type.trim().equals("month")){
+            Calendar end=Calendar.getInstance();
+            end.setTime(starTime);
+            end.add(Calendar.MONTH, number);
+            millisecond=end.getTime().getTime()-start.getTime().getTime();
+        } else return null;
+        int days= (int) (millisecond/(24*3600*1000));
+        return days;
+    }
+
+    public Date addDayForDate(Integer days, Date date){
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, days);
+        return calendar.getTime();
     }
 }

@@ -2,7 +2,6 @@ package duantn.backend.controller.admin;
 
 import duantn.backend.authentication.CustomException;
 import duantn.backend.model.dto.input.ContactCustomerDTO;
-import duantn.backend.model.dto.input.MessageInputDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.service.ArticleService;
@@ -42,11 +41,13 @@ public class ArticleManager {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Boolean vip,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) Integer minAcreage,
+            @RequestParam(required = false) Integer maxAcreage,
             @RequestParam Integer page,
             @RequestParam Integer limit
     ) {
         return articleService.listArticle(sort, start, end, ward, district, city,
-                roommate, status, vip, search, page, limit);
+                roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
     }
 
     //    contact với khách hàng (gửi mail cho khách hàng về bài viết này)	/admin/article/contact/{id}
@@ -67,14 +68,14 @@ public class ArticleManager {
     //    ẩn bài đăng (gửi mail)	/admin/article/block/{id}
     @PostMapping("/article/hidden/{id}")
     public Message hiddenArticle(@PathVariable Integer id,
-                                 @RequestBody MessageInputDTO message,
+                                 @RequestParam String mess,
                                  HttpServletRequest request)
             throws CustomException {
-        return articleService.hiddenArticle(id, message.getMess(), request);
+        return articleService.hiddenArticle(id, mess, request);
     }
 
     @GetMapping("/article/{id}")
-    public ArticleOutputDTO detailArticle(@PathVariable Integer id) throws CustomException{
+    public ArticleOutputDTO detailArticle(@PathVariable Integer id) throws CustomException {
         return articleService.detailArticle(id);
     }
 }

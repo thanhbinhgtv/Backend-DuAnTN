@@ -41,13 +41,15 @@ public class CustomerArticleManager {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Boolean vip,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) Integer minAcreage,
+            @RequestParam(required = false) Integer maxAcreage,
             @RequestParam Integer page,
             @RequestParam Integer limit,
             HttpServletRequest request
     ) {
         String email = (String) request.getAttribute("email");
         return customerArticleService.listArticle(email, sort, start, end, ward, district, city,
-                roommate, status, vip, search, page, limit);
+                roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
     }
 
     //    chi tiết bài đăng	/customer/article/{id}
@@ -69,7 +71,7 @@ public class CustomerArticleManager {
     //    sửa bài đăng	/customer/article
     @PutMapping("/article/{id}")
     public ArticleOutputDTO updateArticle(@Valid @RequestBody ArticleUpdateDTO articleUpdateDTO,
-                                          Integer id,
+                                          @PathVariable Integer id,
                                           HttpServletRequest request) throws CustomException {
         String email = (String) request.getAttribute("email");
         return customerArticleService.updateArticle(email, articleUpdateDTO, id);
@@ -94,18 +96,20 @@ public class CustomerArticleManager {
     //    gia hạn bài đăng	/customer/article/extension/{id}?days={int}
     @GetMapping("/article/extension/{id}")
     public Message extensionExp(@PathVariable Integer id,
-                                @RequestParam Integer days,
+                                @RequestParam Integer number,
+                                @RequestParam String type,
                                 HttpServletRequest request) throws CustomException {
         String email = (String) request.getAttribute("email");
-        return customerArticleService.extensionExp(email, id, days);
+        return customerArticleService.extensionExp(email, id, number, type);
     }
 
     //    đăng lại bài đăng đã ẩn	/customer/article/post/{id}?days={int}
     @GetMapping("/article/post/{id}")
     public Message postOldArticle(@PathVariable Integer id,
-                                  @RequestParam Integer days,
+                                  @RequestParam Integer number,
+                                  @RequestParam String type,
                                   HttpServletRequest request) throws CustomException {
         String email = (String) request.getAttribute("email");
-        return customerArticleService.postOldArticle(email, id, days);
+        return customerArticleService.postOldArticle(email, id, number, type);
     }
 }
