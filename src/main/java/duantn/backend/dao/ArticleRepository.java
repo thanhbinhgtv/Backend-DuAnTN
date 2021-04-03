@@ -9,9 +9,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Integer>, CustomArticleRepository{
     Article findByDeletedFalseAndArticleId(Integer id);
     Article findByArticleId(Integer id);
+
+    List<Article> findByDeletedTrue();
 }

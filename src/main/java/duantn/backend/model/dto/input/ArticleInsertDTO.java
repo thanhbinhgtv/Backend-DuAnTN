@@ -1,17 +1,13 @@
 package duantn.backend.model.dto.input;
 
 
-import duantn.backend.model.entity.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
-import java.util.Set;
 
 @Setter
 @Getter
@@ -20,38 +16,47 @@ public class ArticleInsertDTO {
     @NotNull(message = "Tiêu đề không được trống")
     private String title;
 
-    @Size(min = 3, max = 65000, message = "Nội dung phải có ít nhất 3 kí tự")
-    @NotNull(message = "Nội dung không được trống")
-    private String content;
-
     @NotBlank(message = "Ảnh không được trống")
     @NotNull(message = "Ảnh không được null")
     private String image;
 
-    @Min(value = 1000, message = "Giá phòng phải lớn hơn 1000 đồng")
+    @Min(value = 1000, message = "Giá phòng nhỏ nhất là 1000 đồng")
     @NotNull(message = "Giá phòng đăng không được trống")
     private int roomPrice;
 
     private String description;
 
-    @Min(value = 1, message = "Số ngày đăng phải lớn hơn 1")
-    @NotNull(message = "Số ngày đăng không được trống")
-    private Integer numberDate;
+    @Min(value = 1, message = "Số ngày đăng nhỏ nhất là 1")
+    @NotNull(message = "Số ngày/tuần/tháng đăng không được trống")
+    private Integer number;
+    @NotNull(message = "type không được null")
+    @NotBlank(message = "type không được trống")
+    private String type;
 
     @NotNull(message = "Vip không được trống")
     private Boolean vip;
 
-    @Min(value = 1000, message = "Giá nước phải lớn hơn 1000 đồng")
+    @Min(value = 1000, message = "Giá nước nhỏ nhất là 1000 đồng")
     private Integer waterPrice;
 
-    @Min(value = 1000, message = "Giá điện phải lớn hơn 1000 đồng")
+    @Min(value = 1000, message = "Giá điện nhỏ nhất là 1000 đồng")
     private Integer electricPrice;
 
-    @Min(value = 1000, message = "Giá wifi phải lớn hơn 1000 đồng")
+    @Min(value = 1000, message = "Giá wifi nhỏ nhất là 1000 đồng")
     private Integer wifiPrice;
 
+    @NotNull(message = "Diện tích không được null")
+    @Min(value = 5, message = "Diện tích nhỏ nhất là 5 m2")
+    private Integer acreage;
+
+    @NotNull(message = "Địa chỉ không được null")
+    @Size(min = 3, message = "Địa chỉ phải có ít nhất 3 kí tự")
+    private String address;
+
+    private String video;
+
     //lưu ý
-    private RoommateInsertDTO roommateInsertDTO;
+    private RoommateDTO roommateDTO;
 
     //token => customer (hoac cho nhap truc tiep)
 

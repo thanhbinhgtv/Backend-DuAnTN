@@ -14,6 +14,7 @@ import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.model.entity.StaffArticle;
 import duantn.backend.service.ArticleService;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Sort;
@@ -55,11 +56,11 @@ public class ArticleServiceImpI implements ArticleService {
     }
 
     @Override
-    public List<ArticleOutputDTO> listArticle(String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer page, Integer limit) {
+    public List<ArticleOutputDTO> listArticle(String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer page, Integer limit) {
         List<ArticleOutputDTO> articleOutputDTOList = new ArrayList<>();
         List<Article> articleList =
                 articleRepository.findCustom(sort, start, end, ward, district, city,
-                        roommate, status, vip, search, page, limit);
+                        roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
         for (Article article : articleList) {
             articleOutputDTOList.add(convertToOutputDTO(article));
         }
@@ -74,7 +75,16 @@ public class ArticleServiceImpI implements ArticleService {
                                      HttpServletRequest request) throws CustomException {
         Optional<Article> articleOptional = articleRepository.findById(id);
         if (articleOptional.isPresent()) {
-            Staff staff = findStaffByJWT(request);
+            Staff staff;
+            try {
+                staff = findStaffByJWT(request);
+                if (staff == null) throw new Exception();
+            } catch (ExpiredJwtException e) {
+                throw new CustomException("JWT hết hạn");
+            } catch (Exception e) {
+                throw new CustomException("JWT không hợp lệ");
+            }
+
 
             String to = articleOptional.get().getCustomer().getEmail();
 
@@ -91,12 +101,44 @@ public class ArticleServiceImpI implements ArticleService {
     public Message activeArticle(Integer id, HttpServletRequest request) throws CustomException {
         Optional<Article> articleOptional = articleRepository.findById(id);
         if (articleOptional.isPresent()) {
-            Staff staff = findStaffByJWT(request);
+            Staff staff;
+            try {
+                staff = findStaffByJWT(request);
+                if (staff == null) throw new Exception();
+            } catch (ExpiredJwtException e) {
+                throw new CustomException("JWT hết hạn");
+            } catch (Exception e) {
+                throw new CustomException("JWT không hợp lệ");
+            }
 
             //duyệt bài
             //chuyển deleted thành true
             Article article = articleOptional.get();
+            if (article.getDeleted() != null)
+                throw new CustomException("Chỉ được duyệt bài có trạng thái là chưa duyệt");
             article.setDeleted(true);
+
+            //tạo thời hạn
+            Integer days = null;
+            if (article.getType().equals("day")) {
+                days = article.getNumber();
+                article.setExpTime(helper.addDayForDate(days, new Date()));
+                article.setType(null);
+                article.setNumber(null);
+            } else if (article.getType().equals("week")) {
+                days = helper.calculateDays(article.getNumber(), article.getType(),
+                        new Date());
+                article.setExpTime(helper.addDayForDate(days, new Date()));
+                article.setType(null);
+                article.setNumber(null);
+            } else if (article.getType().equals("month")) {
+                days = helper.calculateDays(article.getNumber(), article.getType(),
+                        new Date());
+                article.setExpTime(helper.addDayForDate(days, new Date()));
+                article.setType(null);
+                article.setNumber(null);
+            } else throw new CustomException("Type của bài đăng bị sai");
+
             //tạo bản ghi staffArticle
             StaffArticle staffArticle = new StaffArticle();
             staffArticle.setTime(new Date());
@@ -125,7 +167,6 @@ public class ArticleServiceImpI implements ArticleService {
                     "\n" +
                     "<p>Thời gian đăng: " + simpleDateFormat.format(article.getTimeCreated()) + "</p>\n" +
                     "\n" +
-                    "<p>Số lượng ngày đăng mong muốn: " + article.getNumberDate() + "</p>\n" +
                     "\n" +
                     "<p>Thời gian duyệt bài: " + simpleDateFormat.format(new Date()) + "</p>\n" +
                     "\n" +
@@ -137,7 +178,7 @@ public class ArticleServiceImpI implements ArticleService {
                     "\n" +
                     "<p>Bạn có thể vào theo đường dẫn sau để xem bài viết của mình:</p>\n" +
                     "\n" +
-                    "<p>" + helper.getHostUrl(request.getRequestURL().toString(), "/admin") + "</p>\n";
+                    "<p> xxxx </p>\n";
             mailSender.send(to, title, content, note);
             return new Message("Duyệt bài thành công");
         } else throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
@@ -147,12 +188,26 @@ public class ArticleServiceImpI implements ArticleService {
     public Message hiddenArticle(Integer id, String reason, HttpServletRequest request) throws CustomException {
         Optional<Article> articleOptional = articleRepository.findById(id);
         if (articleOptional.isPresent()) {
-            Staff staff = findStaffByJWT(request);
+            Staff staff;
+            try {
+                staff = findStaffByJWT(request);
+                if (staff == null) throw new Exception();
+            } catch (ExpiredJwtException e) {
+                throw new CustomException("JWT hết hạn");
+            } catch (Exception e) {
+                throw new CustomException("JWT không hợp lệ");
+            }
 
             //duyệt bài
             //chuyển deleted thành true
             Article article = articleOptional.get();
+            if (article.getDeleted() == false)
+                throw new CustomException("Không thể ẩn bài viết đang ẩn");
+
             article.setDeleted(false);
+
+            article.setExpTime(null);
+
             //tạo bản ghi staffArticle
             StaffArticle staffArticle = new StaffArticle();
             staffArticle.setTime(new Date());
@@ -182,7 +237,6 @@ public class ArticleServiceImpI implements ArticleService {
                     "\n" +
                     "<p>Thời gian đăng: " + simpleDateFormat.format(article.getTimeCreated()) + "</p>\n" +
                     "\n" +
-                    "<p>Số lượng ngày đăng mong muốn: " + article.getNumberDate() + "</p>\n" +
                     "\n" +
                     "<p>Thời gian ẩn bài: " + simpleDateFormat.format(new Date()) + "</p>\n" +
                     "\n" +
@@ -235,26 +289,27 @@ public class ArticleServiceImpI implements ArticleService {
         customer.put("customerId", article.getCustomer().getCustomerId() + "");
         customer.put("name", article.getCustomer().getName());
         customer.put("email", article.getCustomer().getEmail());
+        customer.put("phone", article.getCustomer().getPhone());
         articleOutputDTO.setCustomer(customer);
 
-        if (article.getDeleted() != null && article.getDeleted() == true && staffArticle != null) {
+        if (article.getDeleted() != null && article.getDeleted() == true) {
             articleOutputDTO.
-                    setExpDate(staffArticle.getTime().getTime() + article.getNumberDate() * 24 * 3600 * 1000);
+                    setExpDate(article.getExpTime().getTime());
         }
 
-        Map<String, String> address = new HashMap<>();
-        address.put("wardId", article.getWard().getWardId() + "");
-        address.put("wardName", article.getWard().getWardName());
-        address.put("districtId", article.getWard().getDistrict().getDistrictId() + "");
-        address.put("districtName", article.getWard().getDistrict().getDistrictName());
-        address.put("cityId", article.getWard().getDistrict().getCity().getCityId() + "");
-        address.put("cityName", article.getWard().getDistrict().getCity().getCityName());
-        articleOutputDTO.setAddress(address);
+        Map<String, String> location = new HashMap<>();
+        location.put("wardId", article.getWard().getWardId() + "");
+        location.put("wardName", article.getWard().getWardName());
+        location.put("districtId", article.getWard().getDistrict().getDistrictId() + "");
+        location.put("districtName", article.getWard().getDistrict().getDistrictName());
+        location.put("cityId", article.getWard().getDistrict().getCity().getCityId() + "");
+        location.put("cityName", article.getWard().getDistrict().getCity().getCityName());
+        articleOutputDTO.setLocation(location);
 
         return articleOutputDTO;
     }
 
-    private Staff findStaffByJWT(HttpServletRequest request) {
+    private Staff findStaffByJWT(HttpServletRequest request) throws Exception {
         String jwt = extractJwtFromRequest(request);
         if (jwt == null || jwt.trim().equals("")) throw new CustomException("Không có JWT");
         String email = jwtUtil.getUsernameFromToken(jwt);

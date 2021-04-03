@@ -36,7 +36,7 @@ public class MailSender {
             mimeMessageHelper.setSubject(subject);
             //mimeMessageHelper.setText(body,true);
 
-            String src="https://firebasestorage.googleapis.com/v0/b/healthy-ion-297905.appspot.com/o/PhotoFunia-1616296584.jpg?alt=media&token=f5034a9a-9df5-48aa-b9b1-31502ab70ff7";
+            String src="https://avatars.githubusercontent.com/u/65065713?v=4";
             String content="<table style=\"width: 100%\">\n" +
                     "\t<caption><h1>"+subject+"</h1></caption>\n" +
                     "\t<tbody>\n" +

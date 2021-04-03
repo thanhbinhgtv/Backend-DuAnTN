@@ -15,8 +15,6 @@ public class ArticleOutputDTO {
 
     private String title;
 
-    private String content;
-
     private String image;
 
     private Integer roomPrice;
@@ -37,10 +35,16 @@ public class ArticleOutputDTO {
 
     private Roommate roommate;
 
+    private Integer acreage;
+
+    private String address;
+
+    private String video;
+
     private Map<String, String> customer;
 
     private Map<String, String> moderator;
 
-    private Map<String, String> address;
+    private Map<String, String> location;
     //private Ward ward;
 }

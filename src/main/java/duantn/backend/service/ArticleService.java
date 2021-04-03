@@ -20,6 +20,7 @@ public interface ArticleService {
             String status,
             Boolean vip,
             String search,
+            Integer minAcreage, Integer maxAcreage,
             Integer page,
             Integer limit
     );

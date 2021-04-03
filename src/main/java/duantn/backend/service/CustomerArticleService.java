@@ -17,6 +17,7 @@ public interface CustomerArticleService {
                                        Integer ward, Integer district, Integer city,
                                        Boolean roommate,
                                        String status, Boolean vip, String search,
+                                       Integer minAcreage, Integer maxAcreage,
                                        Integer page, Integer limit);
 
     //    đăng bài	/customer/article
@@ -35,10 +36,10 @@ public interface CustomerArticleService {
     Message deleteArticle(String email, Integer id) throws CustomException;
 
     //    gia hạn bài đăng	/customer/article/extension/{id}?date={int}
-    Message extensionExp(String email, Integer id, Integer date) throws CustomException;
+    Message extensionExp(String email, Integer id, Integer date, String type) throws CustomException;
 
     //đăng lại bài đăng đã ẩn	/customer/article/post/{id}?days={int}
-    Message postOldArticle(String email, Integer Id, Integer date) throws CustomException;
+    Message postOldArticle(String email, Integer Id, Integer date, String type) throws CustomException;
 
     //chi tiết bài đăng	/customer/article/{id}
     ArticleOutputDTO detailArticle(String email, Integer id) throws CustomException;

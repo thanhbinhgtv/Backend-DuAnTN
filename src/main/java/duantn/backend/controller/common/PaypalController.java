@@ -15,15 +15,12 @@ import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 
 
@@ -39,6 +36,7 @@ public class PaypalController {
     public static final String URL_PAYPAL_CANCEL = "pay/cancel";
     private double value;
     private String description;
+    private Customer customer;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -66,20 +64,26 @@ public class PaypalController {
     }
 
     @GetMapping("/pay")
-    public String pay(HttpServletRequest request, HttpServletResponse response,
-                      @RequestParam("price") double price,
-                      @RequestParam("email") String email,
-                      @RequestParam(required = false) String description)
+    public Message pay(HttpServletRequest request, //HttpServletResponse response,
+                       @RequestParam("price") double price,
+                       @RequestParam("email") String email,
+                       @RequestParam(required = false) String description)
             throws CustomException {
         String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
         String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
         try {
             value = Math.round(price * 100.0) / 100.0;
             //email = helper.getEmailFromRequest(request);
-            this.email=email;
-            if(description==null||description.trim().equals("")) this.description="Nạp "+value+" USD";
-            else this.description=description;
+            this.email = email;
+
+            if (description == null || description.trim().equals("")) this.description = "Nạp " + value + " USD";
+            else this.description = description;
             if (email == null || email.trim().equals("")) throw new CustomException("Token không hợp lệ");
+
+            customer = customerRepository.findByEmail(email);
+            if (customer == null)
+                throw new CustomException("Người dùng không hợp lệ");
+
             Payment payment = paypalService.createPayment(
                     value,
                     "USD",
@@ -90,11 +94,11 @@ public class PaypalController {
                     successUrl);
             for (Links links : payment.getLinks()) {
                 if (links.getRel().equals("approval_url")) {
-                    response.sendRedirect(links.getHref());
-                    return links.getHref();
+                    //response.sendRedirect(links.getHref());
+                    return new Message(links.getHref());
                 }
             }
-        } catch (PayPalRESTException | IOException e) {
+        } catch (PayPalRESTException e) {
             e.printStackTrace();
             log.error(e.getMessage());
             throw new CustomException("Thanh toán thất bại");
@@ -114,24 +118,22 @@ public class PaypalController {
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
-                Customer customer = customerRepository.findByEmail(email);
-                if (customer == null)
-                    throw new CustomException("Người dùng không hợp lệ");
                 int increase = (int) (value * rate);
                 customer.setAccountBalance(customer.getAccountBalance() + increase);
                 customerRepository.save(customer);
                 creatTransaction(customer, increase);
-                return new Message("Thanh toán thành công, số tiền: "+value+" USD - tức "+increase+" VNĐ");
+                return new Message("Thanh toán thành công, số tiền: " + value + " USD - tức " + increase + " VNĐ");
             }
         } catch (PayPalRESTException e) {
             log.error(e.getMessage());
+            throw new CustomException("Có lỗi xảy ra");
         }
         //return "redirect:/";
         throw new CustomException("Không xác định");
     }
 
-    private void creatTransaction(Customer customer, Integer money){
-        Transaction transaction=new Transaction();
+    private void creatTransaction(Customer customer, Integer money) {
+        Transaction transaction = new Transaction();
         transaction.setAmount(money);
         transaction.setType(true);
         transaction.setDescription(description);
