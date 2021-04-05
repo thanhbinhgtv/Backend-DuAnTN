@@ -17,7 +17,7 @@ public class CustomerInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         try {
-            String email = jwtUtil.getUsernameFromToken(customJwtAuthenticationFilter.extractJwtFromRequest(request));
+            String email = jwtUtil.getEmailFromToken(customJwtAuthenticationFilter.extractJwtFromRequest(request));
             //String email="sieunhanbay1997@gmail.com";
             if (email == null || email.trim().equals(""))
                 throw new CustomException("Token không hợp lệ (filter)");

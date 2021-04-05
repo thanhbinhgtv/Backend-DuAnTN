@@ -312,7 +312,7 @@ public class ArticleServiceImpI implements ArticleService {
     private Staff findStaffByJWT(HttpServletRequest request) throws Exception {
         String jwt = extractJwtFromRequest(request);
         if (jwt == null || jwt.trim().equals("")) throw new CustomException("Không có JWT");
-        String email = jwtUtil.getUsernameFromToken(jwt);
+        String email = jwtUtil.getEmailFromToken(jwt);
         if (email == null || email.trim().equals("")) throw new CustomException("JWT không hợp lệ");
         Staff staff = staffRepository.findByEmail(email);
         if (staff == null) throw new CustomException("JWT không hợp lệ");

@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -30,28 +31,24 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     //load user by email return user
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         List<SimpleGrantedAuthority> roles = null;
-        Customer customer=null;
-        Staff staff=null;
-        customer=customerRepository.findByEmail(username);
-        if(customer==null) staff=staffRepository.findByEmail(username);
-        if(staff!=null)
-        {
-            if(staff.isRole()==true){
-                roles=Arrays.asList(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
-                return new User(staff.getEmail(),staff.getPass(),roles);
-            }else{
-                roles=Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                return new User(staff.getEmail(),staff.getPass(),roles);
+        Customer customer = null;
+        Staff staff = null;
+        customer = customerRepository.findByEmail(email);
+        if (customer == null) staff = staffRepository.findByEmail(email);
+        if (staff != null) {
+            if (staff.isRole()) {
+                roles = Collections.singletonList(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
+            } else {
+                roles = Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"));
             }
+            return new User(staff.getEmail(), staff.getPass(), roles);
+        } else if (customer != null) {
+            roles = Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+            return new User(customer.getEmail(), customer.getPass(), roles);
         }
-        else if(customer !=null)
-        {
-            roles=Arrays.asList(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
-            return new User(customer.getEmail(),customer.getPass(),roles);
-        }
-        throw new UsernameNotFoundException("User not found with the name "+ username);
+        throw new UsernameNotFoundException("User not found with the name " + email);
     }
 
 }

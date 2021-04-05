@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +51,10 @@ public class AccountServiceImpl implements AccountService {
 
     final
     AuthenticationManager authenticationManager;
+
     final
     CustomUserDetailsService userDetailsService;
+
     final
     JwtUtil jwtTokenUtil;
 
@@ -73,6 +74,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message customerSignup(SignupDTO signupDTO, HttpServletRequest request) throws CustomException {
+        // same as BeanUtils
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
@@ -110,11 +112,10 @@ public class AccountServiceImpl implements AccountService {
                 @SneakyThrows
                 @Override
                 public void run() {
-                    Thread.sleep(10*60*1000);
-                    Optional<Customer> optionalCustomer=
+                    Thread.sleep(10 * 60 * 1000);
+                    Optional<Customer> optionalCustomer =
                             customerRepository.findByCustomerIdAndEnabledFalse(newCustomer.getCustomerId());
-                    if(optionalCustomer.isPresent())
-                        customerRepository.delete(optionalCustomer.get());
+                    optionalCustomer.ifPresent(customerRepository::delete);
                 }
             };
             deleteDisabledCustomer.start();
@@ -153,17 +154,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Map<String, String> login(LoginDTO loginDTO) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
+        Customer customer = customerRepository.findByEmail(loginDTO.getEmail());
+        Staff staff = staffRepository.findByEmail(loginDTO.getEmail());
         //validate
-        if (customerRepository.findByEmail(loginDTO.getEmail()) == null) {
-            if (staffRepository.findByEmail(loginDTO.getEmail()) == null) {
+        if (customer == null) {
+            if (staff == null) {
                 throw new CustomException("Email không tồn tại");
-            } else if (!staffRepository.findByEmail(loginDTO.getEmail()).getEnabled())
+            } else if (!staff.getEnabled())
                 throw new CustomException("Email chưa kích hoạt");
-            else if (staffRepository.findByEmail(loginDTO.getEmail()).getDeleted())
+            else if (staff.getDeleted())
                 throw new CustomException("Nhân viên đang bị khóa");
-        } else if (!customerRepository.findByEmail(loginDTO.getEmail()).getEnabled())
+        } else if (!customer.getEnabled())
             throw new CustomException("Email chưa được kích hoạt");
-        else if (customerRepository.findByEmail(loginDTO.getEmail()).getDeleted())
+        else if (customer.getDeleted())
             throw new CustomException("Khách hàng đang bị khóa");
 
         //login
@@ -189,13 +192,11 @@ public class AccountServiceImpl implements AccountService {
 
         if (role.equalsIgnoreCase("SUPER_ADMIN") ||
                 role.equalsIgnoreCase("ADMIN")) {
-            Staff staff = staffRepository.findByEmail(loginDTO.getEmail());
             returnMap.put("id", staff.getStaffId().toString());
             returnMap.put("name", staff.getName());
             returnMap.put("email", staff.getEmail());
             returnMap.put("image", staff.getImage());
-        } else if (role.equalsIgnoreCase("CUSTOMER")) {
-            Customer customer = customerRepository.findByEmail(loginDTO.getEmail());
+        } else if (customer != null) {
             returnMap.put("id", customer.getCustomerId().toString());
             returnMap.put("name", customer.getName());
             returnMap.put("email", customer.getEmail());
@@ -294,7 +295,7 @@ public class AccountServiceImpl implements AccountService {
                     .setMatchingStrategy(MatchingStrategies.STRICT);
 
             String jwt = extractJwtFromRequest(request);
-            String email = jwtTokenUtil.getUsernameFromToken(jwt);
+            String email = jwtTokenUtil.getEmailFromToken(jwt);
             Staff newStaff = staffRepository.findByEmail(email);
 
             if (newStaff == null)
@@ -325,7 +326,7 @@ public class AccountServiceImpl implements AccountService {
         //update
         try {
             String jwt = extractJwtFromRequest(request);
-            String email = jwtTokenUtil.getUsernameFromToken(jwt);
+            String email = jwtTokenUtil.getEmailFromToken(jwt);
             Staff staff = staffRepository.findByEmail(email);
             if (staff == null) throw new CustomException("Token không hợp lệ");
 
@@ -360,7 +361,7 @@ public class AccountServiceImpl implements AccountService {
                     .setMatchingStrategy(MatchingStrategies.STRICT);
 
             String jwt = extractJwtFromRequest(request);
-            String email = jwtTokenUtil.getUsernameFromToken(jwt);
+            String email = jwtTokenUtil.getEmailFromToken(jwt);
             Customer customer = customerRepository.findByEmail(email);
 
 
@@ -395,7 +396,7 @@ public class AccountServiceImpl implements AccountService {
         //update
         try {
             String jwt = extractJwtFromRequest(request);
-            String email = jwtTokenUtil.getUsernameFromToken(jwt);
+            String email = jwtTokenUtil.getEmailFromToken(jwt);
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
@@ -426,24 +427,30 @@ public class AccountServiceImpl implements AccountService {
                                   HttpServletRequest request) throws CustomException {
         try {
             String token = extractJwtFromRequest(request);
-            String email = jwtTokenUtil.getUsernameFromToken(token);
+            String email = jwtTokenUtil.getEmailFromToken(token);
+            String role = jwtTokenUtil.getRoleFromToken(token);
             if (email == null || email.trim().equals(""))
                 throw new CustomException("Token không hợp lệ");
-            Staff staff = null;
-            Customer customer = customerRepository.findByEmail(email);
-            if (customer == null) staff = staffRepository.findByEmail(email);
-            if (staff != null) {
-                if (staff.getPass() != oldPass) throw new CustomException("Mật khẩu cũ không chính xác");
-                staff.setPass(newPass);
-                staffRepository.save(staff);
-                return new Message("Đổi mật khẩu cho nhân viên: " + staff.getEmail() + " thành công");
-            } else if (customer != null) {
-                if (customer.getPass() != oldPass)
-                    throw new CustomException("Mật khẩu cũ không chính xác");
-                customer.setPass(newPass);
-                customerRepository.save(customer);
-                return new Message("Đổi mật khẩu khách hàng: " + customer.getEmail() + "thành công");
-            } else throw new CustomException("Không tìm thấy người dùng hợp lệ");
+
+            if (role.equals("ROLE_ADMIN") || role.equals("ROLE_SUPER_ADMIN")) {
+                Staff staff = staffRepository.findByEmail(email);
+                if (staff != null) {
+                    if (!passwordEncoder.matches(oldPass, staff.getPass()))
+                        throw new CustomException("Mật khẩu cũ không chính xác");
+                    staff.setPass(passwordEncoder.encode(newPass));
+                    staffRepository.save(staff);
+                    return new Message("Đổi mật khẩu cho nhân viên: " + staff.getEmail() + " thành công");
+                } else throw new CustomException("Không tìm thấy nhân viên hợp lệ");
+            } else {
+                Customer customer = customerRepository.findByEmail(email);
+                if (customer != null) {
+                    if (!passwordEncoder.matches(oldPass, customer.getPass()))
+                        throw new CustomException("Mật khẩu cũ không chính xác");
+                    customer.setPass(passwordEncoder.encode(newPass));
+                    customerRepository.save(customer);
+                    return new Message("Đổi mật khẩu khách hàng: " + customer.getEmail() + " thành công");
+                } else throw new CustomException("Không tìm thấy người dùng hợp lệ");
+            }
         } catch (CustomException e) {
             throw new CustomException(e.getMessage());
         } catch (Exception e) {
@@ -454,13 +461,13 @@ public class AccountServiceImpl implements AccountService {
     private String extractJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
         }
         return null;
     }
 
     public Map<String, Object> getMapFromIoJsonwebtokenClaims(DefaultClaims claims) {
-        Map<String, Object> expectedMap = new HashMap<String, Object>();
+        Map<String, Object> expectedMap = new HashMap<>();
         for (Entry<String, Object> entry : claims.entrySet()) {
             expectedMap.put(entry.getKey(), entry.getValue());
         }

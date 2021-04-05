@@ -5,7 +5,6 @@ import duantn.backend.authentication.CustomJwtAuthenticationFilter;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,11 +28,9 @@ public class Helper {
         this.customJwtAuthenticationFilter = customJwtAuthenticationFilter;
     }
 
-
     public String getHostUrl(String url, String substring) {
         int index = url.indexOf(substring);
-        String hostUrl = url.substring(0, index);
-        return hostUrl;
+        return url.substring(0, index);
     }
 
     public String getBaseURL(HttpServletRequest request) {
@@ -41,36 +38,34 @@ public class Helper {
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
         String contextPath = request.getContextPath();
-        StringBuffer url =  new StringBuffer();
+        StringBuilder url = new StringBuilder();
         url.append(scheme).append("://").append(serverName);
         if ((serverPort != 80) && (serverPort != 443)) {
             url.append(":").append(serverPort);
         }
         url.append(contextPath);
-        if(url.toString().endsWith("/")){
+        if (url.toString().endsWith("/")) {
             url.append("/");
         }
         return url.toString();
     }
 
     public String getEmailFromRequest(HttpServletRequest request) throws CustomException {
-        try{
-            String token= customJwtAuthenticationFilter.extractJwtFromRequest(request);
-            String email=jwtUtil.getUsernameFromToken(token);
-            return email;
-        }catch (Exception e){
+        try {
+            String token = customJwtAuthenticationFilter.extractJwtFromRequest(request);
+            return jwtUtil.getEmailFromToken(token);
+        } catch (Exception e) {
             throw new CustomException("Token bị thiếu, hoặc không hợp lệ");
         }
     }
 
-    public String createToken(int sl) {
+    public String createToken(int numberOfCharacter) {
         //create token
         String token;
-        while (true) {
-            token = randomAlphaNumeric(sl);
-            if (customerRepository.findByToken(token) == null
-                    && staffRepository.findByToken(token) == null) break;
-        }
+        do {
+            token = randomAlphaNumeric(numberOfCharacter);
+        } while (customerRepository.findByToken(token) != null
+                || staffRepository.findByToken(token) != null);
         return token;
     }
 
@@ -84,9 +79,9 @@ public class Helper {
     /**
      * Random string with a-zA-Z0-9, not included special characters
      */
-    public String randomAlphaNumeric(int numberOfCharactor) {
+    public String randomAlphaNumeric(int numberOfCharacter) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < numberOfCharactor; i++) {
+        for (int i = 0; i < numberOfCharacter; i++) {
             int number = randomNumber(0, ALPHA_NUMERIC.length() - 1);
             char ch = ALPHA_NUMERIC.charAt(number);
             sb.append(ch);
@@ -98,40 +93,39 @@ public class Helper {
         return generator.nextInt((max - min) + 1) + min;
     }
 
-    public String listToText(List<String> list){
-        String string="";
-        for (String s:list){
-            string=string+s+"___";
+    public String listToText(List<String> list) {
+        StringBuilder string = new StringBuilder();
+        for (String s : list) {
+            string.append(s).append("___");
         }
-        return string;
+        return string.toString();
     }
 
-    public List<String> textToList(String text){
-        String[] mang=text.split("___");
-        return Arrays.asList(mang);
+    public List<String> textToList(String text) {
+        String[] arr = text.split("___");
+        return Arrays.asList(arr);
     }
 
-    public Integer calculateDays(int number, String type, Date starTime){
-        Calendar start=Calendar.getInstance();
+    public Integer calculateDays(int number, String type, Date starTime) {
+        Calendar start = Calendar.getInstance();
         start.setTime(starTime);
         long millisecond;
-        if(type.trim().equals("week")){
-            Calendar end=Calendar.getInstance();
+        if (type.trim().equals("week")) {
+            Calendar end = Calendar.getInstance();
             end.setTime(starTime);
             end.add(Calendar.WEEK_OF_YEAR, number);
-            millisecond=end.getTime().getTime()-start.getTime().getTime();
-        }else if(type.trim().equals("month")){
-            Calendar end=Calendar.getInstance();
+            millisecond = end.getTime().getTime() - start.getTime().getTime();
+        } else if (type.trim().equals("month")) {
+            Calendar end = Calendar.getInstance();
             end.setTime(starTime);
             end.add(Calendar.MONTH, number);
-            millisecond=end.getTime().getTime()-start.getTime().getTime();
+            millisecond = end.getTime().getTime() - start.getTime().getTime();
         } else return null;
-        int days= (int) (millisecond/(24*3600*1000));
-        return days;
+        return (int) (millisecond / (24 * 3600 * 1000));
     }
 
-    public Date addDayForDate(Integer days, Date date){
-        Calendar calendar=Calendar.getInstance();
+    public Date addDayForDate(Integer days, Date date) {
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DAY_OF_MONTH, days);
         return calendar.getTime();
