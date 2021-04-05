@@ -20,6 +20,8 @@ public class StaffOutputDTO {
 
     private Boolean role;
 
+    private Boolean deleted;
+
     private String address;
 
     private String phone;

@@ -17,4 +17,6 @@ public class NewspaperOutputDTO {
     private String author;
 
     private Long updateTime;
+
+    private Boolean deleted;
 }
