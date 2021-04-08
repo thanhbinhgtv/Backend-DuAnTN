@@ -1,5 +1,6 @@
 package duantn.backend.service.impl;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.dao.ArticleRepository;
 import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
@@ -32,5 +33,12 @@ public class CustomerNoLoginServiceImpl implements CustomerNoLoginService {
             articleOutputDTOList.add(helper.convertToOutputDTO(article));
         }
         return articleOutputDTOList;
+    }
+
+    @Override
+    public ArticleOutputDTO findOneArticle(Integer id) throws CustomException {
+        Article article=articleRepository.findByArticleIdAndDeletedTrue(id);
+        if(article== null) throw new CustomException("Bài đăng không tồn tại hoặc chưa được duyệt");
+        return helper.convertToOutputDTO(article);
     }
 }

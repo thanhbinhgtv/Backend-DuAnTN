@@ -1,10 +1,12 @@
 package duantn.backend.controller.customer;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.service.ArticleService;
 import duantn.backend.service.CustomerNoLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,5 +36,10 @@ public class CustomerNoLoginManager {
     ) {
         return customerNoLoginService.listArticle(start,end,ward,district,city,
                 roommate,search,minAcreage,maxAcreage,page,limit);
+    }
+
+    @GetMapping("/article/{id}")
+    public ArticleOutputDTO findOneArticle(@PathVariable Integer id) throws CustomException {
+        return customerNoLoginService.findOneArticle(id);
     }
 }
