@@ -4,8 +4,15 @@ import duantn.backend.authentication.CustomException;
 import duantn.backend.authentication.CustomJwtAuthenticationFilter;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.dao.CustomerRepository;
+import duantn.backend.dao.StaffArticleRepository;
 import duantn.backend.dao.StaffRepository;
+import duantn.backend.model.dto.output.ArticleOutputDTO;
+import duantn.backend.model.entity.Article;
+import duantn.backend.model.entity.StaffArticle;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,12 +28,15 @@ public class Helper {
     JwtUtil jwtUtil;
     final
     CustomJwtAuthenticationFilter customJwtAuthenticationFilter;
+    final
+    StaffArticleRepository staffArticleRepository;
 
-    public Helper(CustomerRepository customerRepository, StaffRepository staffRepository, JwtUtil jwtUtil, CustomJwtAuthenticationFilter customJwtAuthenticationFilter) {
+    public Helper(CustomerRepository customerRepository, StaffRepository staffRepository, JwtUtil jwtUtil, CustomJwtAuthenticationFilter customJwtAuthenticationFilter, StaffArticleRepository staffArticleRepository) {
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
         this.jwtUtil = jwtUtil;
         this.customJwtAuthenticationFilter = customJwtAuthenticationFilter;
+        this.staffArticleRepository = staffArticleRepository;
     }
 
 
@@ -135,5 +145,53 @@ public class Helper {
         calendar.setTime(date);
         calendar.add(Calendar.DAY_OF_MONTH, days);
         return calendar.getTime();
+    }
+
+    public ArticleOutputDTO convertToOutputDTO(Article article) {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT);
+        ArticleOutputDTO articleOutputDTO = modelMapper.map(article, ArticleOutputDTO.class);
+        articleOutputDTO.setCreateTime(article.getTimeCreated().getTime());
+        articleOutputDTO.setLastUpdateTime(article.getUpdateTime().getTime());
+        if (article.getDeleted() != null) {
+            if (article.getDeleted()) articleOutputDTO.setStatus("Đang đăng");
+            else articleOutputDTO.setStatus("Đã ẩn");
+        } else articleOutputDTO.setStatus("Chưa duyệt");
+
+        StaffArticle staffArticle = staffArticleRepository.
+                findFirstByArticle_ArticleId(article.getArticleId(), Sort.by("time").descending());
+
+
+        if (staffArticle != null && article.getDeleted() != null) {
+            Map<String, String> moderator = new HashMap<>();
+            moderator.put("staffId", staffArticle.getStaff().getStaffId() + "");
+            moderator.put("name", staffArticle.getStaff().getName());
+            moderator.put("email", staffArticle.getStaff().getEmail());
+            articleOutputDTO.setModerator(moderator);
+        }
+
+        Map<String, String> customer = new HashMap<>();
+        customer.put("customerId", article.getCustomer().getCustomerId() + "");
+        customer.put("name", article.getCustomer().getName());
+        customer.put("email", article.getCustomer().getEmail());
+        customer.put("phone", article.getCustomer().getPhone());
+        articleOutputDTO.setCustomer(customer);
+
+        if (article.getDeleted() != null && article.getDeleted() == true) {
+            articleOutputDTO.
+                    setExpDate(article.getExpTime().getTime());
+        }
+
+        Map<String, String> location = new HashMap<>();
+        location.put("wardId", article.getWard().getWardId() + "");
+        location.put("wardName", article.getWard().getWardName());
+        location.put("districtId", article.getWard().getDistrict().getDistrictId() + "");
+        location.put("districtName", article.getWard().getDistrict().getDistrictName());
+        location.put("cityId", article.getWard().getDistrict().getCity().getCityId() + "");
+        location.put("cityName", article.getWard().getDistrict().getCity().getCityName());
+        articleOutputDTO.setLocation(location);
+
+        return articleOutputDTO;
     }
 }

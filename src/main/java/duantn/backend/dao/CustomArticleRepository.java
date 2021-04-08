@@ -19,4 +19,10 @@ public interface CustomArticleRepository {
                                      Integer minAcreage, Integer maxAcreage,
                                      Integer page, Integer limit);
 
+    List<Article> findCustomShow(Long start, Long end,
+                                        Integer ward, Integer district, Integer city,
+                                        Boolean roommate,
+                                        String status, String search,
+                                        Integer minAcreage, Integer maxAcreage,
+                                        Integer page, Integer limit);
 }
