@@ -58,23 +58,16 @@ public class PaypalController {
         this.transactionRepository = transactionRepository;
     }
 
-    @GetMapping("/")
-    public String index() {
-        return "index";
-    }
-
-    @GetMapping("/pay")
+    @GetMapping("/customer/pay")
     public Message pay(HttpServletRequest request, //HttpServletResponse response,
                        @RequestParam("price") double price,
-                       @RequestParam("email") String email,
                        @RequestParam(required = false) String description)
             throws CustomException {
         String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
         String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
         try {
             value = Math.round(price * 100.0) / 100.0;
-            //email = helper.getEmailFromRequest(request);
-            this.email = email;
+            email= (String) request.getAttribute("email");
 
             if (description == null || description.trim().equals("")) this.description = "Nạp " + value + " USD";
             else this.description = description;

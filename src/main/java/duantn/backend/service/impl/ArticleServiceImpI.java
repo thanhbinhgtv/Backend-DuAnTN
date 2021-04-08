@@ -62,7 +62,7 @@ public class ArticleServiceImpI implements ArticleService {
                 articleRepository.findCustom(sort, start, end, ward, district, city,
                         roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
         for (Article article : articleList) {
-            articleOutputDTOList.add(convertToOutputDTO(article));
+            articleOutputDTOList.add(helper.convertToOutputDTO(article));
         }
         return articleOutputDTOList;
     }
@@ -147,7 +147,7 @@ public class ArticleServiceImpI implements ArticleService {
             staffArticle.setAction(true);
             //lưu
             staffArticleRepository.save(staffArticle);
-            ArticleOutputDTO articleOutputDTO = convertToOutputDTO(articleRepository.save(article));
+            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             //gửi thư
             String to = article.getCustomer().getEmail();
@@ -216,7 +216,7 @@ public class ArticleServiceImpI implements ArticleService {
             staffArticle.setAction(false);
             //lưu
             staffArticleRepository.save(staffArticle);
-            ArticleOutputDTO articleOutputDTO = convertToOutputDTO(articleRepository.save(article));
+            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             //gửi thư
             if (reason == null || reason.trim().equals("")) reason = "không có lý do cụ thể";
@@ -258,55 +258,7 @@ public class ArticleServiceImpI implements ArticleService {
         if (!articleOptional.isPresent())
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
         Article article = articleOptional.get();
-        return convertToOutputDTO(article);
-    }
-
-    public ArticleOutputDTO convertToOutputDTO(Article article) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STRICT);
-        ArticleOutputDTO articleOutputDTO = modelMapper.map(article, ArticleOutputDTO.class);
-        articleOutputDTO.setCreateTime(article.getTimeCreated().getTime());
-        articleOutputDTO.setLastUpdateTime(article.getUpdateTime().getTime());
-        if (article.getDeleted() != null) {
-            if (article.getDeleted()) articleOutputDTO.setStatus("Đang đăng");
-            else articleOutputDTO.setStatus("Đã ẩn");
-        } else articleOutputDTO.setStatus("Chưa duyệt");
-
-        StaffArticle staffArticle = staffArticleRepository.
-                findFirstByArticle_ArticleId(article.getArticleId(), Sort.by("time").descending());
-
-
-        if (staffArticle != null && article.getDeleted() != null) {
-            Map<String, String> moderator = new HashMap<>();
-            moderator.put("staffId", staffArticle.getStaff().getStaffId() + "");
-            moderator.put("name", staffArticle.getStaff().getName());
-            moderator.put("email", staffArticle.getStaff().getEmail());
-            articleOutputDTO.setModerator(moderator);
-        }
-
-        Map<String, String> customer = new HashMap<>();
-        customer.put("customerId", article.getCustomer().getCustomerId() + "");
-        customer.put("name", article.getCustomer().getName());
-        customer.put("email", article.getCustomer().getEmail());
-        customer.put("phone", article.getCustomer().getPhone());
-        articleOutputDTO.setCustomer(customer);
-
-        if (article.getDeleted() != null && article.getDeleted() == true) {
-            articleOutputDTO.
-                    setExpDate(article.getExpTime().getTime());
-        }
-
-        Map<String, String> location = new HashMap<>();
-        location.put("wardId", article.getWard().getWardId() + "");
-        location.put("wardName", article.getWard().getWardName());
-        location.put("districtId", article.getWard().getDistrict().getDistrictId() + "");
-        location.put("districtName", article.getWard().getDistrict().getDistrictName());
-        location.put("cityId", article.getWard().getDistrict().getCity().getCityId() + "");
-        location.put("cityName", article.getWard().getDistrict().getCity().getCityName());
-        articleOutputDTO.setLocation(location);
-
-        return articleOutputDTO;
+        return helper.convertToOutputDTO(article);
     }
 
     private Staff findStaffByJWT(HttpServletRequest request) throws Exception {
