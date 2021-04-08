@@ -16,5 +16,7 @@ public interface ArticleRepository extends JpaRepository<Article, Integer>, Cust
     Article findByDeletedFalseAndArticleId(Integer id);
     Article findByArticleId(Integer id);
 
+    Article findByArticleIdAndDeletedTrue(Integer id);
+
     List<Article> findByDeletedTrue();
 }

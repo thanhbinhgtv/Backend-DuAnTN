@@ -1,5 +1,6 @@
 package duantn.backend.service;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import org.springframework.stereotype.Service;
 
@@ -17,4 +18,6 @@ public interface CustomerNoLoginService {
             Integer page,
             Integer limit
     );
+
+    ArticleOutputDTO findOneArticle(Integer id) throws CustomException;
 }
