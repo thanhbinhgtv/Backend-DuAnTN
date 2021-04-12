@@ -15,15 +15,15 @@ import duantn.backend.model.entity.Staff;
 import duantn.backend.model.entity.StaffArticle;
 import duantn.backend.service.ArticleService;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ArticleServiceImpI implements ArticleService {

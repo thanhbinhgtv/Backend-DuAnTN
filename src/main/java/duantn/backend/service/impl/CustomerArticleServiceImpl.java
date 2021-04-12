@@ -244,7 +244,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         Article article = articleRepository.findByArticleId(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
-        else if (article.getDeleted() != true)
+        else if (article.getDeleted() ==null || article.getDeleted() != true)
             throw new CustomException("Gia hạn chỉ áp dụng với bài đăng đã được duyệt");
 
         if (!email.equals(article.getCustomer().getEmail()))
