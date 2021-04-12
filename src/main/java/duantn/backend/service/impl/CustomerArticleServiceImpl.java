@@ -12,6 +12,7 @@ import duantn.backend.model.entity.*;
 import duantn.backend.service.CustomerArticleService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,14 +34,17 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     Helper helper;
     final
     TransactionRepository transactionRepository;
+    final
+    FavoriteArticleRepository favoriteArticleRepository;
 
-    public CustomerArticleServiceImpl(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, CustomerRepository customerRepository, WardRepository wardRepository, Helper helper, TransactionRepository transactionRepository) {
+    public CustomerArticleServiceImpl(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, CustomerRepository customerRepository, WardRepository wardRepository, Helper helper, TransactionRepository transactionRepository, FavoriteArticleRepository favoriteArticleRepository) {
         this.articleRepository = articleRepository;
         this.staffArticleRepository = staffArticleRepository;
         this.customerRepository = customerRepository;
         this.wardRepository = wardRepository;
         this.helper = helper;
         this.transactionRepository = transactionRepository;
+        this.favoriteArticleRepository = favoriteArticleRepository;
     }
 
     @Override
@@ -210,6 +214,27 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
+
+        //xóa bỏ article trong favorite_article
+        List<FavoriteArticle> favoriteArticleList=
+                favoriteArticleRepository.findByArticle(article);
+        if(favoriteArticleList.size()>0){
+            for (FavoriteArticle favoriteArticle: favoriteArticleList){
+                favoriteArticle.setArticle(null);
+                favoriteArticleRepository.save(favoriteArticle);
+            }
+        }
+
+        //xóa bỏ article trong staff_article
+        List<StaffArticle> staffArticleList=
+                staffArticleRepository.findByArticle(article);
+        if(staffArticleList.size()>0){
+            for (StaffArticle staffArticle: staffArticleList){
+                staffArticle.setArticle(null);
+                staffArticleRepository.save(staffArticle);
+            }
+        }
+
         articleRepository.delete(article);
         return new Message("Xóa bài đăng id: " + id + " thành công");
     }

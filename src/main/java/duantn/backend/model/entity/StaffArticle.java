@@ -20,7 +20,7 @@ public class StaffArticle implements Serializable {
     private Staff staff;
 
     @ManyToOne
-    @JoinColumn(name = "articleId", nullable = false)
+    @JoinColumn(name = "articleId")
     private Article article;
 
     @Column(nullable = false)
