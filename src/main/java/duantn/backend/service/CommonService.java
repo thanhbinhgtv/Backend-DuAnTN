@@ -10,7 +10,7 @@ public interface CommonService {
     //Lịch sử nạp tiền
     List<TransactionOutputDTO> listAllTransaction(String email,
                                                   Integer page, Integer limit,
-                                                  String sort) throws CustomException;
+                                                  Boolean type) throws CustomException;
 
     //Trả về các tỉnh
     List<CityOutputDTO> listAllCity() throws CustomException;

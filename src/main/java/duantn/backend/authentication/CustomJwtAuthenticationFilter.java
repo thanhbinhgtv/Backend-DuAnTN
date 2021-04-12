@@ -47,7 +47,8 @@ public class CustomJwtAuthenticationFilter extends OncePerRequestFilter {
                 //System.out.println("Cannot set the Security Context");
             }
         } catch (ExpiredJwtException ex) {
-            String isRefreshToken = request.getHeader("isRefreshToken");
+            //String isRefreshToken = request.getHeader("isRefreshToken");
+            String isRefreshToken = "true";
             String requestURL = request.getRequestURL().toString();
             // allow for Refresh Token creation if following conditions are true.
             if (isRefreshToken != null && isRefreshToken.equals("true") && requestURL.contains("refreshtoken")) {
