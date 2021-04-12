@@ -38,16 +38,16 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    public List<TransactionOutputDTO> listAllTransaction(String email, Integer page, Integer limit, String sort)  throws CustomException {
+    public List<TransactionOutputDTO> listAllTransaction(String email, Integer page, Integer limit, Boolean type)  throws CustomException {
         Page<Transaction> transactionPage;
-        if(sort!=null && sort.trim().equals("asc")){
+        if(type==null){
             transactionPage=
                     transactionRepository.findByCustomer_Email(email,
-                            PageRequest.of(page,limit, Sort.by("timeCreated").ascending()));
+                            PageRequest.of(page,limit));
         }else {
             transactionPage=
-                    transactionRepository.findByCustomer_Email(email,
-                            PageRequest.of(page,limit, Sort.by("timeCreated").descending()));
+                    transactionRepository.findByCustomer_EmailAndType(email, type,
+                            PageRequest.of(page,limit));
         }
         List<Transaction> transactionList=transactionPage.toList();
 

@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     Page<Transaction> findByCustomer_Email(String email, Pageable pageable);
+    Page<Transaction> findByCustomer_EmailAndType(String email, Boolean type, Pageable pageable);
 }

@@ -26,8 +26,8 @@ public class CustomerTaskManager {
     List<TransactionOutputDTO> listAllTransaction(HttpServletRequest request,
                                                   @RequestParam Integer page,
                                                   @RequestParam Integer limit,
-                                                  @RequestParam(required = false) String sort) throws CustomException {
+                                                  @RequestParam(required = false) Boolean type) throws CustomException {
         String email = (String) request.getAttribute("email");
-        return commonService.listAllTransaction(email, page, limit, sort);
+        return commonService.listAllTransaction(email, page, limit, type);
     }
 }
