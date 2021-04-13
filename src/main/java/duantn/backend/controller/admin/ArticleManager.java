@@ -1,10 +1,14 @@
 package duantn.backend.controller.admin;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.helper.Helper;
+import duantn.backend.model.dto.input.ArticleInsertDTO;
+import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.input.ContactCustomerDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.service.ArticleService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,9 +20,12 @@ import java.util.List;
 public class ArticleManager {
     final
     ArticleService articleService;
+    final
+    Helper helper;
 
-    public ArticleManager(ArticleService articleService) {
+    public ArticleManager(ArticleService articleService, Helper helper) {
         this.articleService = articleService;
+        this.helper = helper;
     }
 
     //    list bài đăng	/admin/article
@@ -77,5 +84,41 @@ public class ArticleManager {
     @GetMapping("/article/{id}")
     public ArticleOutputDTO detailArticle(@PathVariable Integer id) throws CustomException {
         return articleService.detailArticle(id);
+    }
+
+    @PostMapping("/article")
+    public ArticleOutputDTO insertArticle(@Valid @RequestBody ArticleInsertDTO articleInsertDTO,
+                                          HttpServletRequest request) throws CustomException {
+        String email= helper.getEmailFromRequest(request);
+        return articleService.insertArticle(email, articleInsertDTO);
+    }
+
+    @PutMapping("/article/{id}")
+    public ArticleOutputDTO updateArticle(@Valid @RequestBody ArticleUpdateDTO articleUpdateDTO,
+                                          @PathVariable Integer id,
+                                          HttpServletRequest request) throws CustomException {
+        String email = (String) request.getAttribute("email");
+        return articleService.updateArticle(email, articleUpdateDTO, id);
+    }
+
+    //    gia hạn bài đăng	/customer/article/extension/{id}?days={int}
+    @GetMapping("/article/extension/{id}")
+    public Message extensionExp(@PathVariable Integer id,
+                                @RequestParam Integer number,
+                                @RequestParam String type,
+                                HttpServletRequest request) throws CustomException {
+        String email = (String) request.getAttribute("email");
+        return articleService.extensionExp(email, id, number, type);
+    }
+
+    //    đăng lại bài đăng đã ẩn	/customer/article/post/{id}?days={int}
+    @GetMapping("/article/post/{id}")
+    public Message postOldArticle(@PathVariable Integer id,
+                                  @RequestParam Integer number,
+                                  @RequestParam String type,
+                                  @RequestParam Boolean vip,
+                                  HttpServletRequest request) throws CustomException {
+        String email = (String) request.getAttribute("email");
+        return articleService.postOldArticle(email, id, number, type, vip);
     }
 }

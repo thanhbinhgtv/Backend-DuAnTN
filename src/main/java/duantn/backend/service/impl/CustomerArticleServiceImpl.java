@@ -152,7 +152,6 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             article.setImage(articleUpdateDTO.getImage());
             article.setRoomPrice(articleUpdateDTO.getRoomPrice());
             article.setDescription(articleUpdateDTO.getDescription());
-            article.setVip(articleUpdateDTO.getVip());
 
             article.setAddress(articleUpdateDTO.getAddress());
             article.setAcreage(articleUpdateDTO.getAcreage());
@@ -284,12 +283,15 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     }
 
     @Override
-    public Message postOldArticle(String email, Integer id, Integer days, String type) throws CustomException {
+    public Message postOldArticle(String email, Integer id, Integer days, String type,
+                                  Boolean vip) throws CustomException {
         Article article = articleRepository.findByDeletedFalseAndArticleId(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại, hoặc đang không bị ẩn");
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
+
+        article.setVip(vip);
 
         //kiểm tra và trừ tiền
         Integer money = null;

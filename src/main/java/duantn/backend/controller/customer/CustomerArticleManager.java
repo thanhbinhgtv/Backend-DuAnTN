@@ -108,8 +108,9 @@ public class CustomerArticleManager {
     public Message postOldArticle(@PathVariable Integer id,
                                   @RequestParam Integer number,
                                   @RequestParam String type,
+                                  @RequestParam Boolean vip,
                                   HttpServletRequest request) throws CustomException {
         String email = (String) request.getAttribute("email");
-        return customerArticleService.postOldArticle(email, id, number, type);
+        return customerArticleService.postOldArticle(email, id, number, type, vip);
     }
 }
