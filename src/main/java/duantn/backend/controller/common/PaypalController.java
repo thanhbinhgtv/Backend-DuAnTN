@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 
 
@@ -106,7 +108,8 @@ public class PaypalController {
     }
 
     @GetMapping(URL_PAYPAL_SUCCESS)
-    public Message successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId)
+    public void successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
+                           HttpServletResponse response)
             throws CustomException {
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
@@ -115,9 +118,11 @@ public class PaypalController {
                 customer.setAccountBalance(customer.getAccountBalance() + increase);
                 customerRepository.save(customer);
                 creatTransaction(customer, increase);
-                return new Message("Thanh toán thành công, số tiền: " + value + " USD - tức " + increase + " VNĐ");
+                response.sendRedirect("http://localhost:4200/client/confirm-payment?usd="+value+"&vnd="+increase);
+                //return new Message("Thanh toán thành công, số tiền: " + value + " USD - tức " + increase + " VNĐ");
+                return;
             }
-        } catch (PayPalRESTException e) {
+        } catch (PayPalRESTException | IOException e) {
             log.error(e.getMessage());
             throw new CustomException("Có lỗi xảy ra");
         }

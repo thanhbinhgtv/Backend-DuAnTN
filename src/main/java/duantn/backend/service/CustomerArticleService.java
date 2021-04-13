@@ -39,7 +39,7 @@ public interface CustomerArticleService {
     Message extensionExp(String email, Integer id, Integer date, String type) throws CustomException;
 
     //đăng lại bài đăng đã ẩn	/customer/article/post/{id}?days={int}
-    Message postOldArticle(String email, Integer Id, Integer date, String type) throws CustomException;
+    Message postOldArticle(String email, Integer Id, Integer date, String type, Boolean vip) throws CustomException;
 
     //chi tiết bài đăng	/customer/article/{id}
     ArticleOutputDTO detailArticle(String email, Integer id) throws CustomException;

@@ -6,6 +6,7 @@ import duantn.backend.authentication.JwtUtil;
 import duantn.backend.component.MailSender;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
+import duantn.backend.dao.TokenRepository;
 import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.input.*;
 import duantn.backend.model.dto.output.CustomerOutputDTO;
@@ -13,6 +14,7 @@ import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.Staff;
+import duantn.backend.model.entity.Token;
 import duantn.backend.service.AccountService;
 import io.jsonwebtoken.impl.DefaultClaims;
 import lombok.SneakyThrows;
@@ -29,12 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -60,7 +58,10 @@ public class AccountServiceImpl implements AccountService {
     final
     Helper helper;
 
-    public AccountServiceImpl(PasswordEncoder passwordEncoder, CustomerRepository customerRepository, MailSender mailSender, StaffRepository staffRepository, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil, Helper helper) {
+    final
+    TokenRepository tokenRepository;
+
+    public AccountServiceImpl(PasswordEncoder passwordEncoder, CustomerRepository customerRepository, MailSender mailSender, StaffRepository staffRepository, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil, Helper helper, TokenRepository tokenRepository) {
         this.passwordEncoder = passwordEncoder;
         this.customerRepository = customerRepository;
         this.mailSender = mailSender;
@@ -69,6 +70,7 @@ public class AccountServiceImpl implements AccountService {
         this.userDetailsService = userDetailsService;
         this.jwtTokenUtil = jwtTokenUtil;
         this.helper = helper;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -110,10 +112,10 @@ public class AccountServiceImpl implements AccountService {
                 @SneakyThrows
                 @Override
                 public void run() {
-                    Thread.sleep(10*60*1000);
-                    Optional<Customer> optionalCustomer=
+                    Thread.sleep(10 * 60 * 1000);
+                    Optional<Customer> optionalCustomer =
                             customerRepository.findByCustomerIdAndEnabledFalse(newCustomer.getCustomerId());
-                    if(optionalCustomer.isPresent())
+                    if (optionalCustomer.isPresent())
                         customerRepository.delete(optionalCustomer.get());
                 }
             };
@@ -180,6 +182,23 @@ public class AccountServiceImpl implements AccountService {
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
+        //tạo refreshToken
+        Staff staff = null;
+        Customer customer = customerRepository.findByEmail(loginDTO.getEmail());
+        if (customer == null)
+            staff = staffRepository.findByEmail(loginDTO.getEmail());
+        Token oldRefreshToken = null;
+        if (staff != null) {
+            oldRefreshToken = tokenRepository.findByStaff(staff);
+        } else if (customer != null) {
+            oldRefreshToken = tokenRepository.findByCustomer(customer);
+        }
+        if (oldRefreshToken != null) tokenRepository.delete(oldRefreshToken);
+        Token refreshToken = new Token();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 10);
+        refreshToken.setExpDate(calendar.getTime());
+
         String role;
         if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN")))
             role = "SUPER_ADMIN";
@@ -189,21 +208,29 @@ public class AccountServiceImpl implements AccountService {
 
         if (role.equalsIgnoreCase("SUPER_ADMIN") ||
                 role.equalsIgnoreCase("ADMIN")) {
-            Staff staff = staffRepository.findByEmail(loginDTO.getEmail());
+
+            refreshToken.setStaff(staff);
+
             returnMap.put("id", staff.getStaffId().toString());
             returnMap.put("name", staff.getName());
             returnMap.put("email", staff.getEmail());
             returnMap.put("image", staff.getImage());
         } else if (role.equalsIgnoreCase("CUSTOMER")) {
-            Customer customer = customerRepository.findByEmail(loginDTO.getEmail());
+
+            refreshToken.setCustomer(customer);
+
             returnMap.put("id", customer.getCustomerId().toString());
             returnMap.put("name", customer.getName());
             returnMap.put("email", customer.getEmail());
             returnMap.put("image", customer.getImage());
+            returnMap.put("balance", customer.getAccountBalance() + "");
         }
 
         returnMap.put("role", role);
         returnMap.put("token", token);
+
+        Token newRefreshToken = tokenRepository.save(refreshToken);
+        returnMap.put("refreshToken", newRefreshToken.getToken());
 
         return returnMap;
     }
@@ -215,6 +242,11 @@ public class AccountServiceImpl implements AccountService {
             DefaultClaims claims = (io.jsonwebtoken.impl.DefaultClaims) request.getAttribute("claims");
 
             Map<String, Object> expectedMap = getMapFromIoJsonwebtokenClaims(claims);
+
+            String userToken = (String) request.getAttribute("userToken");
+            if (!expectedMap.get("sub").toString().equals(userToken))
+                throw new CustomException("Refreshtoken không hợp lệ");
+
             String token = jwtTokenUtil.doGenerateToken(expectedMap, expectedMap.get("sub").toString());
             Map<String, String> returnMap = new HashMap<>();
             returnMap.put("token", token);

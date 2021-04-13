@@ -24,9 +24,6 @@ public class ArticleUpdateDTO {
 
     private String description;
 
-    @NotNull(message = "Vip không được trống")
-    private Boolean vip;
-
     //numberDate
 
     @Min(value = 1000, message = "Giá nước nhỏ nhất là 1000 đồng")

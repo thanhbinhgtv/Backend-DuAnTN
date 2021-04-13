@@ -4,17 +4,23 @@ import duantn.backend.authentication.CustomException;
 import duantn.backend.authentication.CustomUserDetailsService;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.dao.StaffRepository;
+import duantn.backend.dao.TokenRepository;
 import duantn.backend.model.dto.input.*;
 import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
+import duantn.backend.model.entity.Token;
 import duantn.backend.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 public class Account {
@@ -30,12 +36,16 @@ public class Account {
     final
     StaffRepository staffRepository;
 
-    public Account(AccountService accountService, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil, StaffRepository staffRepository) {
+    final
+    TokenRepository tokenRepository;
+
+    public Account(AccountService accountService, AuthenticationManager authenticationManager, CustomUserDetailsService userDetailsService, JwtUtil jwtTokenUtil, StaffRepository staffRepository, TokenRepository tokenRepository) {
         this.accountService = accountService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtTokenUtil = jwtTokenUtil;
         this.staffRepository = staffRepository;
+        this.tokenRepository = tokenRepository;
     }
 
 
@@ -59,8 +69,17 @@ public class Account {
 
     //Brear Token
     //isRefreshToken = true (Header)
-    @GetMapping("/refreshtoken")
-    public Map<String, String> refreshtoken(HttpServletRequest request) throws CustomException {
+    @PostMapping("/refreshtoken")
+    public Map<String, String> refreshToken(@RequestParam String refreshtoken,
+                                            HttpServletRequest request) throws CustomException {
+        Optional<Token> optionalToken=tokenRepository.findById(refreshtoken.trim());
+        if(!optionalToken.isPresent())
+            throw new CustomException("Refreshtoken không chính xác");
+        if(optionalToken.get().getExpDate().before(new Date()))
+            throw new CustomException("Refreshtoken đã hết hạn");
+        request.setAttribute("userToken",
+                optionalToken.get().getCustomer()==null? optionalToken.get().getStaff().getEmail():
+                optionalToken.get().getCustomer().getEmail());
         return accountService.refreshtoken(request);
     }
 

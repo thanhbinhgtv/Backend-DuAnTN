@@ -1,6 +1,8 @@
 package duantn.backend.service;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.model.dto.input.ArticleInsertDTO;
+import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.input.ContactCustomerDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.dto.output.CustomerOutputDTO;
@@ -35,4 +37,19 @@ public interface ArticleService {
 
     //chi tiết bài đăng
     ArticleOutputDTO detailArticle(Integer id) throws CustomException;
+
+    //đăng bài
+    ArticleOutputDTO insertArticle(String email, ArticleInsertDTO articleInsertDTO)
+            throws CustomException;
+
+    //    sửa bài đăng	/customer/article
+    ArticleOutputDTO updateArticle(String email, ArticleUpdateDTO articleUpdateDTO,
+                                   Integer id)
+            throws CustomException;
+
+    //    gia hạn bài đăng	/customer/article/extension/{id}?date={int}
+    Message extensionExp(String email, Integer id, Integer date, String type) throws CustomException;
+
+    //đăng lại bài đăng đã ẩn	/customer/article/post/{id}?days={int}
+    Message postOldArticle(String email, Integer Id, Integer date, String type, Boolean vip) throws CustomException;
 }

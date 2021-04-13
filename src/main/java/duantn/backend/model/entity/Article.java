@@ -65,7 +65,7 @@ public class Article extends BaseEntity implements Serializable {
     private Roommate roommate;
 
     @ManyToOne
-    @JoinColumn(name = "customerId", nullable = false)
+    @JoinColumn(name = "customerId")
     private Customer customer;
 
     @ManyToOne
