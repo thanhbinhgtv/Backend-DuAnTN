@@ -25,7 +25,7 @@ public class Newspaper extends BaseEntity implements Serializable {
     @Column(length = 65535, columnDefinition = "text", nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     private String image;
 
     @ManyToOne
