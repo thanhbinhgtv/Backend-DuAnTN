@@ -10,6 +10,12 @@ spring:
     url: jdbc:mysql://localhost:3306/duantn?UseSSL=false
     username: root
     password: songlong
+  servlet:
+    multipart:
+      max-file-size: 512MB
+      max-request-size: 512MB
+      enabled: true
+
 
 paypal:
   mode: sandbox

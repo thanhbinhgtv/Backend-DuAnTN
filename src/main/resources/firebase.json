@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "healthy-ion-297905",
+  "private_key_id": "0c4756eb49499e73645c8d0419358a6f5cf6cc01",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCtrp/n2XMpYtlc\nKLJeb0lIMWkareqQTVQBM+G5xg7vPh/52TOg64MqGzscOXPufut6M30ktSq+822q\n8l0AYVV6vdbagaYoC/i+pLUkFPJ8guYk2RDWn/GPLisBf6UfTiuwO18JNMmA1jxL\n1KKuXUVtUPJagYgPsRPa91E5lVzJWK+s4EmmLrzz63pviU3Nn9sZWlp2Gss9hDze\nAIOnz+ItdC1oicqTzuTGl+9Xj3+Pc76MlyBIeVFCdtE/cf9jr7b0x9vQtMpY/BEj\nE2F67J0uygWBbO8eapWdIc/nOOLsUSmdtZsfxC71ajj94fY1bFfrhNIEQwhk9bUd\n3Qr+FmHRAgMBAAECggEAGyv/rlkRsD7bvJRNW4LTlyzLwbXFxa+jXdDNFrBKs9kn\nTYJSlnFiAtthwwemAIDwvByEDpMdTeRtmtnx/NY9dkdu7p5r7UX6M3E3OZ7hVONx\nuAARp1I8i2bwqXpbzer/4MFZG+qbP8HEiySIEvlanECWudwb+kB817vrhDO+4Wzx\ngx/hFt+R/8xxFG5xYDBct6mTqwAeE9yVSMzCa8VZFrcQfi3MqaAw9mAl/LRzYTYW\nxsv8L5s8hhyxZB/lsEp84lpyBNY5rirC0sZJlmrRV0BXcodoqBA6at9ZzK0Wl+lX\noR97+xodRv2WV0kVe0JzGIxyKdxhDTS0001qx3+pVQKBgQDaD5YjvR3xXfbv3IkL\nw1A/M8FRvlLKxmJyygpDsJzdWebf/T6jtVpTvA+ZiQqaRVLyYMq9K5It3eM1Qfau\nr0dUSTw95y7DO9hWEr8j0rRZXI6HCpKVR5X9z8CAVTHO50cWmB4wzxjf0Sda+fLZ\nr+Hi34dlGo47RJutS722sU4szwKBgQDL5ml6XADRmAqkK36NbcQp0OqsEjJjyi9e\nVIdilVqybe1ZrCdms8nEyUmhdt6UZpSNB3NTXjwAlA+W4E/ADwNoxC5NDsuNNXKb\nF0reYqxGEQ+B415nVdJ1axxU41PGKySAkjXJYTiFOGn7+wJ+HTmZ2aPr2BcNwTQa\nWNhkbnpvXwKBgQDRE8K8D5cHFzYuM4C/Y4ysnL4N13NgcyhvsWJ4Fn3BCnMAbrtB\nkh/CS32Vk70zv6ZRORcKnB0zlx1DsjSItwyoNvPo0qGWlenOVXkpKty7FbCesDdt\npE6fJjQHmCgCnuQdOMsxt0+9Qbf/VcpQiIAH3JTgDr8y+oxdc1K6OXSgJwKBgHsu\nu2CBvrjhGuStpin5O35ryaqk365r0owxkw0a4A1V3gPDvpYMXgQ1+vbCIpwTEQHW\nk3S1RJiw2m4zG9sS9uNPSg2ht5WayZ8qxj9t61f1LKIy47CYJ6pqSFZ8c/sPy2Cl\ndDsyMfxB5b2mmo3oSAlLc/2iseLMaxbTv/+EwxEPAoGBAMlUfoweH6bGFxm6w20m\nuXMvcZIqaocVLtjRsv+wdFlEoa/9DC8Xu2P429+T8WiK0dgk9QpEBwRrTxFPsNJK\nKXO/Fh6OuktnFwCZNDuu0CR8NVzFo7AAok2o61uyQYvzXL95OR3sn+7QtAgFX/3o\ndrjUlkmQwuEI7h41QyyZmorg\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-86ttx@healthy-ion-297905.iam.gserviceaccount.com",
+  "client_id": "107038045619198220275",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-86ttx%40healthy-ion-297905.iam.gserviceaccount.com"
+}
