@@ -35,7 +35,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             response.getOutputStream().write(body);
 
             System.out.println("!= null");
-
         } else {
 
             System.out.println("null");
@@ -44,7 +43,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             } else {
                 message = authException.getMessage();
             }
-
             byte[] body = new ObjectMapper().writeValueAsBytes(Collections.singletonMap("mess", message));
 
             response.getOutputStream().write(body);

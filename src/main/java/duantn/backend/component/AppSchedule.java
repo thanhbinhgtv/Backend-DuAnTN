@@ -23,7 +23,6 @@ public class AppSchedule {
         this.mailSender = mailSender;
     }
 
-
     @Scheduled(cron = "0 0 0 * * *")
     public void AutoArticle() {
         List<Article> articleList=articleRepository.findByDeletedTrue();

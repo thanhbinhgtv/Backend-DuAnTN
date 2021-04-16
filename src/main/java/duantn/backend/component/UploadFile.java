@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 @Service
 public class UploadFile {
+
     private final Path root = Paths.get("src/main/resources/uploads");
     @EventListener
     public void init(ApplicationReadyEvent event) throws CustomException{
@@ -56,10 +57,12 @@ public class UploadFile {
             throw new CustomException("Error: " + e.getMessage());
         }
     }
+
     //delete all file
     public void deleteAll() throws CustomException{
         FileSystemUtils.deleteRecursively(root.toFile());
     }
+
     // delete one file
     public void deleteOneFile(String filename) throws CustomException{
         Path path = root.resolve(filename);

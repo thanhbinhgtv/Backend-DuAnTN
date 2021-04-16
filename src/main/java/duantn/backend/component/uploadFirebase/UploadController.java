@@ -44,7 +44,6 @@ public class UploadController {
         }
     }
 
-
     @GetMapping("/split")
     public String split(@RequestParam String string){
         String[] list=string.split("___");

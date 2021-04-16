@@ -12,8 +12,7 @@ import java.util.*;
 @Service
 public class JwtUtil {
     private final String secret = "duc_pro";
-    private final int jwtExpirationInMs=60000*10;
-
+    private final int jwtExpirationInMs=60000*15;
 
     // generate token for user
     public String generateToken(UserDetails userDetails) {

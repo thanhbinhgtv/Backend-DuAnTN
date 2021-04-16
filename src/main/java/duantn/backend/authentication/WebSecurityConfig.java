@@ -50,11 +50,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
-
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         // We don't need CSRF for this example
-        httpSecurity.csrf().disable()
+        httpSecurity.csrf().disable().cors().and()
                 // dont authenticate this particular request
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
@@ -66,6 +65,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).
                 and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).
                 and().addFilterBefore(customJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
-
     }
 }
