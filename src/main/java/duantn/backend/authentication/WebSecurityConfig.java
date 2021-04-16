@@ -57,10 +57,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.csrf().disable()
                 // dont authenticate this particular request
                 .authorizeRequests()
-//                .antMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-//                .antMatchers("/super-admin/**").hasRole("SUPER_ADMIN")
-//                .antMatchers("/customer/**").hasRole("CUSTOMER")
-//                .antMatchers("/refreshtoken").authenticated()
+                .antMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                .antMatchers("/super-admin/**").hasRole("SUPER_ADMIN")
+                .antMatchers("/customer/**").hasRole("CUSTOMER")
+                .antMatchers("/refreshtoken").authenticated()
                 .antMatchers("/**").permitAll()
                 .anyRequest().authenticated()
                 .and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).
