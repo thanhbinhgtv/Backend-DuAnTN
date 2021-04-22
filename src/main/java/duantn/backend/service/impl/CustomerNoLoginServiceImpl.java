@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CustomerNoLoginServiceImpl implements CustomerNoLoginService {
@@ -29,8 +30,15 @@ public class CustomerNoLoginServiceImpl implements CustomerNoLoginService {
         List<Article> articleList= articleRepository.findCustomShow(start,end,ward,district,city,roommate,"active",
                 search,minAcreage,maxAcreage,page,limit);
         List<ArticleOutputDTO> articleOutputDTOList = new ArrayList<>();
+        Map<String, Long> countMap=articleRepository.findCustomShowCount(
+                start,end,ward,district,city,roommate,"active",
+                search,minAcreage,maxAcreage,limit
+        );
         for (Article article : articleList) {
-            articleOutputDTOList.add(helper.convertToOutputDTO(article));
+            ArticleOutputDTO articleOutputDTO=helper.convertToOutputDTO(article);
+            articleOutputDTO.setElements(countMap.get("elements"));
+            articleOutputDTO.setPages(countMap.get("pages"));
+            articleOutputDTOList.add(articleOutputDTO);
         }
         return articleOutputDTOList;
     }

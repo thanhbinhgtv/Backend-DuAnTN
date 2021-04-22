@@ -47,4 +47,7 @@ public class ArticleOutputDTO {
 
     private Map<String, String> location;
     //private Ward ward;
+
+    private Long elements;
+    private Long pages;
 }

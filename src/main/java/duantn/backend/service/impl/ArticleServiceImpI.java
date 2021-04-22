@@ -22,10 +22,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ArticleServiceImpI implements ArticleService {
@@ -70,8 +67,15 @@ public class ArticleServiceImpI implements ArticleService {
         List<Article> articleList =
                 articleRepository.findCustom(sort, start, end, ward, district, city,
                         roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
+        Map<String, Long> countMap=articleRepository.findCustomCount(
+                start, end, ward, district, city,
+                roommate, status, vip, search, minAcreage, maxAcreage, limit
+        );
         for (Article article : articleList) {
-            articleOutputDTOList.add(helper.convertToOutputDTO(article));
+            ArticleOutputDTO articleOutputDTO=helper.convertToOutputDTO(article);
+            articleOutputDTO.setElements(countMap.get("elements"));
+            articleOutputDTO.setPages(countMap.get("pages"));
+            articleOutputDTOList.add(articleOutputDTO);
         }
         return articleOutputDTOList;
     }
