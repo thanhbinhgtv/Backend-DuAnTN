@@ -41,7 +41,7 @@ public class CustomerServiceImpl implements CustomerService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
-    public Map<String, Object> listCustomer(String search, Boolean deleted, String nameSort,
+    public List<CustomerOutputDTO> listCustomer(String search, Boolean deleted, String nameSort,
                                             String balanceSort, Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
         String sort = null;
@@ -129,15 +129,12 @@ public class CustomerServiceImpl implements CustomerService {
         for (Customer customer : customerList) {
             CustomerOutputDTO customerOutputDTO = modelMapper.map(customer, CustomerOutputDTO.class);
             if (customer.getDob() != null) customerOutputDTO.setBirthday(customer.getDob().getTime());
+            customerOutputDTO.setPages(customerPage.getTotalPages());
+            customerOutputDTO.setElements(customerPage.getTotalElements());
             customerOutputDTOList.add(customerOutputDTO);
         }
 
-        Map<String, Object> returnMap=new HashMap<>();
-        returnMap.put("elements", customerPage.getTotalElements());
-        returnMap.put("pages", customerPage.getTotalPages());
-        returnMap.put("data", customerOutputDTOList);
-
-        return returnMap;
+        return customerOutputDTOList;
     }
 
     @Override

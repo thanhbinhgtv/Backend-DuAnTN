@@ -24,7 +24,7 @@ public class CustomerTaskManager {
 
     //Lịch sử nạp tiền
     @GetMapping("/transaction")
-    Map<String, Object> listAllTransaction(HttpServletRequest request,
+    List<TransactionOutputDTO> listAllTransaction(HttpServletRequest request,
                                            @RequestParam Integer page,
                                            @RequestParam Integer limit,
                                            @RequestParam(required = false) Boolean type) throws CustomException {

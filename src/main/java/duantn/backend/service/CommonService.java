@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface CommonService {
     //Lịch sử nạp tiền
-    Map<String, Object> listAllTransaction(String email,
+    List<TransactionOutputDTO> listAllTransaction(String email,
                                            Integer page, Integer limit,
                                            Boolean type) throws CustomException;
 

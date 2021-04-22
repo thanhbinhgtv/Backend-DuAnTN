@@ -35,7 +35,7 @@ public class NewspaperServiceImpl implements NewspaperService {
     }
 
     @Override
-    public Map<String, Object> listNewspaper(String sort, Boolean hidden, String title,
+    public List<NewspaperOutputDTO> listNewspaper(String sort, Boolean hidden, String title,
                                              Integer page, Integer limit) {
         if (title == null) title = "";
         Page<Newspaper> newspaperPage;
@@ -65,22 +65,18 @@ public class NewspaperServiceImpl implements NewspaperService {
 
         List<NewspaperOutputDTO> newspaperOutputDTOList = new ArrayList<>();
         for (Newspaper newspaper : newspaperList) {
-            newspaperOutputDTOList.add(convertToOutputDTO(newspaper));
+            newspaperOutputDTOList.add(convertToOutputDTO(newspaper, newspaperPage.getTotalElements(),
+                    newspaperPage.getTotalPages()));
         }
 
-        Map<String, Object> returnMap=new HashMap<>();
-        returnMap.put("elements", newspaperPage.getTotalElements());
-        returnMap.put("pages", newspaperPage.getTotalPages());
-        returnMap.put("data", newspaperOutputDTOList);
-
-        return returnMap;
+        return newspaperOutputDTOList;
     }
 
     @Override
     public NewspaperOutputDTO findOneNewspaper(Integer id) throws CustomException {
         Optional<Newspaper> newspaperOptional = newspaperRepository.findById(id);
         if (newspaperOptional.isPresent()) {
-            return convertToOutputDTO(newspaperOptional.get());
+            return convertToOutputDTO(newspaperOptional.get(), null, null);
         } else {
             throw new CustomException("Tin tức với id " + id + " không tồn tại");
         }
@@ -98,7 +94,7 @@ public class NewspaperServiceImpl implements NewspaperService {
                     .setMatchingStrategy(MatchingStrategies.STRICT);
             Newspaper newspaper = modelMapper.map(newspaperInsertDTO, Newspaper.class);
             newspaper.setStaff(staffOptional.get());
-            return convertToOutputDTO(newspaperRepository.save(newspaper));
+            return convertToOutputDTO(newspaperRepository.save(newspaper), null, null);
         } catch (Exception e) {
             throw new CustomException("Thêm mới thất bại");
         }
@@ -120,7 +116,7 @@ public class NewspaperServiceImpl implements NewspaperService {
                 newspaper.setImage(newspaperUpdateDTO.getImage());
                 newspaper.setStaff(staffOptional.get());
                 newspaper.setTimeCreated(new Date());
-                return convertToOutputDTO(newspaperRepository.save(newspaper));
+                return convertToOutputDTO(newspaperRepository.save(newspaper), null, null);
         } catch (Exception e) {
             throw new CustomException("Cập nhật thất bại");
         }
@@ -162,13 +158,15 @@ public class NewspaperServiceImpl implements NewspaperService {
         }
     }
 
-    public NewspaperOutputDTO convertToOutputDTO(Newspaper newspaper) {
+    public NewspaperOutputDTO convertToOutputDTO(Newspaper newspaper, Long elements, Integer pages) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
         NewspaperOutputDTO newspaperOutputDTO = modelMapper.map(newspaper, NewspaperOutputDTO.class);
         newspaperOutputDTO.setAuthor(newspaper.getStaff().getName() + " (" + newspaper.getStaff().getEmail() + ")");
         newspaperOutputDTO.setUpdateTime(newspaper.getTimeCreated().getTime());
+        newspaperOutputDTO.setElements(elements);
+        newspaperOutputDTO.setPages(pages);
         return newspaperOutputDTO;
     }
 }

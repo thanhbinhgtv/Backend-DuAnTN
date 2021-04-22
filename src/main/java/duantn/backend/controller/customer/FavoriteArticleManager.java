@@ -29,7 +29,7 @@ public class FavoriteArticleManager {
 
     //    danh sách bài viết quan tâm của người dung	/customer/favorite-article
     @GetMapping("/favorite-article")
-    Map<String, Object> listArticle(HttpServletRequest request,
+    List<Map<String, String>> listArticle(HttpServletRequest request,
                                     @RequestParam Integer page,
                                     @RequestParam Integer limit) throws CustomException {
         String email = (String) request.getAttribute("email");

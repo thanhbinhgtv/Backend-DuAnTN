@@ -6,6 +6,7 @@ import duantn.backend.model.dto.input.CustomerUpdateDTO;
 import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.dto.output.Message;
 
+import duantn.backend.model.entity.Customer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -17,8 +18,8 @@ public interface CustomerService {
     //sắp xếp theo name, balance =asc/desc (chỉ truyền 1 trong 2)
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
-    Map<String, Object> listCustomer(String search, Boolean deleted, String nameSort,
-                     String balanceSort, Integer page, Integer limit);
+    List<CustomerOutputDTO> listCustomer(String search, Boolean deleted, String nameSort,
+                                String balanceSort, Integer page, Integer limit);
 
     //    cập nhật thông tin khách hàng	Put/super-admin/customers
     ResponseEntity<?> updateCustomer(CustomerUpdateDTO customerUpdateDTO,

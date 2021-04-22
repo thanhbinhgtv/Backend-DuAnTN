@@ -23,7 +23,7 @@ public class NewspaperManager {
     }
 
     @GetMapping("/new")
-    public Map<String, Object> listNewspaper(@RequestParam(required = false) String sort,
+    public List<NewspaperOutputDTO> listNewspaper(@RequestParam(required = false) String sort,
                                              @RequestParam(required = false) Boolean hidden,
                                              @RequestParam(required = false) String title,
                                              @RequestParam Integer page,

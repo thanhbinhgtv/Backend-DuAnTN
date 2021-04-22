@@ -11,7 +11,7 @@ public interface ArticleFavoriteService {
     Message addArticle(String email, Integer id) throws CustomException;
 
     //    danh sách bài viết quan tâm của người dung	/customer/favorite-article
-    Map<String, Object> listArticle(String email,
+    List<Map<String, String>> listArticle(String email,
                                     Integer page, Integer limit) throws CustomException;
 
     //    xóa bài viết quan tâm	/customer/favorite-article/{id}

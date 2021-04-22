@@ -52,7 +52,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Map<String, Object> listStaff(String search, Boolean status, String sort,
+    public List<StaffOutputDTO> listStaff(String search, Boolean status, String sort,
                          Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
         Page<Staff> staffPage;
@@ -131,15 +131,12 @@ public class StaffServiceImpl implements StaffService {
         for (Staff staff : staffList) {
             StaffOutputDTO staffOutputDTO = modelMapper.map(staff, StaffOutputDTO.class);
             staffOutputDTO.setBirthday(staff.getDob().getTime());
+            staffOutputDTO.setPages(staffPage.getTotalPages());
+            staffOutputDTO.setElements(staffPage.getTotalElements());
             staffOutputDTOList.add(staffOutputDTO);
         }
 
-        Map<String, Object> returnMap=new HashMap<>();
-        returnMap.put("elements", staffPage.getTotalElements());
-        returnMap.put("pages", staffPage.getTotalPages());
-        returnMap.put("data", staffOutputDTOList);
-
-        return returnMap;
+        return staffOutputDTOList;
     }
 
     @Override

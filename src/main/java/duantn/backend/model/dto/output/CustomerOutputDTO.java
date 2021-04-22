@@ -27,4 +27,7 @@ public class CustomerOutputDTO {
     private boolean deleted;
 
     private String image;
+
+    private Long elements;
+    private Integer pages;
 }

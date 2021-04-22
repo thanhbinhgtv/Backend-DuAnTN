@@ -37,7 +37,7 @@ public class StaffsManager {
     //search theo name or mail or phone ko nhập thì trả về all
     //sort=asc or desc không nhập thì ko xếp
     @GetMapping("/staffs")
-    public Map<String, Object> listStaffs
+    public List<StaffOutputDTO> listStaffs
             (@RequestParam(required = false) String search,
              @RequestParam(required = false) Boolean block,
              @RequestParam(required = false) String sort,

@@ -27,4 +27,7 @@ public class StaffOutputDTO {
     private String phone;
 
     private String image;
+
+    private Long elements;
+    private Integer pages;
 }
