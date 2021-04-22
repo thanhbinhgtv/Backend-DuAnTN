@@ -66,7 +66,7 @@ public class CommonServiceImpl implements CommonService {
                     transaction.isType()?"Nạp tiền":"Thanh toán"
             );
             transactionOutputDTO.setElements(transactionPage.getTotalElements());
-            transactionOutputDTO.setPages(transactionOutputDTO.getPages());
+            transactionOutputDTO.setPages(transactionPage.getTotalPages());
             transactionOutputDTOList.add(transactionOutputDTO);
         }
 

@@ -11,7 +11,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class CustomArticleRepositoryImpl implements CustomArticleRepository {
@@ -39,6 +41,145 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         //xác định cột trả về
         query.select(root);
 
+        Predicate integrated=findIntegrated(root, builder,
+                start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage);
+
+        query.where(integrated);
+
+        if(sort!=null && !sort.trim().equals("")){
+            if(sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
+            else query.orderBy(builder.asc(root.get("updateTime")));
+        }
+
+        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+    }
+
+    @Override
+    public Map<String, Long> findCustomCount(Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
+        if(search==null || search.trim().equals("")) search="";
+        CriteriaBuilder builder2 = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
+        Root root2=query2.from(Article.class);
+        query2.select(builder2.count(root2));
+        Predicate integrated2=findIntegrated(root2, builder2,
+                start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage);
+        query2.where(integrated2);
+        Long elements=em.createQuery(query2).getSingleResult();
+        Long pages=elements/limit;
+        if(pages*limit<elements) pages++;
+        Map<String, Long> countMap=new HashMap<>();
+        countMap.put("elements", elements);
+        countMap.put("pages", pages);
+        return countMap;
+    }
+
+    @Override
+    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage,Integer page, Integer limit) {
+        if(search==null || search.trim().equals("")) search="";
+
+        //tạo builder
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+
+        //tạo query
+        CriteriaQuery<Article> query = builder.createQuery(Article.class);
+
+        //xác định chủ thể cần truy vấn (=FROM Article)
+        Root<Article> root = query.from(Article.class);
+
+        //xác định cột trả về
+        query.select(root);
+
+        Predicate integrated=findCustomIntegrated(builder, root,
+                email, start, end, ward, district, city, roommate, status, vip, search,
+                minAcreage, maxAcreage);
+
+        query.where(integrated);
+
+        if(sort!=null && !sort.trim().equals("")){
+            if(sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
+            else query.orderBy(builder.asc(root.get("updateTime")));
+        }
+
+        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+    }
+
+    @Override
+    public Map<String, Long> findCustomAndEmailCount(String email, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
+        if(search==null || search.trim().equals("")) search="";
+        CriteriaBuilder builder2 = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
+        Root root2=query2.from(Article.class);
+        query2.select(builder2.count(root2));
+        Predicate integrated2=findCustomIntegrated(builder2, root2,
+                email, start, end, ward, district, city, roommate, status, vip, search,
+                minAcreage, maxAcreage);
+        query2.where(integrated2);
+        Long elements=em.createQuery(query2).getSingleResult();
+        Long pages=elements/limit;
+        if(pages*limit<elements) pages++;
+        Map<String, Long> countMap=new HashMap<>();
+        countMap.put("elements", elements);
+        countMap.put("pages", pages);
+        return countMap;
+    }
+
+    @Override
+    public List<Article> findCustomShow(Long start, Long end,
+                                    Integer ward, Integer district, Integer city,
+                                    Boolean roommate,
+                                    String status, String search,
+                                    Integer minAcreage, Integer maxAcreage,
+                                    Integer page, Integer limit) {
+        if(search==null || search.trim().equals("")) search="";
+
+        //tạo builder
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+
+        //tạo query
+        CriteriaQuery<Article> query = builder.createQuery(Article.class);
+
+        //xác định chủ thể cần truy vấn (=FROM Article)
+        Root<Article> root = query.from(Article.class);
+
+        //xác định cột trả về
+        query.select(root);
+
+        Predicate integrated=findShowIntegrated(builder, root,
+                start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage);
+
+        query.where(integrated);
+
+        Order vipDesc=builder.desc(root.get("vip"));
+        Order timeDesc=builder.desc(root.get("updateTime"));
+        query.orderBy(vipDesc, timeDesc);
+
+        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+    }
+
+    @Override
+    public Map<String, Long> findCustomShowCount(Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
+        if(search==null || search.trim().equals("")) search="";
+        CriteriaBuilder builder2 = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
+        Root root2=query2.from(Article.class);
+        query2.select(builder2.count(root2));
+        Predicate integrated2=findShowIntegrated(builder2, root2,
+                start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage);
+        query2.where(integrated2);
+        Long elements=em.createQuery(query2).getSingleResult();
+        Long pages=elements/limit;
+        if(pages*limit<elements) pages++;
+        Map<String, Long> countMap=new HashMap<>();
+        countMap.put("elements", elements);
+        countMap.put("pages", pages);
+        return countMap;
+    }
+
+    private Predicate findIntegrated(Root root,CriteriaBuilder builder, Long start, Long end,
+                                     Integer ward, Integer district, Integer city,
+                                     Boolean roommate,
+                                     String status, Boolean vip, String search,
+                                     Integer minAcreage, Integer maxAcreage){
         //search
         Predicate searchByName=builder.like(root.get("customer").get("name"),"%"+search+"%");
         Predicate searchByPhone=builder.like(root.get("customer").get("phone"),"%"+search+"%");
@@ -112,37 +253,14 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             searchByTitle=builder.and(searchByTitle, findByVip);
         }
 
-        query.where(searchByTitle);
-
-        if(sort!=null && !sort.trim().equals("")){
-            if(sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
-            else query.orderBy(builder.asc(root.get("updateTime")));
-        }
-
-//        CriteriaBuilder qb = em.getCriteriaBuilder();
-//        CriteriaQuery<Long> cq = qb.createQuery(Long.class);
-//        cq.select(qb.count(cq.from(Article.class)));
-//        System.out.println("asddfjj: "+em.createQuery(cq).getSingleResult());
-
-        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+        return searchByTitle;
     }
 
-    @Override
-    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage,Integer page, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
-
-        //tạo builder
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-
-        //tạo query
-        CriteriaQuery<Article> query = builder.createQuery(Article.class);
-
-        //xác định chủ thể cần truy vấn (=FROM Article)
-        Root<Article> root = query.from(Article.class);
-
-        //xác định cột trả về
-        query.select(root);
-
+    private Predicate findCustomIntegrated(CriteriaBuilder builder, Root root,
+                                           String email, Long start, Long end, Integer ward,
+                                           Integer district, Integer city, Boolean roommate,
+                                           String status, Boolean vip, String search,
+                                           Integer minAcreage, Integer maxAcreage){
         //search
         Predicate searchByTitle=builder.like(root.get("title"), "%"+search+"%");
 
@@ -216,38 +334,15 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             Predicate findByVip=builder.equal(root.get("vip"), vip);
             searchByTitle=builder.and(searchByTitle, findByVip);
         }
-
-        query.where(searchByTitle);
-
-        if(sort!=null && !sort.trim().equals("")){
-            if(sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
-            else query.orderBy(builder.asc(root.get("updateTime")));
-        }
-
-        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+        return searchByTitle;
     }
 
-    @Override
-    public List<Article> findCustomShow(Long start, Long end,
-                                    Integer ward, Integer district, Integer city,
-                                    Boolean roommate,
-                                    String status, String search,
-                                    Integer minAcreage, Integer maxAcreage,
-                                    Integer page, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
-
-        //tạo builder
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-
-        //tạo query
-        CriteriaQuery<Article> query = builder.createQuery(Article.class);
-
-        //xác định chủ thể cần truy vấn (=FROM Article)
-        Root<Article> root = query.from(Article.class);
-
-        //xác định cột trả về
-        query.select(root);
-
+    private Predicate findShowIntegrated(CriteriaBuilder builder,
+                                         Root root, Long start, Long end,
+                                         Integer ward, Integer district, Integer city,
+                                         Boolean roommate,
+                                         String status, String search,
+                                         Integer minAcreage, Integer maxAcreage){
         //search
         Predicate searchByName=builder.like(root.get("customer").get("name"),"%"+search+"%");
         Predicate searchByPhone=builder.like(root.get("customer").get("phone"),"%"+search+"%");
@@ -314,13 +409,6 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 searchByTitle=builder.and(searchByTitle, findByStatusFalse);
             }
         }
-
-        query.where(searchByTitle);
-
-        Order vipDesc=builder.desc(root.get("vip"));
-        Order timeDesc=builder.desc(root.get("updateTime"));
-        query.orderBy(vipDesc, timeDesc);
-
-        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+        return searchByTitle;
     }
 }

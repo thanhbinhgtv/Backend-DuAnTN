@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CustomerArticleServiceImpl implements CustomerArticleService {
@@ -65,10 +62,17 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         List<Article> articleList =
                 articleRepository.findCustomAndEmail(email, sort, start, end, ward, district, city,
                         roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
+        Map<String, Long> countMap=articleRepository.findCustomAndEmailCount(
+                email, start, end, ward, district, city,
+                roommate, status, vip, search, minAcreage, maxAcreage,limit
+        );
         List<ArticleOutputDTO> articleOutputDTOList = new ArrayList<>();
         if (articleList.size() > 0) {
             for (Article article : articleList) {
-                articleOutputDTOList.add(helper.convertToOutputDTO(article));
+                ArticleOutputDTO articleOutputDTO=helper.convertToOutputDTO(article);
+                articleOutputDTO.setElements(countMap.get("elements"));
+                articleOutputDTO.setPages(countMap.get("pages"));
+                articleOutputDTOList.add(articleOutputDTO);
             }
         }
         return articleOutputDTOList;
