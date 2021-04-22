@@ -35,7 +35,7 @@ public class FirebaseFileService {
             ClassPathResource serviceAccount = new ClassPathResource("firebase.json");
             storage = StorageOptions.newBuilder().
                     setCredentials(GoogleCredentials.fromStream(serviceAccount.getInputStream())).
-                    setProjectId("healthy-ion-297905").build().getService();
+                    setProjectId("du-an-tot-nghiep-fpt").build().getService();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -46,7 +46,7 @@ public class FirebaseFileService {
         Map<String, String> map = new HashMap<>();
         map.put("firebaseStorageDownloadTokens", imageName);
         //BUCKET=PROJECT_ID + "appspot.com"
-        BlobId blobId = BlobId.of("healthy-ion-297905.appspot.com", imageName);
+        BlobId blobId = BlobId.of("du-an-tot-nghiep-fpt.appspot.com", imageName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
                 .setMetadata(map)
                 .setContentType(file.getContentType())

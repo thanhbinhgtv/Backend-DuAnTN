@@ -75,7 +75,7 @@ public class ArticleManager {
     //    ẩn bài đăng (gửi mail)	/admin/article/block/{id}
     @PostMapping("/article/hidden/{id}")
     public Message hiddenArticle(@PathVariable Integer id,
-                                 @RequestParam String mess,
+                                 @RequestBody String mess,
                                  HttpServletRequest request)
             throws CustomException {
         return articleService.hiddenArticle(id, mess, request);

@@ -24,5 +24,7 @@ public class CustomerOutputDTO {
 
     private int accountBalance;
 
+    private boolean deleted;
+
     private String image;
 }

@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class UploadController {
@@ -23,17 +20,17 @@ public class UploadController {
     }
 
     @PostMapping("/firebase/upload")
-    public Map<String, String> create(@RequestParam(name = "files") List<MultipartFile> files) {
+    public List<String> create(@RequestParam(name = "files") List<MultipartFile> files) {
         if(files.size()>0){
-            Map<String, String> imageLinks=new HashMap<>();
+            List<String> imageLinks = new ArrayList<>();
             int index=0;
             for (MultipartFile file:files){
                 try {
                     String fileName = firebaseFileService.saveTest(file);
                     // do whatever you want with that
-                    String url="https://firebasestorage.googleapis.com/v0/b/healthy-ion-297905.appspot.com/o/"+fileName+"?alt=media&token="+fileName;
+                    String url="https://firebasestorage.googleapis.com/v0/b/du-an-tot-nghiep-fpt.appspot.com/o/"+fileName+"?alt=media&token="+fileName;
 
-                    imageLinks.put("image"+index, url);
+                    imageLinks.add(url);
                     index++;
                 } catch (Exception e) {
                     //  throw internal error;
@@ -46,7 +43,6 @@ public class UploadController {
             throw new CustomException("Không có ảnh nào để upload");
         }
     }
-
 
     @GetMapping("/split")
     public String split(@RequestParam String string){

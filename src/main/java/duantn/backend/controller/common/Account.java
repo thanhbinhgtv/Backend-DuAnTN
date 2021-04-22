@@ -70,8 +70,9 @@ public class Account {
     //Brear Token
     //isRefreshToken = true (Header)
     @PostMapping("/refreshtoken")
-    public Map<String, String> refreshToken(@RequestParam String refreshtoken,
+    public Map<String, String> refreshToken(@Valid @RequestBody String refreshtoken,
                                             HttpServletRequest request) throws CustomException {
+        System.out.println(refreshtoken);
         Optional<Token> optionalToken=tokenRepository.findById(refreshtoken.trim());
         if(!optionalToken.isPresent())
             throw new CustomException("Refreshtoken không chính xác");
