@@ -19,10 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -44,8 +41,8 @@ public class CustomerServiceImpl implements CustomerService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
-    public List<CustomerOutputDTO> listCustomer(String search, Boolean deleted, String nameSort,
-                                                String balanceSort, Integer page, Integer limit) {
+    public Map<String, Object> listCustomer(String search, Boolean deleted, String nameSort,
+                                            String balanceSort, Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
         String sort = null;
         String sortBy = null;
@@ -134,7 +131,13 @@ public class CustomerServiceImpl implements CustomerService {
             if (customer.getDob() != null) customerOutputDTO.setBirthday(customer.getDob().getTime());
             customerOutputDTOList.add(customerOutputDTO);
         }
-        return customerOutputDTOList;
+
+        Map<String, Object> returnMap=new HashMap<>();
+        returnMap.put("elements", customerPage.getTotalElements());
+        returnMap.put("pages", customerPage.getTotalPages());
+        returnMap.put("data", customerOutputDTOList);
+
+        return returnMap;
     }
 
     @Override

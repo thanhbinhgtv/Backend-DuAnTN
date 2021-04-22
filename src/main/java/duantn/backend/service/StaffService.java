@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 public interface StaffService {
 
@@ -17,10 +18,10 @@ public interface StaffService {
     //sắp xếp theo name sort=asc, sort=desc
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
-    List<StaffOutputDTO> listStaff(String search,
-                                   Boolean status, String sort,
-                                   Integer page,
-                                   Integer limit);
+    Map<String, Object> listStaff(String search,
+                                  Boolean status, String sort,
+                                  Integer page,
+                                  Integer limit);
 
     //    thêm nhân viên	Post/super-admin/staffs
     Message insertStaff(StaffInsertDTO staffInsertDTO, HttpServletRequest request) throws Exception;

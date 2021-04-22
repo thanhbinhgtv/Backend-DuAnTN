@@ -14,7 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CommonServiceImpl implements CommonService {
@@ -38,7 +40,7 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    public List<TransactionOutputDTO> listAllTransaction(String email, Integer page, Integer limit, Boolean type)  throws CustomException {
+    public Map<String, Object> listAllTransaction(String email, Integer page, Integer limit, Boolean type)  throws CustomException {
         Page<Transaction> transactionPage;
         if(type==null){
             transactionPage=
@@ -65,7 +67,13 @@ public class CommonServiceImpl implements CommonService {
             );
             transactionOutputDTOList.add(transactionOutputDTO);
         }
-        return transactionOutputDTOList;
+
+        Map<String, Object> returnMap=new HashMap<>();
+        returnMap.put("elements", transactionPage.getTotalElements());
+        returnMap.put("pages", transactionPage.getTotalPages());
+        returnMap.put("data", transactionOutputDTOList);
+
+        return returnMap;
     }
 
     @Override

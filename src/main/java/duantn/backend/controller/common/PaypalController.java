@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Date;
 
@@ -32,13 +33,13 @@ public class PaypalController {
     @Value("${duantn.rate}")
     private Integer rate;
 
-    private String email;
+//    private String email;
 
     public static final String URL_PAYPAL_SUCCESS = "pay/success";
     public static final String URL_PAYPAL_CANCEL = "pay/cancel";
-    private double value;
-    private String description;
-    private Customer customer;
+//    private double value;
+//    private String description;
+//    private Customer customer;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -67,24 +68,29 @@ public class PaypalController {
             throws CustomException {
         String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
         String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
+        HttpSession session=request.getSession();
         try {
-            value = Math.round(price * 100.0) / 100.0;
-            email= (String) request.getAttribute("email");
+            Double value = Math.round(price * 100.0) / 100.0;
+            session.setAttribute("value", value);
+            String email= (String) request.getAttribute("email");
+            session.setAttribute("email", email);
 
-            if (description == null || description.trim().equals("")) this.description = "Nạp " + value + " USD";
-            else this.description = description;
+            if (description == null || description.trim().equals("")) description = "Nạp " + value + " USD";
+            session.setAttribute("description", description);
+
             if (email == null || email.trim().equals("")) throw new CustomException("Token không hợp lệ");
 
-            customer = customerRepository.findByEmail(email);
+            Customer customer = customerRepository.findByEmail(email);
             if (customer == null)
                 throw new CustomException("Người dùng không hợp lệ");
+            session.setAttribute("customer", customer);
 
             Payment payment = paypalService.createPayment(
                     value,
                     "USD",
                     PaypalPaymentMethod.paypal,
                     PaypalPaymentIntent.sale,
-                    this.description,
+                    description,
                     cancelUrl,
                     successUrl);
             for (Links links : payment.getLinks()) {
@@ -109,15 +115,21 @@ public class PaypalController {
 
     @GetMapping(URL_PAYPAL_SUCCESS)
     public void successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
-                           HttpServletResponse response)
+                           HttpServletResponse response,
+                           HttpServletRequest request)
             throws CustomException {
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
+                HttpSession session=request.getSession();
+                Customer customer= (Customer) session.getAttribute("customer");
+                Double value= (Double) session.getAttribute("value");
+                String description= (String) session.getAttribute("description");
+
                 int increase = (int) (value * rate);
                 customer.setAccountBalance(customer.getAccountBalance() + increase);
                 customerRepository.save(customer);
-                creatTransaction(customer, increase);
+                creatTransaction(customer, increase, description);
                 response.sendRedirect("http://localhost:4200/client/confirm-payment?usd="+value+"&vnd="+increase);
                 //return new Message("Thanh toán thành công, số tiền: " + value + " USD - tức " + increase + " VNĐ");
                 return;
@@ -130,7 +142,7 @@ public class PaypalController {
         throw new CustomException("Không xác định");
     }
 
-    private void creatTransaction(Customer customer, Integer money) {
+    private void creatTransaction(Customer customer, Integer money, String description) {
         Transaction transaction = new Transaction();
         transaction.setAmount(money);
         transaction.setType(true);
@@ -139,5 +151,4 @@ public class PaypalController {
         transaction.setCustomer(customer);
         transactionRepository.save(transaction);
     }
-
 }

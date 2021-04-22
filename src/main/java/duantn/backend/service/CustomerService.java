@@ -10,14 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CustomerService {
     //Tìm kiếm khách hàng = email, phone, name
     //sắp xếp theo name, balance =asc/desc (chỉ truyền 1 trong 2)
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
-    List<CustomerOutputDTO> listCustomer(String search, Boolean deleted, String nameSort,
-                                         String balanceSort, Integer page, Integer limit);
+    Map<String, Object> listCustomer(String search, Boolean deleted, String nameSort,
+                     String balanceSort, Integer page, Integer limit);
 
     //    cập nhật thông tin khách hàng	Put/super-admin/customers
     ResponseEntity<?> updateCustomer(CustomerUpdateDTO customerUpdateDTO,

@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StaffServiceImpl implements StaffService {
@@ -55,8 +52,8 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public List<StaffOutputDTO> listStaff(String search, Boolean status, String sort,
-                                          Integer page, Integer limit) {
+    public Map<String, Object> listStaff(String search, Boolean status, String sort,
+                         Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
         Page<Staff> staffPage;
         if (sort == null || sort.equals("")) {
@@ -136,7 +133,13 @@ public class StaffServiceImpl implements StaffService {
             staffOutputDTO.setBirthday(staff.getDob().getTime());
             staffOutputDTOList.add(staffOutputDTO);
         }
-        return staffOutputDTOList;
+
+        Map<String, Object> returnMap=new HashMap<>();
+        returnMap.put("elements", staffPage.getTotalElements());
+        returnMap.put("pages", staffPage.getTotalPages());
+        returnMap.put("data", staffOutputDTOList);
+
+        return returnMap;
     }
 
     @Override

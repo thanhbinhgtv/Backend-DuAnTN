@@ -51,7 +51,7 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
     }
 
     @Override
-    public List<Map<String, String>> listArticle(String email,
+    public Map<String, Object> listArticle(String email,
                                                  Integer page, Integer limit) throws CustomException {
         Page<FavoriteArticle> favoriteArticlePage =
                 favoriteArticleRepository.findByCustomer_Email(email,
@@ -79,7 +79,13 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
             }
             mapList.add(map);
         }
-        return mapList;
+
+        Map<String, Object> returnMap=new HashMap<>();
+        returnMap.put("elements", favoriteArticlePage.getTotalElements());
+        returnMap.put("pages", favoriteArticlePage.getTotalPages());
+        returnMap.put("data", mapList);
+
+        return returnMap;
     }
 
     @Override
