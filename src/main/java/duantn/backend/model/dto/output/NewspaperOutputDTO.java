@@ -19,4 +19,7 @@ public class NewspaperOutputDTO {
     private Long updateTime;
 
     private Boolean deleted;
+
+    private Long elements;
+    private Integer pages;
 }

@@ -18,7 +18,7 @@ public interface StaffService {
     //sắp xếp theo name sort=asc, sort=desc
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
-    Map<String, Object> listStaff(String search,
+    List<StaffOutputDTO> listStaff(String search,
                                   Boolean status, String sort,
                                   Integer page,
                                   Integer limit);

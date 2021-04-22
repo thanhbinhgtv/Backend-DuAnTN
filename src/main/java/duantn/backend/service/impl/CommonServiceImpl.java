@@ -40,7 +40,7 @@ public class CommonServiceImpl implements CommonService {
     }
 
     @Override
-    public Map<String, Object> listAllTransaction(String email, Integer page, Integer limit, Boolean type)  throws CustomException {
+    public List<TransactionOutputDTO> listAllTransaction(String email, Integer page, Integer limit, Boolean type)  throws CustomException {
         Page<Transaction> transactionPage;
         if(type==null){
             transactionPage=
@@ -65,15 +65,12 @@ public class CommonServiceImpl implements CommonService {
             transactionOutputDTO.setMethod(
                     transaction.isType()?"Nạp tiền":"Thanh toán"
             );
+            transactionOutputDTO.setElements(transactionPage.getTotalElements());
+            transactionOutputDTO.setPages(transactionOutputDTO.getPages());
             transactionOutputDTOList.add(transactionOutputDTO);
         }
 
-        Map<String, Object> returnMap=new HashMap<>();
-        returnMap.put("elements", transactionPage.getTotalElements());
-        returnMap.put("pages", transactionPage.getTotalPages());
-        returnMap.put("data", transactionOutputDTOList);
-
-        return returnMap;
+        return transactionOutputDTOList;
     }
 
     @Override

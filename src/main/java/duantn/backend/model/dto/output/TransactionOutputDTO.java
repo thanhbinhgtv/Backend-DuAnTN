@@ -17,4 +17,7 @@ public class TransactionOutputDTO {
 
     private String description;
 
+    private Long elements;
+    private Integer pages;
+
 }

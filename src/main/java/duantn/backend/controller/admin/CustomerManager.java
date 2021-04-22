@@ -25,7 +25,7 @@ public class CustomerManager {
 
     //sắp xếp theo name, accountBalance (chỉ chọn 1 trong 2)
     @GetMapping("/customers")
-    public Map<String, Object> listCustomers
+    public List<CustomerOutputDTO> listCustomers
     (@RequestParam(required = false) String search,
      @RequestParam(required = false) Boolean deleted,
      @RequestParam(value = "name-sort", required = false) String nameSort,

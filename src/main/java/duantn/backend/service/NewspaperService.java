@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface NewspaperService {
     //list tin tức
-    Map<String, Object> listNewspaper(String sort, Boolean hidden, String title,
+    List<NewspaperOutputDTO> listNewspaper(String sort, Boolean hidden, String title,
                       Integer page, Integer limit);
 
     //tin tức details
