@@ -1,6 +1,12 @@
 package duantn.backend.service.impl;
 
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payment;
+import com.paypal.base.rest.PayPalRESTException;
 import duantn.backend.authentication.CustomException;
+import duantn.backend.config.paypal.PaypalPaymentIntent;
+import duantn.backend.config.paypal.PaypalPaymentMethod;
+import duantn.backend.config.paypal.PaypalService;
 import duantn.backend.dao.*;
 import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.input.ArticleInsertDTO;
@@ -14,7 +20,11 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,8 +46,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     TransactionRepository transactionRepository;
     final
     FavoriteArticleRepository favoriteArticleRepository;
+    final
+    PaypalService paypalService;
 
-    public CustomerArticleServiceImpl(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, CustomerRepository customerRepository, WardRepository wardRepository, Helper helper, TransactionRepository transactionRepository, FavoriteArticleRepository favoriteArticleRepository) {
+    public CustomerArticleServiceImpl(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, CustomerRepository customerRepository, WardRepository wardRepository, Helper helper, TransactionRepository transactionRepository, FavoriteArticleRepository favoriteArticleRepository, PaypalService paypalService) {
         this.articleRepository = articleRepository;
         this.staffArticleRepository = staffArticleRepository;
         this.customerRepository = customerRepository;
@@ -45,6 +57,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         this.helper = helper;
         this.transactionRepository = transactionRepository;
         this.favoriteArticleRepository = favoriteArticleRepository;
+        this.paypalService = paypalService;
     }
 
     @Override
@@ -335,5 +348,52 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             throw new CustomException("Khách hàng không hợp lệ");
 
         return helper.convertToOutputDTO(article);
+    }
+
+    private String URL_PAYPAL_SUCCESS = "pay/success";
+    private String URL_PAYPAL_CANCEL = "pay/cancel";
+    public Message pay(HttpServletRequest request,
+                       double price,
+                       String description)
+            throws CustomException {
+        String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
+        String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
+        HttpSession session=request.getSession();
+        try {
+            Double value = Math.round(price * 100.0) / 100.0;
+            session.setAttribute("value", value);
+            String email= (String) request.getAttribute("email");
+            session.setAttribute("email", email);
+
+            if (description == null || description.trim().equals("")) description = "Nạp " + value + " USD";
+            session.setAttribute("description", description);
+
+            if (email == null || email.trim().equals("")) throw new CustomException("Token không hợp lệ");
+
+            Customer customer = customerRepository.findByEmail(email);
+            if (customer == null)
+                throw new CustomException("Người dùng không hợp lệ");
+            session.setAttribute("customer", customer);
+
+            Payment payment = paypalService.createPayment(
+                    value,
+                    "USD",
+                    PaypalPaymentMethod.paypal,
+                    PaypalPaymentIntent.sale,
+                    description,
+                    cancelUrl,
+                    successUrl);
+            for (Links links : payment.getLinks()) {
+                if (links.getRel().equals("approval_url")) {
+                    //response.sendRedirect(links.getHref());
+                    return new Message(links.getHref());
+                }
+            }
+        } catch (PayPalRESTException e) {
+            e.printStackTrace();
+            throw new CustomException("Thanh toán thất bại");
+        }
+        //return "redirect:/";
+        throw new CustomException("Không xác định");
     }
 }

@@ -2,10 +2,13 @@ package duantn.backend.dao.impl;
 
 import duantn.backend.dao.CustomArticleRepository;
 import duantn.backend.model.entity.Article;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.List;
@@ -115,6 +118,11 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             if(sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
             else query.orderBy(builder.asc(root.get("updateTime")));
         }
+
+//        CriteriaBuilder qb = em.getCriteriaBuilder();
+//        CriteriaQuery<Long> cq = qb.createQuery(Long.class);
+//        cq.select(qb.count(cq.from(Article.class)));
+//        System.out.println("asddfjj: "+em.createQuery(cq).getSingleResult());
 
         return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
     }
@@ -312,8 +320,6 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         Order vipDesc=builder.desc(root.get("vip"));
         Order timeDesc=builder.desc(root.get("updateTime"));
         query.orderBy(vipDesc, timeDesc);
-
-
 
         return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
     }

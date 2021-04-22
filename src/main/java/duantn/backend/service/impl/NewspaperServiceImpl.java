@@ -19,10 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class NewspaperServiceImpl implements NewspaperService {
@@ -38,8 +35,8 @@ public class NewspaperServiceImpl implements NewspaperService {
     }
 
     @Override
-    public List<NewspaperOutputDTO> listNewspaper(String sort, Boolean hidden, String title,
-                                                  Integer page, Integer limit) {
+    public Map<String, Object> listNewspaper(String sort, Boolean hidden, String title,
+                                             Integer page, Integer limit) {
         if (title == null) title = "";
         Page<Newspaper> newspaperPage;
         if (hidden != null) {
@@ -70,7 +67,13 @@ public class NewspaperServiceImpl implements NewspaperService {
         for (Newspaper newspaper : newspaperList) {
             newspaperOutputDTOList.add(convertToOutputDTO(newspaper));
         }
-        return newspaperOutputDTOList;
+
+        Map<String, Object> returnMap=new HashMap<>();
+        returnMap.put("elements", newspaperPage.getTotalElements());
+        returnMap.put("pages", newspaperPage.getTotalPages());
+        returnMap.put("data", newspaperOutputDTOList);
+
+        return returnMap;
     }
 
     @Override

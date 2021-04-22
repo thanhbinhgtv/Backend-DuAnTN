@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/customer")
@@ -23,10 +24,10 @@ public class CustomerTaskManager {
 
     //Lịch sử nạp tiền
     @GetMapping("/transaction")
-    List<TransactionOutputDTO> listAllTransaction(HttpServletRequest request,
-                                                  @RequestParam Integer page,
-                                                  @RequestParam Integer limit,
-                                                  @RequestParam(required = false) Boolean type) throws CustomException {
+    Map<String, Object> listAllTransaction(HttpServletRequest request,
+                                           @RequestParam Integer page,
+                                           @RequestParam Integer limit,
+                                           @RequestParam(required = false) Boolean type) throws CustomException {
         String email = (String) request.getAttribute("email");
         return commonService.listAllTransaction(email, page, limit, type);
     }

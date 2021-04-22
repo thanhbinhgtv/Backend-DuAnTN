@@ -8,11 +8,12 @@ import duantn.backend.model.dto.output.NewspaperOutputDTO;
 import duantn.backend.model.entity.Newspaper;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NewspaperService {
     //list tin tức
-    List<NewspaperOutputDTO> listNewspaper(String sort, Boolean hidden, String title,
-                                  Integer page, Integer limit);
+    Map<String, Object> listNewspaper(String sort, Boolean hidden, String title,
+                      Integer page, Integer limit);
 
     //tin tức details
     NewspaperOutputDTO findOneNewspaper(Integer id) throws CustomException;

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -22,11 +23,11 @@ public class NewspaperManager {
     }
 
     @GetMapping("/new")
-    public List<NewspaperOutputDTO> listNewspaper(@RequestParam(required = false) String sort,
-                                                  @RequestParam(required = false) Boolean hidden,
-                                                  @RequestParam(required = false) String title,
-                                                  @RequestParam Integer page,
-                                                  @RequestParam Integer limit) {
+    public Map<String, Object> listNewspaper(@RequestParam(required = false) String sort,
+                                             @RequestParam(required = false) Boolean hidden,
+                                             @RequestParam(required = false) String title,
+                                             @RequestParam Integer page,
+                                             @RequestParam Integer limit) {
         return newspaperService.listNewspaper(sort, hidden, title, page, limit);
     }
 

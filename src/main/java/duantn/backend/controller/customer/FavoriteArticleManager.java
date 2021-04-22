@@ -29,9 +29,9 @@ public class FavoriteArticleManager {
 
     //    danh sách bài viết quan tâm của người dung	/customer/favorite-article
     @GetMapping("/favorite-article")
-    List<Map<String, String>> listArticle(HttpServletRequest request,
-                                          @RequestParam Integer page,
-                                          @RequestParam Integer limit) throws CustomException {
+    Map<String, Object> listArticle(HttpServletRequest request,
+                                    @RequestParam Integer page,
+                                    @RequestParam Integer limit) throws CustomException {
         String email = (String) request.getAttribute("email");
         return articleFavoriteService.listArticle(email, page, limit);
     }

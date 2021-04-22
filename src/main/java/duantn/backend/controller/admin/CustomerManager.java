@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -24,7 +25,7 @@ public class CustomerManager {
 
     //sắp xếp theo name, accountBalance (chỉ chọn 1 trong 2)
     @GetMapping("/customers")
-    public List<CustomerOutputDTO> listCustomers
+    public Map<String, Object> listCustomers
     (@RequestParam(required = false) String search,
      @RequestParam(required = false) Boolean deleted,
      @RequestParam(value = "name-sort", required = false) String nameSort,
