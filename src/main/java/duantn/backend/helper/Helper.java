@@ -176,6 +176,7 @@ public class Helper {
         customer.put("name", article.getCustomer().getName());
         customer.put("email", article.getCustomer().getEmail());
         customer.put("phone", article.getCustomer().getPhone());
+        customer.put("image", article.getCustomer().getImage());
         articleOutputDTO.setCustomer(customer);
 
         if (article.getDeleted() != null && article.getDeleted() == true) {
