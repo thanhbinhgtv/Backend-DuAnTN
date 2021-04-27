@@ -53,4 +53,5 @@ public class ArticleOutputDTO {
     private Long pages;
 
     private Long countLike;
+    private Boolean liked=false;
 }

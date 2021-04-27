@@ -73,6 +73,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
                 ArticleOutputDTO articleOutputDTO=helper.convertToOutputDTO(article);
                 articleOutputDTO.setElements(countMap.get("elements"));
                 articleOutputDTO.setPages(countMap.get("pages"));
+
+                if(favoriteArticleRepository.findByCustomer_EmailAndArticle_ArticleId(email, article.getArticleId())!=null)
+                    articleOutputDTO.setLiked(true);
+
                 articleOutputDTOList.add(articleOutputDTO);
             }
         }
@@ -357,7 +361,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
 
-        return helper.convertToOutputDTO(article);
+        ArticleOutputDTO articleOutputDTO=helper.convertToOutputDTO(article);
+        if(favoriteArticleRepository.findByCustomer_EmailAndArticle_ArticleId(email, article.getArticleId())!=null)
+            articleOutputDTO.setLiked(true);
+        return articleOutputDTO;
     }
 
     private String URL_PAYPAL_SUCCESS = "pay/success";
