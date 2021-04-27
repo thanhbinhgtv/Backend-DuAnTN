@@ -77,6 +77,16 @@ public class Helper {
         }
     }
 
+    public String getEmailOrNullFromRequest(HttpServletRequest request) throws CustomException {
+        try{
+            String token= customJwtAuthenticationFilter.extractJwtFromRequest(request);
+            String email=jwtUtil.getUsernameFromToken(token);
+            return email;
+        }catch (Exception e){
+            return null;
+        }
+    }
+
     public String createToken(int sl) {
         //create token
         String token;

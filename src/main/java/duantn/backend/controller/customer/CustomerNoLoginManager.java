@@ -1,6 +1,7 @@
 package duantn.backend.controller.customer;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.dto.output.NewspaperOutputDTO;
 import duantn.backend.service.ArticleService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -21,10 +23,13 @@ public class CustomerNoLoginManager {
     CustomerNoLoginService customerNoLoginService;
     final
     NewspaperService newspaperService;
+    final
+    Helper helper;
 
-    public CustomerNoLoginManager(CustomerNoLoginService customerNoLoginService, NewspaperService newspaperService) {
+    public CustomerNoLoginManager(CustomerNoLoginService customerNoLoginService, NewspaperService newspaperService, Helper helper) {
         this.customerNoLoginService = customerNoLoginService;
         this.newspaperService = newspaperService;
+        this.helper = helper;
     }
 
     @GetMapping("/article")
@@ -38,15 +43,18 @@ public class CustomerNoLoginManager {
             @RequestParam(required = false) Integer minAcreage,
             @RequestParam(required = false) Integer maxAcreage,
             @RequestParam Integer page,
-            @RequestParam Integer limit
+            @RequestParam Integer limit,
+            HttpServletRequest request
     ) {
-        return customerNoLoginService.listArticle(start,end,ward,district,city,
+        String email=helper.getEmailOrNullFromRequest(request);
+        return customerNoLoginService.listArticle(email,start,end,ward,district,city,
                 roommate,search,minAcreage,maxAcreage,page,limit);
     }
 
     @GetMapping("/article/{id}")
-    public ArticleOutputDTO findOneArticle(@PathVariable Integer id) throws CustomException {
-        return customerNoLoginService.findOneArticle(id);
+    public ArticleOutputDTO findOneArticle(@PathVariable Integer id, HttpServletRequest request) throws CustomException {
+        String email= helper.getEmailOrNullFromRequest(request);
+        return customerNoLoginService.findOneArticle(email, id);
     }
 
     @GetMapping("/new")
