@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 public interface CustomerNoLoginService {
-    List<ArticleOutputDTO> listArticle(
+    List<ArticleOutputDTO> listArticle(String email,
             Long start, Long end,
             Integer ward,
             Integer district,
@@ -19,5 +19,5 @@ public interface CustomerNoLoginService {
             Integer limit
     );
 
-    ArticleOutputDTO findOneArticle(Integer id) throws CustomException;
+    ArticleOutputDTO findOneArticle(String email, Integer id) throws CustomException;
 }
