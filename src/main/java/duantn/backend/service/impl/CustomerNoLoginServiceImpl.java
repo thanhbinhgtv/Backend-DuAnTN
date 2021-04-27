@@ -4,6 +4,7 @@ import duantn.backend.authentication.CustomException;
 import duantn.backend.dao.ArticleRepository;
 import duantn.backend.dao.FavoriteArticleRepository;
 import duantn.backend.helper.Helper;
+import duantn.backend.helper.VariableCommon;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.FavoriteArticle;
@@ -54,8 +55,10 @@ public class CustomerNoLoginServiceImpl implements CustomerNoLoginService {
 
     @Override
     public ArticleOutputDTO findOneArticle(String email, Integer id) throws CustomException {
-        Article article=articleRepository.findByArticleIdAndDeletedTrue(id);
+        Article article=articleRepository.findByArticleId(id);
         if(article== null) throw new CustomException("Bài đăng không tồn tại hoặc chưa được duyệt");
+        if(!article.getStatus().equals(VariableCommon.DANG_DANG))
+            throw new CustomException("Bài viết này đang trong trạng thái không thể xem được");
 
         ArticleOutputDTO articleOutputDTO=helper.convertToOutputDTO(article);
 
