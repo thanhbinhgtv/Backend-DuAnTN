@@ -19,12 +19,12 @@ public class FavoriteArticleManager {
         this.articleFavoriteService = articleFavoriteService;
     }
 
-    //    lưu bài quan tâm	/customer/favorite-article/add?id={id}
-    @GetMapping("/favorite-article/add")
+    //    lưu - xóa bài quan tâm	/customer/favorite-article/add?id={id}
+    @GetMapping("/favorite-article/add-remove")
     Message addArticle(HttpServletRequest request,
-                       @RequestParam Integer id) throws CustomException {
+                       @RequestParam("article-id") Integer id) throws CustomException {
         String email = (String) request.getAttribute("email");
-        return articleFavoriteService.addArticle(email, id);
+        return articleFavoriteService.addRemoveArticle(email, id);
     }
 
     //    danh sách bài viết quan tâm của người dung	/customer/favorite-article
@@ -34,13 +34,5 @@ public class FavoriteArticleManager {
                                     @RequestParam Integer limit) throws CustomException {
         String email = (String) request.getAttribute("email");
         return articleFavoriteService.listArticle(email, page, limit);
-    }
-
-    //    xóa bài viết quan tâm	/customer/favorite-article/{id}
-    @DeleteMapping("/favorite-article/{id}")
-    Message deleteArticle(HttpServletRequest request,
-                          @PathVariable Integer id) throws CustomException {
-        String email = (String) request.getAttribute("email");
-        return articleFavoriteService.deleteArticle(email, id);
     }
 }

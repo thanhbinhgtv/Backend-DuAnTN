@@ -18,4 +18,6 @@ public interface FavoriteArticleRepository extends JpaRepository<FavoriteArticle
 
     List<FavoriteArticle> findByArticle(Article article);
 
+    Long countByArticle(Article article);
+
 }

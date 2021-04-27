@@ -4,6 +4,7 @@ import duantn.backend.authentication.CustomException;
 import duantn.backend.authentication.CustomJwtAuthenticationFilter;
 import duantn.backend.authentication.JwtUtil;
 import duantn.backend.dao.CustomerRepository;
+import duantn.backend.dao.FavoriteArticleRepository;
 import duantn.backend.dao.StaffArticleRepository;
 import duantn.backend.dao.StaffRepository;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
@@ -30,13 +31,16 @@ public class Helper {
     CustomJwtAuthenticationFilter customJwtAuthenticationFilter;
     final
     StaffArticleRepository staffArticleRepository;
+    final
+    FavoriteArticleRepository favoriteArticleRepository;
 
-    public Helper(CustomerRepository customerRepository, StaffRepository staffRepository, JwtUtil jwtUtil, CustomJwtAuthenticationFilter customJwtAuthenticationFilter, StaffArticleRepository staffArticleRepository) {
+    public Helper(CustomerRepository customerRepository, StaffRepository staffRepository, JwtUtil jwtUtil, CustomJwtAuthenticationFilter customJwtAuthenticationFilter, StaffArticleRepository staffArticleRepository, FavoriteArticleRepository favoriteArticleRepository) {
         this.customerRepository = customerRepository;
         this.staffRepository = staffRepository;
         this.jwtUtil = jwtUtil;
         this.customJwtAuthenticationFilter = customJwtAuthenticationFilter;
         this.staffArticleRepository = staffArticleRepository;
+        this.favoriteArticleRepository = favoriteArticleRepository;
     }
 
 
@@ -176,6 +180,8 @@ public class Helper {
         location.put("cityId", article.getWard().getDistrict().getCity().getCityId() + "");
         location.put("cityName", article.getWard().getDistrict().getCity().getCityName());
         articleOutputDTO.setLocation(location);
+
+        articleOutputDTO.setCountLike(favoriteArticleRepository.countByArticle(article));
 
         return articleOutputDTO;
     }

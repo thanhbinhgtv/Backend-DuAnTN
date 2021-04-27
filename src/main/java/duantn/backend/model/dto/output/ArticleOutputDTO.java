@@ -51,4 +51,6 @@ public class ArticleOutputDTO {
 
     private Long elements;
     private Long pages;
+
+    private Long countLike;
 }
