@@ -47,16 +47,33 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
                     map.put("id", favoriteArticle.getId().toString());
                     map.put("articleId", favoriteArticle.getArticle().getArticleId().toString());
                     map.put("title", favoriteArticle.getArticle().getTitle());
+                    map.put("image", favoriteArticle.getArticle().getImage());
                     map.put("timeUpdate", String.valueOf(favoriteArticle.getArticle().getUpdateTime().getTime()));
+                    map.put("expDate", String.valueOf(favoriteArticle.getArticle().getExpTime().getTime()));
                     map.put("price", String.valueOf(favoriteArticle.getArticle().getRoomPrice()));
                     map.put("ward", favoriteArticle.getArticle().getWard().getWardName());
+                    map.put("status", favoriteArticle.getArticle().getStatus());
                 }else{
                     map.put("id", favoriteArticle.getId().toString());
                     map.put("title","Bài đăng đã bị ẩn");
+                    map.put("articleId", "Bài đăng đã bị ẩn");
+                    map.put("image", "Bài đăng đã bị ẩn");
+                    map.put("timeUpdate", "Bài đăng đã bị ẩn");
+                    map.put("expDate", "Bài đăng đã bị ẩn");
+                    map.put("price", "Bài đăng đã bị ẩn");
+                    map.put("ward", "Bài đăng đã bị ẩn");
+                    map.put("status", favoriteArticle.getArticle().getStatus());
                 }
             }else{
                 map.put("id", favoriteArticle.getId().toString());
                 map.put("title","Bài đăng đã bị xóa");
+                map.put("articleId", "Bài đăng đã bị xóa");
+                map.put("image", "Bài đăng đã bị xóa");
+                map.put("timeUpdate", "Bài đăng đã bị xóa");
+                map.put("expDate", "Bài đăng đã bị xóa");
+                map.put("price", "Bài đăng đã bị xóa");
+                map.put("ward", "Bài đăng đã bị xóa");
+                map.put("status", "Đã xóa");
             }
 
             map.put("pages", ""+favoriteArticlePage.getTotalPages());
