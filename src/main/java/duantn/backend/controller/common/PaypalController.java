@@ -125,7 +125,7 @@ public class PaypalController {
                 customer.setAccountBalance(customer.getAccountBalance() + increase);
                 customerRepository.save(customer);
                 creatTransaction(customer, increase, description);
-                response.sendRedirect("http://localhost:4200/client/confirm-payment?usd="+value+"&vnd="+increase);
+                response.sendRedirect("http://localhost:4200/confirm-payment?usd="+value+"&vnd="+increase);
                 //return new Message("Nạp thành công, số tiền: " + value + " USD - tức " + increase + " VNĐ");
                 return;
             }
