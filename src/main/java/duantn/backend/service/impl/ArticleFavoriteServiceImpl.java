@@ -4,6 +4,7 @@ import duantn.backend.authentication.CustomException;
 import duantn.backend.dao.ArticleRepository;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.FavoriteArticleRepository;
+import duantn.backend.helper.VariableCommon;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.Customer;
@@ -31,26 +32,6 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
     }
 
     @Override
-    public Message addArticle(String email, Integer id) throws CustomException {
-        Customer customer = customerRepository.findByEmail(email);
-        if (customer == null) throw new CustomException("Khách hàng không tồn tại");
-        Optional<Article> optionalArticle = articleRepository.findById(id);
-        if (!optionalArticle.isPresent()) throw new CustomException("Bài đăng không tồn tại");
-        Article article = optionalArticle.get();
-        FavoriteArticle oldArticle =
-                favoriteArticleRepository.findByCustomer_EmailAndArticle_ArticleId(email, id);
-        if (oldArticle != null) {
-            return new Message("Bài đăng đã được lưu");
-        } else {
-            FavoriteArticle favoriteArticle = new FavoriteArticle();
-            favoriteArticle.setArticle(article);
-            favoriteArticle.setCustomer(customer);
-            favoriteArticleRepository.save(favoriteArticle);
-            return new Message("Lưu bài đăng thành công");
-        }
-    }
-
-    @Override
     public List<Map<String, String>> listArticle(String email,
                                                  Integer page, Integer limit) throws CustomException {
         Page<FavoriteArticle> favoriteArticlePage =
@@ -61,8 +42,8 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
         for (FavoriteArticle favoriteArticle : favoriteArticleList) {
             Map<String, String> map = new HashMap<>();
             if(favoriteArticle.getArticle()!=null){
-                if(favoriteArticle.getArticle().getDeleted()!=null &&
-                        favoriteArticle.getArticle().getDeleted()){
+                if(favoriteArticle.getArticle().getStatus().equals(VariableCommon.DANG_DANG)||
+                        favoriteArticle.getArticle().getStatus().equals(VariableCommon.HET_HAN)){
                     map.put("id", favoriteArticle.getId().toString());
                     map.put("articleId", favoriteArticle.getArticle().getArticleId().toString());
                     map.put("title", favoriteArticle.getArticle().getTitle());
@@ -88,17 +69,22 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
     }
 
     @Override
-    public Message deleteArticle(String email, Integer id) throws CustomException {
-        Optional<FavoriteArticle> optionalFavoriteArticle =
-                favoriteArticleRepository.findById(id);
-        if (optionalFavoriteArticle.isPresent()) {
-            FavoriteArticle favoriteArticle= optionalFavoriteArticle.get();
-            if(!email.trim().equals(favoriteArticle.getCustomer().getEmail()))
-                throw new CustomException("Khách hàng không hợp lệ");
+    public Message addRemoveArticle(String email, Integer id) throws CustomException {
+        FavoriteArticle favoriteArticle=favoriteArticleRepository.
+                findByCustomer_EmailAndArticle_ArticleId(email, id);
+        if (favoriteArticle!=null) {
             favoriteArticleRepository.delete(favoriteArticle);
-            return new Message("Xóa bài lưu thành công");
+            return new Message("Bỏ yêu thích thành công");
         } else {
-            throw new CustomException("Bài lưu không tồn tại");
+            Customer customer=customerRepository.findByEmail(email);
+            if(customer==null) throw new CustomException("Email không hợp lệ");
+            Article article= articleRepository.findByArticleId(id);
+            if(article==null) throw new CustomException("Id bài đăng không hợp lệ");
+            FavoriteArticle favoriteArticle1=new FavoriteArticle();
+            favoriteArticle1.setCustomer(customer);
+            favoriteArticle1.setArticle(article);
+            favoriteArticleRepository.save(favoriteArticle1);
+            return new Message("Đã thêm vào bài đăng yêu thích");
         }
     }
 }
