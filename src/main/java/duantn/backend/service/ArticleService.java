@@ -32,6 +32,8 @@ public interface ArticleService {
                               HttpServletRequest request) throws CustomException;
 //    duyệt bài đăng (hiện) (gửi mail)	/admin/article/active/{id}
     Message activeArticle(Integer id, HttpServletRequest request) throws CustomException;
+    //duyệt bài: yêu cầu sửa lại
+    Message suggestCorrectingArticle(Integer id, String reason, HttpServletRequest request) throws CustomException;
 //    ẩn bài đăng (gửi mail)	/admin/article/block/{id}
     Message hiddenArticle(Integer id, String reason, HttpServletRequest request) throws CustomException;
 

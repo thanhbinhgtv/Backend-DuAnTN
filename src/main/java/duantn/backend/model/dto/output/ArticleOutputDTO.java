@@ -43,10 +43,11 @@ public class ArticleOutputDTO {
 
     private Map<String, String> customer;
 
-    private Map<String, String> moderator;
-
     private Map<String, String> location;
     //private Ward ward;
+
+    private Integer number;
+    private String type;
 
     private Long elements;
     private Long pages;

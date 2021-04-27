@@ -46,6 +46,9 @@ public class Article extends BaseEntity implements Serializable {
 
 
     @Column(nullable = false)
+    private String status;
+
+    @Column(nullable = false)
     private Boolean vip;
 
     @Column(nullable = false)

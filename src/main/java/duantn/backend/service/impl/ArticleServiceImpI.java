@@ -5,6 +5,7 @@ import duantn.backend.authentication.JwtUtil;
 import duantn.backend.component.MailSender;
 import duantn.backend.dao.*;
 import duantn.backend.helper.Helper;
+import duantn.backend.helper.VariableCommon;
 import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.input.ContactCustomerDTO;
@@ -98,6 +99,9 @@ public class ArticleServiceImpI implements ArticleService {
                 throw new CustomException("JWT không hợp lệ");
             }
 
+            if(articleOptional.get().getCustomer()==null)
+                throw new CustomException("Không xác định được khách hàng cần liên lạc");
+
 
             String to = articleOptional.get().getCustomer().getEmail();
 
@@ -106,6 +110,15 @@ public class ArticleServiceImpI implements ArticleService {
                     + "Thời gian: " + simpleDateFormat.format(new Date());
 
             mailSender.send(to, contactCustomerDTO.getTitle(), contactCustomerDTO.getContent(), note);
+
+            //tạo bản ghi staff article
+            StaffArticle staffArticle=new StaffArticle();
+            staffArticle.setTime(new Date());
+            staffArticle.setStaff(staff);
+            staffArticle.setArticle(articleOptional.get());
+            staffArticle.setAction("Liên hệ với người đăng bài");
+            staffArticleRepository.save(staffArticle);
+
             return new Message("Gửi mail thành công");
         } else throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
     }
@@ -127,9 +140,18 @@ public class ArticleServiceImpI implements ArticleService {
             //duyệt bài
             //chuyển deleted thành true
             Article article = articleOptional.get();
-            if (article.getDeleted() != null)
+            if (article.getStatus().equals(VariableCommon.CHUA_DUYET))
                 throw new CustomException("Chỉ được duyệt bài có trạng thái là chưa duyệt");
-            article.setDeleted(true);
+            article.setStatus(VariableCommon.DANG_DANG);
+
+            //nếu còn hạn cũ
+            if(article.getNumber()==null || article.getType()==null){
+                if(article.getExpTime()!=null){
+                    article.setStatus(
+                            article.getExpTime().after(new Date())?VariableCommon.DANG_DANG:VariableCommon.HET_HAN
+                    );
+                }else throw new CustomException("Lỗi không xác định");
+            }
 
             //tạo thời hạn
             Integer days = null;
@@ -163,7 +185,6 @@ public class ArticleServiceImpI implements ArticleService {
             ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             //gửi thư
-            String to = article.getCustomer().getEmail();
             String note = "Nhân viên duyệt bài: " + staff.getName() + "<br/>"
                     + "Email: " + staff.getEmail() + "<br/>"
                     + "Thời gian: " + simpleDateFormat.format(new Date());
@@ -192,7 +213,10 @@ public class ArticleServiceImpI implements ArticleService {
                     "<p>Bạn có thể vào theo đường dẫn sau để xem bài viết của mình:</p>\n" +
                     "\n" +
                     "<p> xxxx </p>\n";
-            mailSender.send(to, title, content, note);
+            if(article.getCustomer()!=null){
+                String to = article.getCustomer().getEmail();
+                mailSender.send(to, title, content, note);
+            }
             return new Message("Duyệt bài thành công");
         } else throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
     }
@@ -214,12 +238,10 @@ public class ArticleServiceImpI implements ArticleService {
             //duyệt bài
             //chuyển deleted thành true
             Article article = articleOptional.get();
-            if (article.getDeleted() == false)
-                throw new CustomException("Không thể ẩn bài viết đang ẩn");
+            if (!article.getStatus().equals(VariableCommon.DANG_DANG))
+                throw new CustomException("Chỉ có thể ẩn khi bài viết đang đăng");
 
-            article.setDeleted(false);
-
-            article.setExpTime(null);
+            article.setStatus(VariableCommon.BI_AN);
 
             //tạo bản ghi staffArticle
             StaffArticle staffArticle = new StaffArticle();
@@ -249,12 +271,9 @@ public class ArticleServiceImpI implements ArticleService {
                         "\n" +
                         "<p>SĐT: " + article.getCustomer().getPhone() + "</p>\n" +
                         "\n" +
-                        "<p>Thời gian đăng: " + simpleDateFormat.format(article.getTimeCreated()) + "</p>\n" +
-                        "\n" +
-                        "\n" +
                         "<p>Thời gian ẩn bài: " + simpleDateFormat.format(new Date()) + "</p>\n" +
                         "\n" +
-                        "<p>Trạng thái: <strong><span style=\"color:red\">đã bị ẩn</span></strong></p>\n" +
+                        "<p>Trạng thái: <strong><span style=\"color:red\">Đã bị ẩn</span></strong></p>\n" +
                         "\n" +
                         "<p>Lý do: <strong><span style=\"color:blue\">" + reason + "</span></strong></p>\n" +
                         "\n" +
@@ -269,10 +288,78 @@ public class ArticleServiceImpI implements ArticleService {
     }
 
     @Override
+    public Message suggestCorrectingArticle(Integer id, String reason, HttpServletRequest request) throws CustomException {
+        Optional<Article> articleOptional = articleRepository.findById(id);
+        if (articleOptional.isPresent()) {
+            Staff staff;
+            try {
+                staff = findStaffByJWT(request);
+                if (staff == null) throw new Exception();
+            } catch (ExpiredJwtException e) {
+                throw new CustomException("JWT hết hạn");
+            } catch (Exception e) {
+                throw new CustomException("JWT không hợp lệ");
+            }
+
+            //duyệt bài
+            //chuyển deleted thành true
+            Article article = articleOptional.get();
+            if (!article.getStatus().equals(VariableCommon.CHUA_DUYET) &&
+                    !article.getStatus().equals(VariableCommon.DANG_DANG))
+                throw new CustomException("Chỉ có áp dụng yêu cầu sửa lại với bài chưa duyệt hoặc đang đăng");
+
+            article.setStatus(VariableCommon.SUA_LAI);
+
+            //tạo bản ghi staffArticle
+            StaffArticle staffArticle = new StaffArticle();
+            staffArticle.setTime(new Date());
+            staffArticle.setStaff(staff);
+            staffArticle.setArticle(article);
+            staffArticle.setAction("Yêu cầu sửa lại bài");
+            //lưu
+            staffArticleRepository.save(staffArticle);
+            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
+
+            //gửi thư
+            if(article.getCustomer()!=null){
+                if (reason == null || reason.trim().equals("")) reason = "không có lý do cụ thể";
+                String to = article.getCustomer().getEmail();
+                String note = "Nhân viên yêu cầu sửa bài: " + staff.getName() + "<br/>"
+                        + "Email: " + staff.getEmail() + "<br/>"
+                        + "Thời gian: " + simpleDateFormat.format(new Date());
+                String title = "Yêu cầu sửa lại bài đăng số: " + article.getArticleId();
+                String content = "<p>Bài đăng số: " + article.getArticleId() + "</p>\n" +
+                        "\n" +
+                        "<p>Tiêu đề: " + article.getTitle() + "</p>\n" +
+                        "\n" +
+                        "<p>Người đăng: " + article.getCustomer().getName() + "</p>\n" +
+                        "\n" +
+                        "<p>Email: " + article.getCustomer().getEmail() + "</p>\n" +
+                        "\n" +
+                        "<p>SĐT: " + article.getCustomer().getPhone() + "</p>\n" +
+                        "\n" +
+                        "<p>Thời gian yêu cầu: " + simpleDateFormat.format(new Date()) + "</p>\n" +
+                        "\n" +
+                        "<p>Trạng thái: <strong><span style=\"color:red\">Bài viết cần được sửa lại</span></strong></p>\n" +
+                        "\n" +
+                        "<p>Lý do: <strong><span style=\"color:blue\">" + reason + "</span></strong></p>\n" +
+                        "\n" +
+                        "<p>Bài đăng của bạn đã bị nhân viên <em><strong>" + staff.getName() + " </strong></em>(email: <em><strong>" + staff.getEmail() + "</strong></em>) yêu cầu sửa lại, vào lúc <em><strong>" + simpleDateFormat.format(new Date()) + "</strong></em>.</p>\n" +
+                        "\n" +
+                        "<p>Chúng tôi rất tiếc về điều này, bạn vui lòng xem lại bài đăng của mình đã phù hợp với nội quy website chưa. Mọi thắc mắc xin liên hệ theo email nhân viên đã duyệt bài.</p>\n";
+                mailSender.send(to, title, content, note);
+            }
+
+            return new Message("Yêu cầu sửa lại bài thành công");
+        } else throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
+    }
+
+    @Override
     public ArticleOutputDTO detailArticle(Integer id) throws CustomException {
         Optional<Article> articleOptional = articleRepository.findById(id);
         if (!articleOptional.isPresent())
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
+
         Article article = articleOptional.get();
         return helper.convertToOutputDTO(article);
     }
@@ -305,7 +392,7 @@ public class ArticleServiceImpI implements ArticleService {
             article.setWard(wardOptional.get());
 
             article.setUpdateTime(new Date());
-            article.setDeleted(true);
+            article.setStatus(VariableCommon.DANG_DANG);
             article.setCustomer(null);
 
             //tạo hạn sử dụng
@@ -418,7 +505,7 @@ public class ArticleServiceImpI implements ArticleService {
         Article article = articleRepository.findByArticleId(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
-        else if (article.getDeleted() ==null || article.getDeleted() != true)
+        else if (!article.getStatus().equals(VariableCommon.DANG_DANG))
             throw new CustomException("Gia hạn chỉ áp dụng với bài đăng đã được duyệt");
 
         Staff staff=staffRepository.findByEmail(email);
@@ -448,7 +535,7 @@ public class ArticleServiceImpI implements ArticleService {
 
     @Override
     public Message postOldArticle(String email, Integer id, Integer date, String type, Boolean vip) throws CustomException {
-        Article article = articleRepository.findByDeletedFalseAndArticleId(id);
+        Article article = articleRepository.findByArticleId(id);
         Staff staff=staffRepository.findByEmail(email);
         if(staff==null)
             throw new CustomException("Nhân viên không tồn tại");
@@ -456,13 +543,37 @@ public class ArticleServiceImpI implements ArticleService {
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại, hoặc đang không bị ẩn");
         if (article.getCustomer()!=null)
             throw new CustomException("Admin chỉ được đăng lại bài cũ do admin đăng");
+        if (article.getStatus().equals(VariableCommon.DANG_DANG)||
+                article.getStatus().equals(VariableCommon.CHUA_DUYET)||
+                article.getStatus().equals(VariableCommon.SUA_LAI))
+            throw new CustomException("Chỉ được đăng lại bài đã ẩn hoặc hết hạn");
 
         article.setVip(vip);
 
-        article.setDeleted(true);
+        article.setStatus(VariableCommon.DANG_DANG);
 
         article.setNumber(date);
         article.setType(type);
+
+        //tạo thời hạn
+        Integer days = null;
+        if (type.equals("day")) {
+            article.setExpTime(helper.addDayForDate(date, new Date()));
+            article.setType(null);
+            article.setNumber(null);
+        } else if (type.equals("week")) {
+            days = helper.calculateDays(date, article.getType(),
+                    new Date());
+            article.setExpTime(helper.addDayForDate(days, new Date()));
+            article.setType(null);
+            article.setNumber(null);
+        } else if (type.equals("month")) {
+            days = helper.calculateDays(date, article.getType(),
+                    new Date());
+            article.setExpTime(helper.addDayForDate(days, new Date()));
+            article.setType(null);
+            article.setNumber(null);
+        } else throw new CustomException("Type của bài đăng bị sai");
 
         Article newArticle=articleRepository.save(article);
 
