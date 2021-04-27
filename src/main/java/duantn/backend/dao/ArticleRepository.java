@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Integer>, CustomArticleRepository{
-    Article findByDeletedFalseAndArticleId(Integer id);
+    Article findByStatusAndArticleId(String status, Integer id);
     Article findByArticleId(Integer id);
 
     Article findByArticleIdAndDeletedTrue(Integer id);

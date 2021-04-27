@@ -81,6 +81,15 @@ public class ArticleManager {
         return articleService.hiddenArticle(id, mess, request);
     }
 
+    //    yêu cầu sửa lại bài đăng (gửi mail)	/admin/article/block/{id}
+    @PostMapping("/article/suggest-fix/{id}")
+    public Message suggestCorrectingArticle(@PathVariable Integer id,
+                                 @RequestBody String mess,
+                                 HttpServletRequest request)
+            throws CustomException {
+        return articleService.suggestCorrectingArticle(id, mess, request);
+    }
+
     @GetMapping("/article/{id}")
     public ArticleOutputDTO detailArticle(@PathVariable Integer id) throws CustomException {
         return articleService.detailArticle(id);

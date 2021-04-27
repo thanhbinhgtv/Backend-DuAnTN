@@ -1,14 +1,12 @@
 package duantn.backend.dao.impl;
 
 import duantn.backend.dao.CustomArticleRepository;
+import duantn.backend.helper.VariableCommon;
 import duantn.backend.model.entity.Article;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,7 +25,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                     String status, Boolean vip, String search,
                                     Integer minAcreage, Integer maxAcreage,
                                     Integer page, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
+        if (search == null || search.trim().equals("")) search = "";
 
         //tạo builder
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -41,41 +39,41 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         //xác định cột trả về
         query.select(root);
 
-        Predicate integrated=findIntegrated(root, builder,
+        Predicate integrated = findIntegrated(root, builder,
                 start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage);
 
         query.where(integrated);
 
-        if(sort!=null && !sort.trim().equals("")){
-            if(sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
+        if (sort != null && !sort.trim().equals("")) {
+            if (sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
             else query.orderBy(builder.asc(root.get("updateTime")));
         }
 
-        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+        return em.createQuery(query).setFirstResult(page * limit).setMaxResults(limit).getResultList();
     }
 
     @Override
     public Map<String, Long> findCustomCount(Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
+        if (search == null || search.trim().equals("")) search = "";
         CriteriaBuilder builder2 = em.getCriteriaBuilder();
         CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
-        Root root2=query2.from(Article.class);
+        Root root2 = query2.from(Article.class);
         query2.select(builder2.count(root2));
-        Predicate integrated2=findIntegrated(root2, builder2,
+        Predicate integrated2 = findIntegrated(root2, builder2,
                 start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage);
         query2.where(integrated2);
-        Long elements=em.createQuery(query2).getSingleResult();
-        Long pages=elements/limit;
-        if(pages*limit<elements) pages++;
-        Map<String, Long> countMap=new HashMap<>();
+        Long elements = em.createQuery(query2).getSingleResult();
+        Long pages = elements / limit;
+        if (pages * limit < elements) pages++;
+        Map<String, Long> countMap = new HashMap<>();
         countMap.put("elements", elements);
         countMap.put("pages", pages);
         return countMap;
     }
 
     @Override
-    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage,Integer page, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
+    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer page, Integer limit) {
+        if (search == null || search.trim().equals("")) search = "";
 
         //tạo builder
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -89,35 +87,35 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         //xác định cột trả về
         query.select(root);
 
-        Predicate integrated=findCustomIntegrated(builder, root,
+        Predicate integrated = findCustomIntegrated(builder, root,
                 email, start, end, ward, district, city, roommate, status, vip, search,
                 minAcreage, maxAcreage);
 
         query.where(integrated);
 
-        if(sort!=null && !sort.trim().equals("")){
-            if(sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
+        if (sort != null && !sort.trim().equals("")) {
+            if (sort.equals("desc")) query.orderBy(builder.desc(root.get("updateTime")));
             else query.orderBy(builder.asc(root.get("updateTime")));
         }
 
-        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+        return em.createQuery(query).setFirstResult(page * limit).setMaxResults(limit).getResultList();
     }
 
     @Override
     public Map<String, Long> findCustomAndEmailCount(String email, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
+        if (search == null || search.trim().equals("")) search = "";
         CriteriaBuilder builder2 = em.getCriteriaBuilder();
         CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
-        Root root2=query2.from(Article.class);
+        Root root2 = query2.from(Article.class);
         query2.select(builder2.count(root2));
-        Predicate integrated2=findCustomIntegrated(builder2, root2,
+        Predicate integrated2 = findCustomIntegrated(builder2, root2,
                 email, start, end, ward, district, city, roommate, status, vip, search,
                 minAcreage, maxAcreage);
         query2.where(integrated2);
-        Long elements=em.createQuery(query2).getSingleResult();
-        Long pages=elements/limit;
-        if(pages*limit<elements) pages++;
-        Map<String, Long> countMap=new HashMap<>();
+        Long elements = em.createQuery(query2).getSingleResult();
+        Long pages = elements / limit;
+        if (pages * limit < elements) pages++;
+        Map<String, Long> countMap = new HashMap<>();
         countMap.put("elements", elements);
         countMap.put("pages", pages);
         return countMap;
@@ -125,12 +123,12 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 
     @Override
     public List<Article> findCustomShow(Long start, Long end,
-                                    Integer ward, Integer district, Integer city,
-                                    Boolean roommate,
-                                    String status, String search,
-                                    Integer minAcreage, Integer maxAcreage,
-                                    Integer page, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
+                                        Integer ward, Integer district, Integer city,
+                                        Boolean roommate,
+                                        String status, String search,
+                                        Integer minAcreage, Integer maxAcreage,
+                                        Integer page, Integer limit) {
+        if (search == null || search.trim().equals("")) search = "";
 
         //tạo builder
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -144,113 +142,116 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         //xác định cột trả về
         query.select(root);
 
-        Predicate integrated=findShowIntegrated(builder, root,
+        Predicate integrated = findShowIntegrated(builder, root,
                 start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage);
 
         query.where(integrated);
 
-        Order vipDesc=builder.desc(root.get("vip"));
-        Order timeDesc=builder.desc(root.get("updateTime"));
+        Order vipDesc = builder.desc(root.get("vip"));
+        Order timeDesc = builder.desc(root.get("updateTime"));
         query.orderBy(vipDesc, timeDesc);
 
-        return em.createQuery(query).setFirstResult(page*limit).setMaxResults(limit).getResultList();
+        return em.createQuery(query).setFirstResult(page * limit).setMaxResults(limit).getResultList();
     }
 
     @Override
     public Map<String, Long> findCustomShowCount(Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
-        if(search==null || search.trim().equals("")) search="";
+        if (search == null || search.trim().equals("")) search = "";
         CriteriaBuilder builder2 = em.getCriteriaBuilder();
         CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
-        Root root2=query2.from(Article.class);
+        Root root2 = query2.from(Article.class);
         query2.select(builder2.count(root2));
-        Predicate integrated2=findShowIntegrated(builder2, root2,
+        Predicate integrated2 = findShowIntegrated(builder2, root2,
                 start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage);
         query2.where(integrated2);
-        Long elements=em.createQuery(query2).getSingleResult();
-        Long pages=elements/limit;
-        if(pages*limit<elements) pages++;
-        Map<String, Long> countMap=new HashMap<>();
+        Long elements = em.createQuery(query2).getSingleResult();
+        Long pages = elements / limit;
+        if (pages * limit < elements) pages++;
+        Map<String, Long> countMap = new HashMap<>();
         countMap.put("elements", elements);
         countMap.put("pages", pages);
         return countMap;
     }
 
-    private Predicate findIntegrated(Root root,CriteriaBuilder builder, Long start, Long end,
+    private Predicate findIntegrated(Root root, CriteriaBuilder builder, Long start, Long end,
                                      Integer ward, Integer district, Integer city,
                                      Boolean roommate,
                                      String status, Boolean vip, String search,
-                                     Integer minAcreage, Integer maxAcreage){
+                                     Integer minAcreage, Integer maxAcreage) {
         //search
-        Predicate searchByName=builder.like(root.get("customer").get("name"),"%"+search+"%");
-        Predicate searchByPhone=builder.like(root.get("customer").get("phone"),"%"+search+"%");
-        Predicate searchByEmail=builder.like(root.get("customer").get("email"),"%"+search+"%");
-        Predicate searchByTitle=builder.like(root.get("title"), "%"+search+"%");
-        searchByTitle=builder.or(searchByTitle, searchByEmail, searchByPhone, searchByName);
+        Predicate searchByName = builder.like(root.get("customer").get("name"), "%" + search + "%");
+        Predicate searchByPhone = builder.like(root.get("customer").get("phone"), "%" + search + "%");
+        Predicate searchByEmail = builder.like(root.get("customer").get("email"), "%" + search + "%");
+        Predicate searchByTitle = builder.like(root.get("title"), "%" + search + "%");
+        searchByTitle = builder.or(searchByTitle, searchByEmail, searchByPhone, searchByName);
 
         //tìm khoảng thời gian
-        if(start !=null){
+        if (start != null) {
             Predicate findByGreaterTime = builder.greaterThanOrEqualTo(root.<Date>get("updateTime"), new Date(start));
-            searchByTitle= builder.and(searchByTitle, findByGreaterTime);
+            searchByTitle = builder.and(searchByTitle, findByGreaterTime);
         }
-        if(end !=null){
+        if (end != null) {
             Predicate findByLessTime = builder.lessThanOrEqualTo(root.<Date>get("updateTime"), new Date(end));
-            searchByTitle= builder.and(searchByTitle, findByLessTime);
+            searchByTitle = builder.and(searchByTitle, findByLessTime);
         }
 
         //lọc theo diện tích
-        if(minAcreage!=null){
-            Predicate findByGreaterAcreage=builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
-            searchByTitle=builder.and(searchByTitle, findByGreaterAcreage);
+        if (minAcreage != null) {
+            Predicate findByGreaterAcreage = builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
+            searchByTitle = builder.and(searchByTitle, findByGreaterAcreage);
         }
-        if(maxAcreage!=null){
-            Predicate findByLessAcreage=builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
-            searchByTitle=builder.and(searchByTitle, findByLessAcreage);
+        if (maxAcreage != null) {
+            Predicate findByLessAcreage = builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
+            searchByTitle = builder.and(searchByTitle, findByLessAcreage);
         }
 
         //tìm theo xã, huyện, tỉnh
-        if(ward !=null){
+        if (ward != null) {
             Predicate findByWard = builder.equal(root.get("ward").get("wardId"), ward);
-            searchByTitle=builder.and(searchByTitle, findByWard);
-        } else if(district!=null){
-            Predicate findByDistrict=builder.equal(root.get("ward").get("district").get("districtId"), district);
-            searchByTitle=builder.and(searchByTitle, findByDistrict);
-        } else if(city !=null){
-            Predicate findByCity=builder.equal(root.get("ward").get("district").get("city").get("cityId"), city);
-            searchByTitle=builder.and(searchByTitle, findByCity);
+            searchByTitle = builder.and(searchByTitle, findByWard);
+        } else if (district != null) {
+            Predicate findByDistrict = builder.equal(root.get("ward").get("district").get("districtId"), district);
+            searchByTitle = builder.and(searchByTitle, findByDistrict);
+        } else if (city != null) {
+            Predicate findByCity = builder.equal(root.get("ward").get("district").get("city").get("cityId"), city);
+            searchByTitle = builder.and(searchByTitle, findByCity);
         }
 
         //tìm theo roommate
-        if(roommate!=null){
-            if(roommate){
-                Predicate findByRoommateNotNull=builder.isNotNull(root.get("roommate"));
-                searchByTitle=builder.and(searchByTitle, findByRoommateNotNull);
-            }
-            else{
-                Predicate findByRoommateNull=builder.isNull(root.get("roommate"));
-                searchByTitle=builder.and(searchByTitle, findByRoommateNull);
+        if (roommate != null) {
+            if (roommate) {
+                Predicate findByRoommateNotNull = builder.isNotNull(root.get("roommate"));
+                searchByTitle = builder.and(searchByTitle, findByRoommateNotNull);
+            } else {
+                Predicate findByRoommateNull = builder.isNull(root.get("roommate"));
+                searchByTitle = builder.and(searchByTitle, findByRoommateNull);
             }
         }
 
         //tìm theo status
-        if(status!=null && !status.trim().equals("")){
-            if(status.equals("uncheck")) {
-                Predicate findByStatusNull=builder.isNull(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusNull);
-            }
-            else if(status.equals("active")) {
-                Predicate findByStatusTrue= builder.isTrue(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusTrue);
-            }
-            else if(status.equals("hidden")) {
-                Predicate findByStatusFalse= builder.isFalse(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusFalse);
+        if (status != null && !status.trim().equals("")) {
+            if (status.equals("uncheck")) {
+                Predicate findByStatusNull = builder.like(root.get("status"), VariableCommon.CHUA_DUYET);
+                searchByTitle = builder.and(searchByTitle, findByStatusNull);
+            } else if (status.equals("active")) {
+                Predicate findByStatusTrue = builder.like(root.get("status"), VariableCommon.DANG_DANG);
+                searchByTitle = builder.and(searchByTitle, findByStatusTrue);
+            } else if (status.equals("hidden")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.BI_AN);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
+            } else if (status.equals("expired")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.HET_HAN);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
+            } else if (status.equals("suggest-fix")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.SUA_LAI);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
             }
         }
 
         //tìm theo vip
-        if(vip!=null){
-            Predicate findByVip=builder.equal(root.get("vip"), vip);
-            searchByTitle=builder.and(searchByTitle, findByVip);
+        if (vip != null) {
+            Predicate findByVip = builder.equal(root.get("vip"), vip);
+            searchByTitle = builder.and(searchByTitle, findByVip);
         }
 
         return searchByTitle;
@@ -260,79 +261,82 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                            String email, Long start, Long end, Integer ward,
                                            Integer district, Integer city, Boolean roommate,
                                            String status, Boolean vip, String search,
-                                           Integer minAcreage, Integer maxAcreage){
+                                           Integer minAcreage, Integer maxAcreage) {
         //search
-        Predicate searchByTitle=builder.like(root.get("title"), "%"+search+"%");
+        Predicate searchByTitle = builder.like(root.get("title"), "%" + search + "%");
 
         //phải đúng email
-        Predicate findByEmail=builder.like(root.get("customer").get("email"), email);
-        searchByTitle=builder.and(searchByTitle, findByEmail);
+        Predicate findByEmail = builder.like(root.get("customer").get("email"), email);
+        searchByTitle = builder.and(searchByTitle, findByEmail);
 
 
         //tìm khoảng thời gian
-        if(start !=null){
+        if (start != null) {
             Predicate findByGreaterTime = builder.greaterThanOrEqualTo(root.<Date>get("updateTime"), new Date(start));
-            searchByTitle= builder.and(searchByTitle, findByGreaterTime);
+            searchByTitle = builder.and(searchByTitle, findByGreaterTime);
         }
-        if(end !=null){
+        if (end != null) {
             Predicate findByLessTime = builder.lessThanOrEqualTo(root.<Date>get("updateTime"), new Date(end));
-            searchByTitle= builder.and(searchByTitle, findByLessTime);
+            searchByTitle = builder.and(searchByTitle, findByLessTime);
         }
 
         //lọc theo diện tích
-        if(minAcreage!=null){
-            Predicate findByGreaterAcreage=builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
-            searchByTitle=builder.and(searchByTitle, findByGreaterAcreage);
+        if (minAcreage != null) {
+            Predicate findByGreaterAcreage = builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
+            searchByTitle = builder.and(searchByTitle, findByGreaterAcreage);
         }
-        if(maxAcreage!=null){
-            Predicate findByLessAcreage=builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
-            searchByTitle=builder.and(searchByTitle, findByLessAcreage);
+        if (maxAcreage != null) {
+            Predicate findByLessAcreage = builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
+            searchByTitle = builder.and(searchByTitle, findByLessAcreage);
         }
 
         //tìm theo xã, huyện, tỉnh
-        if(ward !=null){
+        if (ward != null) {
             Predicate findByWard = builder.equal(root.get("ward").get("wardId"), ward);
-            searchByTitle=builder.and(searchByTitle, findByWard);
-        } else if(district!=null){
-            Predicate findByDistrict=builder.equal(root.get("ward").get("district").get("districtId"), district);
-            searchByTitle=builder.and(searchByTitle, findByDistrict);
-        } else if(city !=null){
-            Predicate findByCity=builder.equal(root.get("ward").get("district").get("city").get("cityId"), city);
-            searchByTitle=builder.and(searchByTitle, findByCity);
+            searchByTitle = builder.and(searchByTitle, findByWard);
+        } else if (district != null) {
+            Predicate findByDistrict = builder.equal(root.get("ward").get("district").get("districtId"), district);
+            searchByTitle = builder.and(searchByTitle, findByDistrict);
+        } else if (city != null) {
+            Predicate findByCity = builder.equal(root.get("ward").get("district").get("city").get("cityId"), city);
+            searchByTitle = builder.and(searchByTitle, findByCity);
         }
 
         //tìm theo roommate
-        if(roommate!=null){
-            if(roommate){
-                Predicate findByRoommateNotNull=builder.isNotNull(root.get("roommate"));
-                searchByTitle=builder.and(searchByTitle, findByRoommateNotNull);
-            }
-            else{
-                Predicate findByRoommateNull=builder.isNull(root.get("roommate"));
-                searchByTitle=builder.and(searchByTitle, findByRoommateNull);
+        if (roommate != null) {
+            if (roommate) {
+                Predicate findByRoommateNotNull = builder.isNotNull(root.get("roommate"));
+                searchByTitle = builder.and(searchByTitle, findByRoommateNotNull);
+            } else {
+                Predicate findByRoommateNull = builder.isNull(root.get("roommate"));
+                searchByTitle = builder.and(searchByTitle, findByRoommateNull);
             }
         }
 
         //tìm theo status
-        if(status!=null && !status.trim().equals("")){
-            if(status.equals("uncheck")) {
-                Predicate findByStatusNull=builder.isNull(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusNull);
-            }
-            else if(status.equals("active")) {
-                Predicate findByStatusTrue= builder.isTrue(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusTrue);
-            }
-            else if(status.equals("hidden")) {
-                Predicate findByStatusFalse= builder.isFalse(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusFalse);
+        if (status != null && !status.trim().equals("")) {
+            if (status.equals("uncheck")) {
+                Predicate findByStatusNull = builder.like(root.get("status"), VariableCommon.CHUA_DUYET);
+                searchByTitle = builder.and(searchByTitle, findByStatusNull);
+            } else if (status.equals("active")) {
+                Predicate findByStatusTrue = builder.like(root.get("status"), VariableCommon.DANG_DANG);
+                searchByTitle = builder.and(searchByTitle, findByStatusTrue);
+            } else if (status.equals("hidden")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.BI_AN);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
+            } else if (status.equals("expired")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.HET_HAN);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
+            } else if (status.equals("suggest-fix")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.SUA_LAI);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
             }
         }
 
         //tìm theo vip
-        if(vip!=null){
-            Predicate findByVip=builder.equal(root.get("vip"), vip);
-            searchByTitle=builder.and(searchByTitle, findByVip);
+        if (vip != null) {
+            Predicate findByVip = builder.equal(root.get("vip"), vip);
+            searchByTitle = builder.and(searchByTitle, findByVip);
         }
         return searchByTitle;
     }
@@ -342,71 +346,74 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                          Integer ward, Integer district, Integer city,
                                          Boolean roommate,
                                          String status, String search,
-                                         Integer minAcreage, Integer maxAcreage){
+                                         Integer minAcreage, Integer maxAcreage) {
         //search
-        Predicate searchByName=builder.like(root.get("customer").get("name"),"%"+search+"%");
-        Predicate searchByPhone=builder.like(root.get("customer").get("phone"),"%"+search+"%");
-        Predicate searchByEmail=builder.like(root.get("customer").get("email"),"%"+search+"%");
-        Predicate searchByTitle=builder.like(root.get("title"), "%"+search+"%");
-        searchByTitle=builder.or(searchByTitle, searchByEmail, searchByPhone, searchByName);
+        Predicate searchByName = builder.like(root.get("customer").get("name"), "%" + search + "%");
+        Predicate searchByPhone = builder.like(root.get("customer").get("phone"), "%" + search + "%");
+        Predicate searchByEmail = builder.like(root.get("customer").get("email"), "%" + search + "%");
+        Predicate searchByTitle = builder.like(root.get("title"), "%" + search + "%");
+        searchByTitle = builder.or(searchByTitle, searchByEmail, searchByPhone, searchByName);
 
         //tìm khoảng thời gian
-        if(start !=null){
+        if (start != null) {
             Predicate findByGreaterTime = builder.greaterThanOrEqualTo(root.<Date>get("updateTime"), new Date(start));
-            searchByTitle= builder.and(searchByTitle, findByGreaterTime);
+            searchByTitle = builder.and(searchByTitle, findByGreaterTime);
         }
-        if(end !=null){
+        if (end != null) {
             Predicate findByLessTime = builder.lessThanOrEqualTo(root.<Date>get("updateTime"), new Date(end));
-            searchByTitle= builder.and(searchByTitle, findByLessTime);
+            searchByTitle = builder.and(searchByTitle, findByLessTime);
         }
 
         //lọc theo diện tích
-        if(minAcreage!=null){
-            Predicate findByGreaterAcreage=builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
-            searchByTitle=builder.and(searchByTitle, findByGreaterAcreage);
+        if (minAcreage != null) {
+            Predicate findByGreaterAcreage = builder.greaterThanOrEqualTo(root.get("acreage"), minAcreage);
+            searchByTitle = builder.and(searchByTitle, findByGreaterAcreage);
         }
-        if(maxAcreage!=null){
-            Predicate findByLessAcreage=builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
-            searchByTitle=builder.and(searchByTitle, findByLessAcreage);
+        if (maxAcreage != null) {
+            Predicate findByLessAcreage = builder.lessThanOrEqualTo(root.get("acreage"), maxAcreage);
+            searchByTitle = builder.and(searchByTitle, findByLessAcreage);
         }
 
         //tìm theo xã, huyện, tỉnh
-        if(ward !=null){
+        if (ward != null) {
             Predicate findByWard = builder.equal(root.get("ward").get("wardId"), ward);
-            searchByTitle=builder.and(searchByTitle, findByWard);
-        } else if(district!=null){
-            Predicate findByDistrict=builder.equal(root.get("ward").get("district").get("districtId"), district);
-            searchByTitle=builder.and(searchByTitle, findByDistrict);
-        } else if(city !=null){
-            Predicate findByCity=builder.equal(root.get("ward").get("district").get("city").get("cityId"), city);
-            searchByTitle=builder.and(searchByTitle, findByCity);
+            searchByTitle = builder.and(searchByTitle, findByWard);
+        } else if (district != null) {
+            Predicate findByDistrict = builder.equal(root.get("ward").get("district").get("districtId"), district);
+            searchByTitle = builder.and(searchByTitle, findByDistrict);
+        } else if (city != null) {
+            Predicate findByCity = builder.equal(root.get("ward").get("district").get("city").get("cityId"), city);
+            searchByTitle = builder.and(searchByTitle, findByCity);
         }
 
         //tìm theo roommate
-        if(roommate!=null){
-            if(roommate){
-                Predicate findByRoommateNotNull=builder.isNotNull(root.get("roommate"));
-                searchByTitle=builder.and(searchByTitle, findByRoommateNotNull);
-            }
-            else{
-                Predicate findByRoommateNull=builder.isNull(root.get("roommate"));
-                searchByTitle=builder.and(searchByTitle, findByRoommateNull);
+        if (roommate != null) {
+            if (roommate) {
+                Predicate findByRoommateNotNull = builder.isNotNull(root.get("roommate"));
+                searchByTitle = builder.and(searchByTitle, findByRoommateNotNull);
+            } else {
+                Predicate findByRoommateNull = builder.isNull(root.get("roommate"));
+                searchByTitle = builder.and(searchByTitle, findByRoommateNull);
             }
         }
 
         //tìm theo status
-        if(status!=null && !status.trim().equals("")){
-            if(status.equals("uncheck")) {
-                Predicate findByStatusNull=builder.isNull(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusNull);
-            }
-            else if(status.equals("active")) {
-                Predicate findByStatusTrue= builder.isTrue(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusTrue);
-            }
-            else if(status.equals("hidden")) {
-                Predicate findByStatusFalse= builder.isFalse(root.get("deleted"));
-                searchByTitle=builder.and(searchByTitle, findByStatusFalse);
+        if (status != null && !status.trim().equals("")) {
+            if (status.equals("uncheck")) {
+                Predicate findByStatusNull = builder.like(root.get("status"), VariableCommon.CHUA_DUYET);
+                searchByTitle = builder.and(searchByTitle, findByStatusNull);
+            } else if (status.equals("active")) {
+                Predicate findByStatusTrue = builder.like(root.get("status"), VariableCommon.DANG_DANG);
+                searchByTitle = builder.and(searchByTitle, findByStatusTrue);
+            } else if (status.equals("hidden")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.BI_AN);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
+            } else if (status.equals("expired")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.HET_HAN);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
+            } else if (status.equals("suggest-fix")) {
+                Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.SUA_LAI);
+                searchByTitle = builder.and(searchByTitle, findByStatusFalse);
             }
         }
         return searchByTitle;

@@ -9,6 +9,7 @@ import duantn.backend.config.paypal.PaypalPaymentMethod;
 import duantn.backend.config.paypal.PaypalService;
 import duantn.backend.dao.*;
 import duantn.backend.helper.Helper;
+import duantn.backend.helper.VariableCommon;
 import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.input.RoommateDTO;
@@ -126,7 +127,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             article.setWard(wardOptional.get());
 
             article.setUpdateTime(new Date());
-            article.setDeleted(null);
+            article.setStatus(VariableCommon.CHUA_DUYET);
 
             Customer newCustomer = customerRepository.save(customer);
             article.setCustomer(newCustomer);
@@ -195,7 +196,8 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             article.setWard(wardOptional.get());
 
             article.setUpdateTime(new Date());
-            if (article.getDeleted() != null && article.getDeleted() == true) article.setDeleted(null);
+            if (article.getStatus().equals(VariableCommon.DANG_DANG) || article.getStatus().equals(VariableCommon.SUA_LAI))
+                article.setStatus(VariableCommon.CHUA_DUYET);
 
             return helper.convertToOutputDTO(articleRepository.save(article));
         } catch (CustomException e) {
@@ -214,9 +216,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
-        article.setDeleted(false);
-
-        article.setExpTime(null);
+        article.setStatus(VariableCommon.BI_AN);
 
         articleRepository.save(article);
         return new Message("Ẩn bài đăng id: " + id + " thành công");
@@ -260,7 +260,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         Article article = articleRepository.findByArticleId(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
-        else if (article.getDeleted() ==null || article.getDeleted() != true)
+        else if (!article.getStatus().equals(VariableCommon.DANG_DANG))
             throw new CustomException("Gia hạn chỉ áp dụng với bài đăng đã được duyệt");
 
         if (!email.equals(article.getCustomer().getEmail()))
@@ -302,9 +302,15 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     @Override
     public Message postOldArticle(String email, Integer id, Integer days, String type,
                                   Boolean vip) throws CustomException {
-        Article article = articleRepository.findByDeletedFalseAndArticleId(id);
+        Article article = articleRepository.findByArticleId(id);
         if (article == null)
-            throw new CustomException("Bài đăng với id: " + id + " không tồn tại, hoặc đang không bị ẩn");
+            throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
+        if (!email.equals(article.getCustomer().getEmail()))
+            throw new CustomException("Khách hàng không hợp lệ");
+        if(article.getStatus().equals(VariableCommon.DANG_DANG)||
+                article.getStatus().equals(VariableCommon.SUA_LAI)||
+                article.getStatus().equals(VariableCommon.CHUA_DUYET))
+            throw new CustomException("Đăng lại bài cũ chỉ áp dụng với bài bị ẩn hoặc hết hạn");
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
 
@@ -329,7 +335,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
         String description = "Thanh toán đăng lại bài: " + money + " VNĐ cho bài đăng: " + article.getTitle();
 
-        article.setDeleted(null);
+        article.setStatus(VariableCommon.CHUA_DUYET);
 
         article.setNumber(days);
         article.setType(type);

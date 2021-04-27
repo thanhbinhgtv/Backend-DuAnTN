@@ -154,22 +154,6 @@ public class Helper {
         ArticleOutputDTO articleOutputDTO = modelMapper.map(article, ArticleOutputDTO.class);
         articleOutputDTO.setCreateTime(article.getTimeCreated().getTime());
         articleOutputDTO.setLastUpdateTime(article.getUpdateTime().getTime());
-        if (article.getDeleted() != null) {
-            if (article.getDeleted()) articleOutputDTO.setStatus("Đang đăng");
-            else articleOutputDTO.setStatus("Đã ẩn");
-        } else articleOutputDTO.setStatus("Chưa duyệt");
-
-        StaffArticle staffArticle = staffArticleRepository.
-                findFirstByArticle_ArticleId(article.getArticleId(), Sort.by("time").descending());
-
-
-        if (staffArticle != null && article.getDeleted() != null) {
-            Map<String, String> moderator = new HashMap<>();
-            moderator.put("staffId", staffArticle.getStaff().getStaffId() + "");
-            moderator.put("name", staffArticle.getStaff().getName());
-            moderator.put("email", staffArticle.getStaff().getEmail());
-            articleOutputDTO.setModerator(moderator);
-        }
 
         Map<String, String> customer = new HashMap<>();
         customer.put("customerId", article.getCustomer().getCustomerId() + "");
@@ -179,7 +163,7 @@ public class Helper {
         customer.put("image", article.getCustomer().getImage());
         articleOutputDTO.setCustomer(customer);
 
-        if (article.getDeleted() != null && article.getDeleted() == true) {
+        if (article.getExpTime()!=null) {
             articleOutputDTO.
                     setExpDate(article.getExpTime().getTime());
         }

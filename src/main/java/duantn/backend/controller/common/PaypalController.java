@@ -13,6 +13,7 @@ import duantn.backend.helper.Helper;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.Transaction;
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,27 +64,23 @@ public class PaypalController {
 
     @GetMapping("/customer/pay")
     public Message pay(HttpServletRequest request, //HttpServletResponse response,
-                       @RequestParam("price") double price,
-                       @RequestParam(required = false) String description)
+                       @RequestParam("price") double price)
             throws CustomException {
         String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
         String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
         HttpSession session=request.getSession();
         try {
             Double value = Math.round(price * 100.0) / 100.0;
-            session.setAttribute("value", value);
             String email= (String) request.getAttribute("email");
-            session.setAttribute("email", email);
+            String description = "Top up your account: " + value + " USD";
 
-            if (description == null || description.trim().equals("")) description = "Nạp " + value + " USD";
-            session.setAttribute("description", description);
+            successUrl+="?email1="+email+"&value1="+value;
 
             if (email == null || email.trim().equals("")) throw new CustomException("Token không hợp lệ");
 
             Customer customer = customerRepository.findByEmail(email);
             if (customer == null)
                 throw new CustomException("Người dùng không hợp lệ");
-            session.setAttribute("customer", customer);
 
             Payment payment = paypalService.createPayment(
                     value,
@@ -115,23 +112,21 @@ public class PaypalController {
 
     @GetMapping(URL_PAYPAL_SUCCESS)
     public void successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
-                           HttpServletResponse response,
-                           HttpServletRequest request)
+                           @RequestParam("email1") String email,
+                           @RequestParam("value1") Double value,
+                           HttpServletResponse response)
             throws CustomException {
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
-                HttpSession session=request.getSession();
-                Customer customer= (Customer) session.getAttribute("customer");
-                Double value= (Double) session.getAttribute("value");
-                String description= (String) session.getAttribute("description");
-
+                Customer customer= customerRepository.findByEmail(email);
+                String description="Nạp vào tài khoản: "+value+" USD";
                 int increase = (int) (value * rate);
                 customer.setAccountBalance(customer.getAccountBalance() + increase);
                 customerRepository.save(customer);
                 creatTransaction(customer, increase, description);
                 response.sendRedirect("http://localhost:4200/client/confirm-payment?usd="+value+"&vnd="+increase);
-                //return new Message("Thanh toán thành công, số tiền: " + value + " USD - tức " + increase + " VNĐ");
+                //return new Message("Nạp thành công, số tiền: " + value + " USD - tức " + increase + " VNĐ");
                 return;
             }
         } catch (PayPalRESTException | IOException e) {
