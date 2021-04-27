@@ -24,11 +24,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new CustomerInterceptor())//
+        registry.addInterceptor(new CustomerInterceptor())
                 .addPathPatterns("/customer/**");
-        registry.addInterceptor(new CustomerInterceptor())//
+        registry.addInterceptor(new CustomerInterceptor())
                 .addPathPatterns("/admin/**");
-        registry.addInterceptor(new CustomerInterceptor())//
+        registry.addInterceptor(new CustomerInterceptor())
                 .addPathPatterns("/super-admin/**");
     }
 }

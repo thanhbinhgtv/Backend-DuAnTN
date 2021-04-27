@@ -2,16 +2,14 @@ package duantn.backend.dao.impl;
 
 import duantn.backend.dao.CustomArticleRepository;
 import duantn.backend.helper.VariableCommon;
+import duantn.backend.model.dao.ArticleOfDate;
 import duantn.backend.model.entity.Article;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class CustomArticleRepositoryImpl implements CustomArticleRepository {
@@ -254,6 +252,10 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             searchByTitle = builder.and(searchByTitle, findByVip);
         }
 
+        //tìm theo deleted
+        Predicate findByDeleted=builder.isFalse(root.get("deleted"));
+        searchByTitle=builder.and(searchByTitle, findByDeleted);
+
         return searchByTitle;
     }
 
@@ -338,6 +340,11 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             Predicate findByVip = builder.equal(root.get("vip"), vip);
             searchByTitle = builder.and(searchByTitle, findByVip);
         }
+
+        //tìm theo deleted
+        Predicate findByDeleted=builder.isFalse(root.get("deleted"));
+        searchByTitle=builder.and(searchByTitle, findByDeleted);
+
         return searchByTitle;
     }
 
@@ -416,6 +423,11 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 searchByTitle = builder.and(searchByTitle, findByStatusFalse);
             }
         }
+
+        //tìm theo deleted
+        Predicate findByDeleted=builder.isFalse(root.get("deleted"));
+        searchByTitle=builder.and(searchByTitle, findByDeleted);
+
         return searchByTitle;
     }
 }

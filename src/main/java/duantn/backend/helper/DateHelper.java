@@ -1,12 +1,14 @@
 package duantn.backend.helper;
 
 import duantn.backend.authentication.CustomException;
+import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Service
 public class DateHelper {
-    public static Date changeTime(Date date, String time) throws CustomException{
+    public Date changeTime(Date date, String time) throws CustomException{
         try{
             SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd/MM/yyyy");
             String stringDate=simpleDateFormat.format(date);

@@ -445,7 +445,7 @@ public class ArticleServiceImpI implements ArticleService {
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
 
-            Article article = articleRepository.findByArticleId(id);
+            Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
             if (article == null) throw new CustomException("Bài đăng id không hợp lệ");
             if (article.getCustomer()!=null)
                 throw new CustomException("Admin chỉ được sửa bài do admin đăng");
@@ -502,7 +502,7 @@ public class ArticleServiceImpI implements ArticleService {
 
     @Override
     public Message extensionExp(String email, Integer id, Integer date, String type) throws CustomException {
-        Article article = articleRepository.findByArticleId(id);
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
         else if (!article.getStatus().equals(VariableCommon.DANG_DANG))
@@ -535,7 +535,7 @@ public class ArticleServiceImpI implements ArticleService {
 
     @Override
     public Message postOldArticle(String email, Integer id, Integer date, String type, Boolean vip) throws CustomException {
-        Article article = articleRepository.findByArticleId(id);
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
         Staff staff=staffRepository.findByEmail(email);
         if(staff==null)
             throw new CustomException("Nhân viên không tồn tại");

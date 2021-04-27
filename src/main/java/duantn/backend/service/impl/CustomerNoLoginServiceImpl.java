@@ -55,7 +55,7 @@ public class CustomerNoLoginServiceImpl implements CustomerNoLoginService {
 
     @Override
     public ArticleOutputDTO findOneArticle(String email, Integer id) throws CustomException {
-        Article article=articleRepository.findByArticleId(id);
+        Article article=articleRepository.findByArticleIdAndDeletedFalse(id);
         if(article== null) throw new CustomException("Bài đăng không tồn tại hoặc chưa được duyệt");
         if(!article.getStatus().equals(VariableCommon.DANG_DANG))
             throw new CustomException("Bài viết này đang trong trạng thái không thể xem được");

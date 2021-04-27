@@ -161,7 +161,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             modelMapper.getConfiguration()
                     .setMatchingStrategy(MatchingStrategies.STRICT);
 
-            Article article = articleRepository.findByArticleId(id);
+            Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
             if (article == null) throw new CustomException("Bài đăng id không hợp lệ");
             if (customer != article.getCustomer())
                 throw new CustomException("Khách hàng không hợp lệ");
@@ -210,7 +210,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
     @Override
     public Message hiddenArticle(String email, Integer id) throws CustomException {
-        Article article = articleRepository.findByArticleId(id);
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
 
@@ -224,40 +224,21 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
     @Override
     public Message deleteArticle(String email, Integer id) throws CustomException {
-        Article article = articleRepository.findByArticleId(id);
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
 
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
 
-        //xóa bỏ article trong favorite_article
-        List<FavoriteArticle> favoriteArticleList=
-                favoriteArticleRepository.findByArticle(article);
-        if(favoriteArticleList.size()>0){
-            for (FavoriteArticle favoriteArticle: favoriteArticleList){
-                favoriteArticle.setArticle(null);
-                favoriteArticleRepository.save(favoriteArticle);
-            }
-        }
-
-        //xóa bỏ article trong staff_article
-        List<StaffArticle> staffArticleList=
-                staffArticleRepository.findByArticle(article);
-        if(staffArticleList.size()>0){
-            for (StaffArticle staffArticle: staffArticleList){
-                staffArticle.setArticle(null);
-                staffArticleRepository.save(staffArticle);
-            }
-        }
-
-        articleRepository.delete(article);
+        article.setDeleted(true);
+        articleRepository.save(article);
         return new Message("Xóa bài đăng id: " + id + " thành công");
     }
 
     @Override
     public Message extensionExp(String email, Integer id, Integer days, String type) throws CustomException {
-        Article article = articleRepository.findByArticleId(id);
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
         else if (!article.getStatus().equals(VariableCommon.DANG_DANG))
@@ -302,7 +283,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     @Override
     public Message postOldArticle(String email, Integer id, Integer days, String type,
                                   Boolean vip) throws CustomException {
-        Article article = articleRepository.findByArticleId(id);
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
         if (!email.equals(article.getCustomer().getEmail()))
@@ -348,7 +329,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
     @Override
     public ArticleOutputDTO detailArticle(String email, Integer id) throws CustomException {
-        Article article = articleRepository.findByArticleId(id);
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
         if (article == null)
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
 
