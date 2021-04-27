@@ -140,7 +140,7 @@ public class ArticleServiceImpI implements ArticleService {
             //duyệt bài
             //chuyển deleted thành true
             Article article = articleOptional.get();
-            if (article.getStatus().equals(VariableCommon.CHUA_DUYET))
+            if (!article.getStatus().equals(VariableCommon.CHUA_DUYET))
                 throw new CustomException("Chỉ được duyệt bài có trạng thái là chưa duyệt");
             article.setStatus(VariableCommon.DANG_DANG);
 
