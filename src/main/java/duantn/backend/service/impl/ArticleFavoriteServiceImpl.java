@@ -41,7 +41,7 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
         List<Map<String, String>> mapList = new ArrayList<>();
         for (FavoriteArticle favoriteArticle : favoriteArticleList) {
             Map<String, String> map = new HashMap<>();
-            if(favoriteArticle.getArticle()!=null){
+            if(favoriteArticle.getArticle()!=null&& !favoriteArticle.getArticle().getDeleted()){
                 if(favoriteArticle.getArticle().getStatus().equals(VariableCommon.DANG_DANG)||
                         favoriteArticle.getArticle().getStatus().equals(VariableCommon.HET_HAN)){
                     map.put("id", favoriteArticle.getId().toString());
@@ -95,7 +95,7 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
         } else {
             Customer customer=customerRepository.findByEmail(email);
             if(customer==null) throw new CustomException("Email không hợp lệ");
-            Article article= articleRepository.findByArticleId(id);
+            Article article= articleRepository.findByArticleIdAndDeletedFalse(id);
             if(article==null) throw new CustomException("Id bài đăng không hợp lệ");
             FavoriteArticle favoriteArticle1=new FavoriteArticle();
             favoriteArticle1.setCustomer(customer);

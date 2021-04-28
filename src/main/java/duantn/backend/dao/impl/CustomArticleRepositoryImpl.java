@@ -254,6 +254,10 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             searchByTitle = builder.and(searchByTitle, findByVip);
         }
 
+        //tìm theo deleted
+        Predicate findByDeleted=builder.isFalse(root.get("deleted"));
+        searchByTitle=builder.and(searchByTitle, findByDeleted);
+
         return searchByTitle;
     }
 
@@ -338,6 +342,11 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             Predicate findByVip = builder.equal(root.get("vip"), vip);
             searchByTitle = builder.and(searchByTitle, findByVip);
         }
+
+        //tìm theo deleted
+        Predicate findByDeleted=builder.isFalse(root.get("deleted"));
+        searchByTitle=builder.and(searchByTitle, findByDeleted);
+
         return searchByTitle;
     }
 
@@ -416,6 +425,11 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 searchByTitle = builder.and(searchByTitle, findByStatusFalse);
             }
         }
+
+        //tìm theo deleted
+        Predicate findByDeleted=builder.isFalse(root.get("deleted"));
+        searchByTitle=builder.and(searchByTitle, findByDeleted);
+
         return searchByTitle;
     }
 }

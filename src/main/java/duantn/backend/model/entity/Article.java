@@ -57,6 +57,7 @@ public class Article extends BaseEntity implements Serializable {
     @Column(nullable = false, columnDefinition = "text")
     private String address;
 
+    @Column
     private String video;
 
     @OneToOne(cascade = CascadeType.ALL)

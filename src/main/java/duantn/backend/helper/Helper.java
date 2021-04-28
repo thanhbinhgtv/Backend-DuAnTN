@@ -43,7 +43,6 @@ public class Helper {
         this.favoriteArticleRepository = favoriteArticleRepository;
     }
 
-
     public String getHostUrl(String url, String substring) {
         int index = url.indexOf(substring);
         String hostUrl = url.substring(0, index);
