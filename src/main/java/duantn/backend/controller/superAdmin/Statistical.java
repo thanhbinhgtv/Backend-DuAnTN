@@ -1,14 +1,11 @@
 package duantn.backend.controller.superAdmin;
 
-import duantn.backend.model.dao.ArticleOfDate;
 import duantn.backend.service.StatisticalService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,6 +51,24 @@ public class Statistical {
                                                  @RequestParam Integer limit) {
         return statisticalService.statisticCustomer(month, year, page, limit);
     }
-//    thống kê số lượt truy cập theo ngày tháng năm
-//    thống kê hoạt động của nhân viên theo ngày/tháng
+
+    //    thống kê số lượt truy cập theo ngày tháng năm
+    @GetMapping("/statistic/count-request")
+    public Map<String, Object> StatisticRequest(@RequestParam(required = false) Integer month,
+                                                @RequestParam(required = false) Integer year,
+                                                @RequestParam Integer page,
+                                                @RequestParam Integer limit) {
+        return statisticalService.statisticRequest(month, year, page, limit);
+    }
+
+    //    thống kê hoạt động của nhân viên theo ngày/tháng
+    @GetMapping("/statistic/staff-action")
+    public Map<String, Object> StatisticStaffAction(@RequestParam(required = false) String search,
+                                                    @RequestParam(required = false) Long date,
+                                                    @RequestParam(required = false) Integer month,
+                                                    @RequestParam(required = false) Integer year,
+                                                    @RequestParam Integer page,
+                                                    @RequestParam Integer limit) {
+        return statisticalService.statisticStaffAction(search, date, month, year, page, limit);
+    }
 }

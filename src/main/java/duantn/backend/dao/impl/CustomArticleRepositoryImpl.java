@@ -2,14 +2,16 @@ package duantn.backend.dao.impl;
 
 import duantn.backend.dao.CustomArticleRepository;
 import duantn.backend.helper.VariableCommon;
-import duantn.backend.model.dao.ArticleOfDate;
 import duantn.backend.model.entity.Article;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class CustomArticleRepositoryImpl implements CustomArticleRepository {

@@ -1,9 +1,7 @@
 package duantn.backend.dao;
 
-import duantn.backend.model.dao.ArticleOfDate;
 import duantn.backend.model.entity.Article;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 

@@ -1,7 +1,6 @@
 
 package duantn.backend.dao;
 
-import duantn.backend.model.dao.ArticleOfDate;
 import duantn.backend.model.entity.Article;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
