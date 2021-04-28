@@ -59,13 +59,13 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     }
 
     @Override
-    public List<ArticleOutputDTO> listArticle(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer page, Integer limit) {
+    public List<ArticleOutputDTO> listArticle(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer minPrice, Integer maxPrice, Integer page, Integer limit) {
         List<Article> articleList =
                 articleRepository.findCustomAndEmail(email, sort, start, end, ward, district, city,
-                        roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
+                        roommate, status, vip, search, minAcreage, maxAcreage,minPrice, maxPrice, page, limit);
         Map<String, Long> countMap=articleRepository.findCustomAndEmailCount(
                 email, start, end, ward, district, city,
-                roommate, status, vip, search, minAcreage, maxAcreage,limit
+                roommate, status, vip, search, minAcreage, maxAcreage,minPrice, maxPrice, limit
         );
         List<ArticleOutputDTO> articleOutputDTOList = new ArrayList<>();
         if (articleList.size() > 0) {

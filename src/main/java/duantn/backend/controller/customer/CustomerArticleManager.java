@@ -43,13 +43,15 @@ public class CustomerArticleManager {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Integer minAcreage,
             @RequestParam(required = false) Integer maxAcreage,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
             @RequestParam Integer page,
             @RequestParam Integer limit,
             HttpServletRequest request
     ) {
         String email = (String) request.getAttribute("email");
         return customerArticleService.listArticle(email, sort, start, end, ward, district, city,
-                roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
+                roommate, status, vip, search, minAcreage, maxAcreage, minPrice, maxPrice, page, limit);
     }
 
     //    chi tiết bài đăng	/customer/article/{id}

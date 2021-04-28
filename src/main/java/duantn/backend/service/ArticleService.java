@@ -23,6 +23,7 @@ public interface ArticleService {
             Boolean vip,
             String search,
             Integer minAcreage, Integer maxAcreage,
+            Integer minPrice, Integer maxPrice,
             Integer page,
             Integer limit
     );

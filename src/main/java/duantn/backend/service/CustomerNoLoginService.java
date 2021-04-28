@@ -7,16 +7,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 public interface CustomerNoLoginService {
-    List<ArticleOutputDTO> listArticle(String email,
-            Long start, Long end,
-            Integer ward,
-            Integer district,
-            Integer city,
-            Boolean roommate,
-            String search,
-            Integer minAcreage, Integer maxAcreage,
-            Integer page,
-            Integer limit
+    List<ArticleOutputDTO> listArticle(Boolean vip, String email,
+                                       Long start, Long end,
+                                       Integer ward,
+                                       Integer district,
+                                       Integer city,
+                                       Boolean roommate,
+                                       String search,
+                                       Integer minAcreage, Integer maxAcreage,
+                                       Integer minPrice, Integer maxPrice,
+                                       Integer page,
+                                       Integer limit
     );
 
     ArticleOutputDTO findOneArticle(String email, Integer id) throws CustomException;
