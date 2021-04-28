@@ -67,4 +67,6 @@ public class Customer extends BaseEntity implements Serializable {
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Transaction> transactions;
 
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Comment> comments;
 }
