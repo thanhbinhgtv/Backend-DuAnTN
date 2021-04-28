@@ -50,11 +50,13 @@ public class ArticleManager {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Integer minAcreage,
             @RequestParam(required = false) Integer maxAcreage,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
             @RequestParam Integer page,
             @RequestParam Integer limit
     ) {
         return articleService.listArticle(sort, start, end, ward, district, city,
-                roommate, status, vip, search, minAcreage, maxAcreage, page, limit);
+                roommate, status, vip, search, minAcreage, maxAcreage,minPrice, maxPrice, page, limit);
     }
 
     //    contact với khách hàng (gửi mail cho khách hàng về bài viết này)	/admin/article/contact/{id}

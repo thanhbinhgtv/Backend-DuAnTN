@@ -18,6 +18,7 @@ public interface CustomerArticleService {
                                        Boolean roommate,
                                        String status, Boolean vip, String search,
                                        Integer minAcreage, Integer maxAcreage,
+                                       Integer minPrice, Integer maxPrice,
                                        Integer page, Integer limit);
 
     //    đăng bài	/customer/article

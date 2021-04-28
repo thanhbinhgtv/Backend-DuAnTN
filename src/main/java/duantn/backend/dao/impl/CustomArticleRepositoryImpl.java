@@ -24,6 +24,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                     Boolean roommate,
                                     String status, Boolean vip, String search,
                                     Integer minAcreage, Integer maxAcreage,
+                                    Integer minPrice, Integer maxPrice,
                                     Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
 
@@ -40,7 +41,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         query.select(root);
 
         Predicate integrated = findIntegrated(root, builder,
-                start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage);
+                start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage, minPrice, maxPrice);
 
         query.where(integrated);
 
@@ -53,14 +54,14 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public Map<String, Long> findCustomCount(Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
+    public Map<String, Long> findCustomCount(Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage,Integer minPrice, Integer maxPrice, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
         CriteriaBuilder builder2 = em.getCriteriaBuilder();
         CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
         Root root2 = query2.from(Article.class);
         query2.select(builder2.count(root2));
         Predicate integrated2 = findIntegrated(root2, builder2,
-                start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage);
+                start, end, ward, district, city, roommate, status, vip, search, minAcreage, maxAcreage, minPrice, maxPrice);
         query2.where(integrated2);
         Long elements = em.createQuery(query2).getSingleResult();
         Long pages = elements / limit;
@@ -72,7 +73,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer page, Integer limit) {
+    public List<Article> findCustomAndEmail(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer minPrice, Integer maxPrice,Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
 
         //tạo builder
@@ -89,7 +90,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 
         Predicate integrated = findCustomIntegrated(builder, root,
                 email, start, end, ward, district, city, roommate, status, vip, search,
-                minAcreage, maxAcreage);
+                minAcreage, maxAcreage, minPrice, maxPrice);
 
         query.where(integrated);
 
@@ -102,7 +103,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public Map<String, Long> findCustomAndEmailCount(String email, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
+    public Map<String, Long> findCustomAndEmailCount(String email, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer minPrice, Integer maxPrice,Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
         CriteriaBuilder builder2 = em.getCriteriaBuilder();
         CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
@@ -110,7 +111,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         query2.select(builder2.count(root2));
         Predicate integrated2 = findCustomIntegrated(builder2, root2,
                 email, start, end, ward, district, city, roommate, status, vip, search,
-                minAcreage, maxAcreage);
+                minAcreage, maxAcreage, minPrice, maxPrice);
         query2.where(integrated2);
         Long elements = em.createQuery(query2).getSingleResult();
         Long pages = elements / limit;
@@ -122,11 +123,12 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     @Override
-    public List<Article> findCustomShow(Long start, Long end,
+    public List<Article> findCustomShow(Boolean vip, Long start, Long end,
                                         Integer ward, Integer district, Integer city,
                                         Boolean roommate,
                                         String status, String search,
                                         Integer minAcreage, Integer maxAcreage,
+                                        Integer minPrice, Integer maxPrice,
                                         Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
 
@@ -143,26 +145,27 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         query.select(root);
 
         Predicate integrated = findShowIntegrated(builder, root,
-                start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage);
+                vip, start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage, minPrice, maxPrice);
 
         query.where(integrated);
 
         Order vipDesc = builder.desc(root.get("vip"));
         Order timeDesc = builder.desc(root.get("updateTime"));
-        query.orderBy(vipDesc, timeDesc);
+        if(vip==null) query.orderBy(vipDesc, timeDesc);
+        else query.orderBy(timeDesc);
 
         return em.createQuery(query).setFirstResult(page * limit).setMaxResults(limit).getResultList();
     }
 
     @Override
-    public Map<String, Long> findCustomShowCount(Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, String search, Integer minAcreage, Integer maxAcreage, Integer limit) {
+    public Map<String, Long> findCustomShowCount(Boolean vip, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, String search, Integer minAcreage, Integer maxAcreage, Integer minPrice, Integer maxPrice, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
         CriteriaBuilder builder2 = em.getCriteriaBuilder();
         CriteriaQuery<Long> query2 = builder2.createQuery(Long.class);
         Root root2 = query2.from(Article.class);
         query2.select(builder2.count(root2));
         Predicate integrated2 = findShowIntegrated(builder2, root2,
-                start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage);
+                vip, start, end, ward, district, city, roommate, status, search, minAcreage, maxAcreage, minPrice, maxPrice);
         query2.where(integrated2);
         Long elements = em.createQuery(query2).getSingleResult();
         Long pages = elements / limit;
@@ -177,7 +180,8 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                      Integer ward, Integer district, Integer city,
                                      Boolean roommate,
                                      String status, Boolean vip, String search,
-                                     Integer minAcreage, Integer maxAcreage) {
+                                     Integer minAcreage, Integer maxAcreage,
+                                     Integer minPrice, Integer maxPrice) {
         //search
         Predicate searchByName = builder.like(root.get("customer").get("name"), "%" + search + "%");
         Predicate searchByPhone = builder.like(root.get("customer").get("phone"), "%" + search + "%");
@@ -254,6 +258,16 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             searchByTitle = builder.and(searchByTitle, findByVip);
         }
 
+        //tìm theo price
+        if (minPrice != null) {
+            Predicate findByGreaterPrice = builder.greaterThanOrEqualTo(root.get("roomPrice"), minPrice);
+            searchByTitle = builder.and(searchByTitle, findByGreaterPrice);
+        }
+        if (maxPrice != null) {
+            Predicate findByLessPrice = builder.lessThanOrEqualTo(root.get("roomPrice"), maxPrice);
+            searchByTitle = builder.and(searchByTitle, findByLessPrice);
+        }
+
         //tìm theo deleted
         Predicate findByDeleted=builder.isFalse(root.get("deleted"));
         searchByTitle=builder.and(searchByTitle, findByDeleted);
@@ -265,7 +279,8 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                            String email, Long start, Long end, Integer ward,
                                            Integer district, Integer city, Boolean roommate,
                                            String status, Boolean vip, String search,
-                                           Integer minAcreage, Integer maxAcreage) {
+                                           Integer minAcreage, Integer maxAcreage,
+                                           Integer minPrice, Integer maxPrice) {
         //search
         Predicate searchByTitle = builder.like(root.get("title"), "%" + search + "%");
 
@@ -343,6 +358,16 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
             searchByTitle = builder.and(searchByTitle, findByVip);
         }
 
+        //tìm theo price
+        if (minPrice != null) {
+            Predicate findByGreaterPrice = builder.greaterThanOrEqualTo(root.get("roomPrice"), minPrice);
+            searchByTitle = builder.and(searchByTitle, findByGreaterPrice);
+        }
+        if (maxPrice != null) {
+            Predicate findByLessPrice = builder.lessThanOrEqualTo(root.get("roomPrice"), maxPrice);
+            searchByTitle = builder.and(searchByTitle, findByLessPrice);
+        }
+
         //tìm theo deleted
         Predicate findByDeleted=builder.isFalse(root.get("deleted"));
         searchByTitle=builder.and(searchByTitle, findByDeleted);
@@ -351,11 +376,12 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
     }
 
     private Predicate findShowIntegrated(CriteriaBuilder builder,
-                                         Root root, Long start, Long end,
+                                         Root root, Boolean vip, Long start, Long end,
                                          Integer ward, Integer district, Integer city,
                                          Boolean roommate,
                                          String status, String search,
-                                         Integer minAcreage, Integer maxAcreage) {
+                                         Integer minAcreage, Integer maxAcreage,
+                                         Integer minPrice, Integer maxPrice) {
         //search
         Predicate searchByName = builder.like(root.get("customer").get("name"), "%" + search + "%");
         Predicate searchByPhone = builder.like(root.get("customer").get("phone"), "%" + search + "%");
@@ -424,6 +450,22 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                 Predicate findByStatusFalse = builder.like(root.get("status"), VariableCommon.SUA_LAI);
                 searchByTitle = builder.and(searchByTitle, findByStatusFalse);
             }
+        }
+
+        //tìm theo vip
+        if(vip!=null){
+            Predicate findByVip= builder.equal(root.get("vip"), vip);
+            searchByTitle=builder.and(searchByTitle, findByVip);
+        }
+
+        //tìm theo price
+        if (minPrice != null) {
+            Predicate findByGreaterPrice = builder.greaterThanOrEqualTo(root.get("roomPrice"), minPrice);
+            searchByTitle = builder.and(searchByTitle, findByGreaterPrice);
+        }
+        if (maxPrice != null) {
+            Predicate findByLessPrice = builder.lessThanOrEqualTo(root.get("roomPrice"), maxPrice);
+            searchByTitle = builder.and(searchByTitle, findByLessPrice);
         }
 
         //tìm theo deleted

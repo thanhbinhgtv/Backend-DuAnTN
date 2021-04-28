@@ -26,7 +26,7 @@ public class CustomerInterceptor implements HandlerInterceptor {
             request.setAttribute("email", email);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new CustomException("Token không hợp lệ (filter), hoặc đã hết hạn");
         }
     }
