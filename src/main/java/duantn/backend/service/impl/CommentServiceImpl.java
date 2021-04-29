@@ -11,11 +11,13 @@ import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.Comment;
 import duantn.backend.model.entity.Customer;
 import duantn.backend.service.CommentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import javax.jws.Oneway;
+import java.util.*;
 
 /**
  * Created with YourComputer.
@@ -84,6 +86,30 @@ public class CommentServiceImpl implements CommentService {
             commentRepository.delete(comment);
             return new Message("Xóa comment thành công");
         } else throw new CustomException("Không tìm thấy comment");
+    }
+
+    @Override
+    public Map<String, Object> listComment(Integer articleId, Integer page, Integer limit) throws CustomException {
+        Page<Comment> commentPage=commentRepository.findByArticle_ArticleId(articleId,
+                PageRequest.of(page, limit, Sort.by("timeCreated").descending()));
+        List<CommentOutputDTO> commentOutputDTOS=new ArrayList<>();
+        Integer sum=0;
+        Integer index=0;
+        for (Comment comment: commentPage.toList()){
+            commentOutputDTOS.add(convertToOutputDTO(comment));
+            sum+=comment.getStart();
+            index++;
+        }
+        Double avgStar=((double) sum)/((double) index);
+        avgStar=Math.round(avgStar*10)/10.0;
+
+        Map<String, Object> map=new HashMap<>();
+        map.put("avgStar", avgStar);
+        map.put("elements", commentPage.getTotalElements());
+        map.put("pages", commentPage.getTotalPages());
+        map.put("data", commentOutputDTOS);
+
+        return map;
     }
 
     private CommentOutputDTO convertToOutputDTO(Comment comment) {

@@ -127,4 +127,18 @@ public class Account {
         return accountService.changePassword(changePassDTO.getOldPass(),
                 changePassDTO.getNewPass(), request);
     }
+
+    @PostMapping("/customer/avatar")
+    public Message avatar(@RequestParam(name = "avatar") String avatar, HttpServletRequest request)
+         throws CustomException{
+        String email= (String) request.getAttribute("email");
+        return accountService.avatar(avatar, email);
+    }
+
+    @PostMapping("/admin/avatar")
+    public Message avatarAdmin(@RequestParam(name = "avatar") String avatar, HttpServletRequest request)
+            throws CustomException{
+        String email= (String) request.getAttribute("email");
+        return accountService.avatarStaff(avatar, email);
+    }
 }

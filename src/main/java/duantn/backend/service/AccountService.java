@@ -36,4 +36,7 @@ public interface AccountService {
 
     Message changePassword(String oldPass, String newPass,
                            HttpServletRequest request) throws CustomException;
+
+    Message avatar(String avatar, String email) throws CustomException;
+    Message avatarStaff(String avatar, String email) throws CustomException;
 }
