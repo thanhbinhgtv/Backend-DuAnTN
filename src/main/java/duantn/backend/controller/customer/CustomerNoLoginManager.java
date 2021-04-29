@@ -63,11 +63,10 @@ public class CustomerNoLoginManager {
 
     @GetMapping("/new")
     public List<NewspaperOutputDTO> listNewspaper(@RequestParam(required = false) String sort,
-                                             @RequestParam(required = false) Boolean hidden,
                                              @RequestParam(required = false) String title,
                                              @RequestParam Integer page,
                                              @RequestParam Integer limit) {
-        return newspaperService.listNewspaper(sort, hidden, title, page, limit);
+        return newspaperService.listNewspaper(sort, false, title, page, limit);
     }
 
     @GetMapping("/new/{id}")
