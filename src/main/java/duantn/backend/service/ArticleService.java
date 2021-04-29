@@ -10,6 +10,7 @@ import duantn.backend.model.dto.output.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 public interface ArticleService {
     List<ArticleOutputDTO> listArticle(
@@ -55,4 +56,6 @@ public interface ArticleService {
 
     //đăng lại bài đăng đã ẩn	/customer/article/post/{id}?days={int}
     Message postOldArticle(String email, Integer Id, Integer date, String type, Boolean vip) throws CustomException;
+
+    Message buffPoint(String email, Integer id, Integer point) throws CustomException;
 }

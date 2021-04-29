@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Created with YourComputer.
  * User: DUC_PRO
@@ -19,4 +21,5 @@ import org.springframework.stereotype.Repository;
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     Comment findByArticleAndCustomer(Article article, Customer customer);
     Page<Comment> findByArticle_ArticleId(Integer articleId, Pageable pageable);
+    List<Comment> findByArticle(Article article);
 }

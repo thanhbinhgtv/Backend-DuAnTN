@@ -8,6 +8,7 @@ import duantn.backend.model.dto.output.Message;
 import io.swagger.models.auth.In;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CustomerArticleService {
 //    list bài đăng cá nhân	/customer/article
@@ -44,4 +45,7 @@ public interface CustomerArticleService {
 
     //chi tiết bài đăng	/customer/article/{id}
     ArticleOutputDTO detailArticle(String email, Integer id) throws CustomException;
+
+    Message buffPoint(String email, Integer id, Integer point) throws CustomException;
+    Map<String, Object> showPoint(Integer id) throws CustomException;
 }

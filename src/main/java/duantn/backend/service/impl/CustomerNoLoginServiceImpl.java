@@ -32,9 +32,9 @@ public class CustomerNoLoginServiceImpl implements CustomerNoLoginService {
     }
 
     @Override
-    public List<ArticleOutputDTO> listArticle(Boolean vip, String email, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String search, Integer minAcreage, Integer maxAcreage, Integer minPrice, Integer maxPrice,Integer page, Integer limit) {
+    public List<ArticleOutputDTO> listArticle(Boolean vip, String email, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String search, Integer minAcreage, Integer maxAcreage, Integer minPrice, Integer maxPrice,Boolean sort, Integer page, Integer limit) {
         List<Article> articleList= articleRepository.findCustomShow(vip, start,end,ward,district,city,roommate,"active",
-                search,minAcreage,maxAcreage,minPrice, maxPrice, page,limit);
+                search,minAcreage,maxAcreage,minPrice, maxPrice,sort, page,limit);
         List<ArticleOutputDTO> articleOutputDTOList = new ArrayList<>();
         Map<String, Long> countMap=articleRepository.findCustomShowCount(vip,
                 start,end,ward,district,city,roommate,"active",

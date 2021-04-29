@@ -1,11 +1,6 @@
 package duantn.backend.service.impl;
 
-import com.paypal.api.payments.Links;
-import com.paypal.api.payments.Payment;
-import com.paypal.base.rest.PayPalRESTException;
 import duantn.backend.authentication.CustomException;
-import duantn.backend.config.paypal.PaypalPaymentIntent;
-import duantn.backend.config.paypal.PaypalPaymentMethod;
 import duantn.backend.config.paypal.PaypalService;
 import duantn.backend.dao.*;
 import duantn.backend.helper.Helper;
@@ -20,12 +15,9 @@ import duantn.backend.service.CustomerArticleService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @Service
@@ -46,8 +38,24 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
     FavoriteArticleRepository favoriteArticleRepository;
     final
     PaypalService paypalService;
+    final
+    CommentRepository commentRepository;
 
-    public CustomerArticleServiceImpl(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, CustomerRepository customerRepository, WardRepository wardRepository, Helper helper, TransactionRepository transactionRepository, FavoriteArticleRepository favoriteArticleRepository, PaypalService paypalService) {
+    @Value("${duantn.day.price}")
+    private Integer dayPrice;
+    @Value("${duantn.week.price}")
+    private Integer weekPrice;
+    @Value("${duantn.month.price}")
+    private Integer monthPrice;
+
+    @Value("${duantn.vip.day.price}")
+    private Integer vipDayPrice;
+    @Value("${duantn.vip.week.price}")
+    private Integer vipWeekPrice;
+    @Value("${duantn.vip.month.price}")
+    private Integer vipMonthPrice;
+
+    public CustomerArticleServiceImpl(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, CustomerRepository customerRepository, WardRepository wardRepository, Helper helper, TransactionRepository transactionRepository, FavoriteArticleRepository favoriteArticleRepository, PaypalService paypalService, CommentRepository commentRepository) {
         this.articleRepository = articleRepository;
         this.staffArticleRepository = staffArticleRepository;
         this.customerRepository = customerRepository;
@@ -56,21 +64,22 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         this.transactionRepository = transactionRepository;
         this.favoriteArticleRepository = favoriteArticleRepository;
         this.paypalService = paypalService;
+        this.commentRepository = commentRepository;
     }
 
     @Override
     public List<ArticleOutputDTO> listArticle(String email, String sort, Long start, Long end, Integer ward, Integer district, Integer city, Boolean roommate, String status, Boolean vip, String search, Integer minAcreage, Integer maxAcreage, Integer minPrice, Integer maxPrice, Integer page, Integer limit) {
         List<Article> articleList =
                 articleRepository.findCustomAndEmail(email, sort, start, end, ward, district, city,
-                        roommate, status, vip, search, minAcreage, maxAcreage,minPrice, maxPrice, page, limit);
-        Map<String, Long> countMap=articleRepository.findCustomAndEmailCount(
+                        roommate, status, vip, search, minAcreage, maxAcreage, minPrice, maxPrice, page, limit);
+        Map<String, Long> countMap = articleRepository.findCustomAndEmailCount(
                 email, start, end, ward, district, city,
-                roommate, status, vip, search, minAcreage, maxAcreage,minPrice, maxPrice, limit
+                roommate, status, vip, search, minAcreage, maxAcreage, minPrice, maxPrice, limit
         );
         List<ArticleOutputDTO> articleOutputDTOList = new ArrayList<>();
         if (articleList.size() > 0) {
             for (Article article : articleList) {
-                ArticleOutputDTO articleOutputDTO=helper.convertToOutputDTO(article);
+                ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(article);
                 articleOutputDTO.setElements(countMap.get("elements"));
                 articleOutputDTO.setPages(countMap.get("pages"));
                 articleOutputDTOList.add(articleOutputDTO);
@@ -88,9 +97,9 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
         //kiểm tra và trừ tiền
         Integer money = null;
-        int priceDay = articleInsertDTO.getVip() ? 10000 : 2000;
-        int priceWeek = articleInsertDTO.getVip() ? 63000 : 12000;
-        int priceMonth = articleInsertDTO.getVip() ? 240000 : 48000;
+        int priceDay = articleInsertDTO.getVip() ? vipDayPrice : dayPrice;
+        int priceWeek = articleInsertDTO.getVip() ? vipWeekPrice : weekPrice;
+        int priceMonth = articleInsertDTO.getVip() ? vipMonthPrice : monthPrice;
         if (articleInsertDTO.getType().equals("day")) {
             money = articleInsertDTO.getNumber() * priceDay;
         } else if (articleInsertDTO.getType().equals("week")) {
@@ -196,6 +205,13 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             article.setWard(wardOptional.get());
 
             article.setUpdateTime(new Date());
+            article.setPoint(0);
+            //xóa toàn bộ comment
+            List<Comment> comments=commentRepository.findByArticle(article);
+            for (Comment comment: comments){
+                commentRepository.delete(comment);
+            }
+
             if (article.getStatus().equals(VariableCommon.DANG_DANG) || article.getStatus().equals(VariableCommon.SUA_LAI))
                 article.setStatus(VariableCommon.CHUA_DUYET);
 
@@ -249,9 +265,9 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
         //kiểm tra và trừ tiền
         Integer money = null;
-        int priceDay = article.getVip() ? 10000 : 2000;
-        int priceWeek = article.getVip() ? 63000 : 12000;
-        int priceMonth = article.getVip() ? 240000 : 48000;
+        int priceDay = article.getVip() ? vipDayPrice : dayPrice;
+        int priceWeek = article.getVip() ? vipWeekPrice : weekPrice;
+        int priceMonth = article.getVip() ? vipMonthPrice : monthPrice;
         if (type.equals("day")) {
             money = days * priceDay;
         } else if (type.equals("week")) {
@@ -288,8 +304,8 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Khách hàng không hợp lệ");
-        if(article.getStatus().equals(VariableCommon.DANG_DANG)||
-                article.getStatus().equals(VariableCommon.SUA_LAI)||
+        if (article.getStatus().equals(VariableCommon.DANG_DANG) ||
+                article.getStatus().equals(VariableCommon.SUA_LAI) ||
                 article.getStatus().equals(VariableCommon.CHUA_DUYET))
             throw new CustomException("Đăng lại bài cũ chỉ áp dụng với bài bị ẩn hoặc hết hạn");
         if (!email.equals(article.getCustomer().getEmail()))
@@ -299,9 +315,9 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
         //kiểm tra và trừ tiền
         Integer money = null;
-        int priceDay = article.getVip() ? 10000 : 2000;
-        int priceWeek = article.getVip() ? 63000 : 12000;
-        int priceMonth = article.getVip() ? 240000 : 48000;
+        int priceDay = article.getVip() ? vipDayPrice : dayPrice;
+        int priceWeek = article.getVip() ? vipWeekPrice : weekPrice;
+        int priceMonth = article.getVip() ? vipMonthPrice : monthPrice;
         if (type.equals("day")) {
             money = days * priceDay;
         } else if (type.equals("week")) {
@@ -320,6 +336,14 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
 
         article.setNumber(days);
         article.setType(type);
+
+        article.setUpdateTime(new Date());
+        article.setPoint(0);
+        //xóa toàn bộ comment
+        List<Comment> comments=commentRepository.findByArticle(article);
+        for (Comment comment: comments){
+            commentRepository.delete(comment);
+        }
 
         Customer newCustomer = customerRepository.save(customer);
         creatTransactionPay(money, newCustomer, description);
@@ -340,50 +364,51 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         return helper.convertToOutputDTO(article);
     }
 
-    private String URL_PAYPAL_SUCCESS = "pay/success";
-    private String URL_PAYPAL_CANCEL = "pay/cancel";
-    public Message pay(HttpServletRequest request,
-                       double price,
-                       String description)
-            throws CustomException {
-        String cancelUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;
-        String successUrl = helper.getBaseURL(request) + "/" + URL_PAYPAL_SUCCESS;
-        HttpSession session=request.getSession();
-        try {
-            Double value = Math.round(price * 100.0) / 100.0;
-            session.setAttribute("value", value);
-            String email= (String) request.getAttribute("email");
-            session.setAttribute("email", email);
+    @Value("${duantn.point.price}")
+    private Integer pricePoint;
 
-            if (description == null || description.trim().equals("")) description = "Nạp " + value + " USD";
-            session.setAttribute("description", description);
+    @Value("${duantn.renew.price}")
+    private Integer renewPrice;
 
-            if (email == null || email.trim().equals("")) throw new CustomException("Token không hợp lệ");
+    @Override
+    public Message buffPoint(String email, Integer id, Integer point) throws CustomException {
+        Customer customer = customerRepository.findByEmail(email);
+        if (customer == null) throw new CustomException("Khách hàng không tồn tại");
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
+        if (article == null) throw new CustomException("Bài đăng không tồn tại");
+        if (!email.equals(article.getCustomer().getEmail()))
+            throw new CustomException("Bạn không được tăng buff cho bài đăng của người khác");
+        if (point < 0) throw new CustomException("Số điểm nhỏ nhất là 0");
 
-            Customer customer = customerRepository.findByEmail(email);
-            if (customer == null)
-                throw new CustomException("Người dùng không hợp lệ");
-            session.setAttribute("customer", customer);
+        article.setPoint(article.getPoint() + point);
+        article.setUpdateTime(new Date());
+        article.setTimeGroup(0);
 
-            Payment payment = paypalService.createPayment(
-                    value,
-                    "USD",
-                    PaypalPaymentMethod.paypal,
-                    PaypalPaymentIntent.sale,
-                    description,
-                    cancelUrl,
-                    successUrl);
-            for (Links links : payment.getLinks()) {
-                if (links.getRel().equals("approval_url")) {
-                    //response.sendRedirect(links.getHref());
-                    return new Message(links.getHref());
-                }
-            }
-        } catch (PayPalRESTException e) {
-            e.printStackTrace();
-            throw new CustomException("Thanh toán thất bại");
-        }
-        //return "redirect:/";
-        throw new CustomException("Không xác định");
+        //tính tiền
+        Integer amount = pricePoint * point + renewPrice;
+        if (customer.getAccountBalance() < amount) throw new CustomException("Bạn không đủ tiền trong tài khoản");
+        customer.setAccountBalance(customer.getAccountBalance() - amount);
+        Customer newCustomer = customerRepository.save(customer);
+
+        Transaction transaction = new Transaction();
+        transaction.setCustomer(newCustomer);
+        transaction.setAmount(amount);
+        transaction.setType(false);
+        transaction.setDescription("Làm mới và tăng " + point + " điểm cho bài đăng: " + article.getTitle() + " (id: " +
+                article.getArticleId() + ")");
+        transactionRepository.save(transaction);
+
+        Article newArticle = articleRepository.save(article);
+
+        return new Message("Bạn đã làm mới và tăng điểm thành công, bài đăng hiện có: " + newArticle.getPoint() + " điểm");
+    }
+
+    @Override
+    public Map<String, Object> showPoint(Integer id) throws CustomException {
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
+        if (article == null) throw new CustomException("Bài đăng không tồn tại");
+        Map<String, Object> map = new HashMap<>();
+        map.put("point", article.getPoint());
+        return map;
     }
 }

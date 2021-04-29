@@ -8,12 +8,14 @@ import duantn.backend.model.dto.input.ContactCustomerDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.service.ArticleService;
+import duantn.backend.service.CustomerArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/")
@@ -22,10 +24,13 @@ public class ArticleManager {
     ArticleService articleService;
     final
     Helper helper;
+    final
+    CustomerArticleService customerArticleService;
 
-    public ArticleManager(ArticleService articleService, Helper helper) {
+    public ArticleManager(ArticleService articleService, Helper helper, CustomerArticleService customerArticleService) {
         this.articleService = articleService;
         this.helper = helper;
+        this.customerArticleService = customerArticleService;
     }
 
     //    list bài đăng	/admin/article
@@ -131,5 +136,18 @@ public class ArticleManager {
                                   HttpServletRequest request) throws CustomException {
         String email = (String) request.getAttribute("email");
         return articleService.postOldArticle(email, id, number, type, vip);
+    }
+
+    @GetMapping("/article/buff/{id}")
+    public Message buffPoint(@PathVariable Integer id,
+                                  @RequestParam Integer point,
+                                  HttpServletRequest request) throws CustomException {
+        String email = (String) request.getAttribute("email");
+        return articleService.buffPoint(email,id,point);
+    }
+
+    @GetMapping("/article/point/{id}")
+    public Map<String, Object> showPoint(@PathVariable Integer id) throws CustomException {
+        return customerArticleService.showPoint(id);
     }
 }

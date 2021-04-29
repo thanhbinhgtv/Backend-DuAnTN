@@ -16,6 +16,7 @@ public interface CustomerNoLoginService {
                                        String search,
                                        Integer minAcreage, Integer maxAcreage,
                                        Integer minPrice, Integer maxPrice,
+                                       Boolean sort,
                                        Integer page,
                                        Integer limit
     );
