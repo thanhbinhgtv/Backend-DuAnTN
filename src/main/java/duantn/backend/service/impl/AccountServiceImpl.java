@@ -483,6 +483,24 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
+    public Message avatar(String avatar, String email) throws CustomException {
+        if(avatar==null || avatar.trim().equals("")) throw new CustomException("Link avatar không được trống");
+        Customer customer=customerRepository.findByEmail(email);
+        if(customer==null) throw new CustomException("Không tìm thấy khách hàng");
+        customer.setImage(avatar);
+        return new Message("Đổi avatar thành công");
+    }
+
+    @Override
+    public Message avatarStaff(String avatar, String email) throws CustomException {
+        if(avatar==null || avatar.trim().equals("")) throw new CustomException("Link avatar không được trống");
+        Staff staff=staffRepository.findByEmail(email);
+        if(staff==null) throw new CustomException("Không tìm thấy nhân viên");
+        staff.setImage(avatar);
+        return new Message("Đổi avatar thành công");
+    }
+
     private String extractJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {

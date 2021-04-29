@@ -5,6 +5,8 @@ import duantn.backend.model.dto.input.CommentInputDTO;
 import duantn.backend.model.dto.output.CommentOutputDTO;
 import duantn.backend.model.dto.output.Message;
 
+import java.util.Map;
+
 /**
  * Created with YourComputer.
  * User: DUC_PRO
@@ -19,4 +21,6 @@ public interface CommentService {
     CommentOutputDTO showComment(String email, Integer articleId) throws CustomException;
     //xóa comment
     Message deleteComment(String email, Integer id) throws CustomException;
+    //xem list comment
+    Map<String, Object> listComment(Integer articleId, Integer page, Integer limit) throws CustomException;
 }
