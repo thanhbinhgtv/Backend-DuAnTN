@@ -5,7 +5,6 @@ import duantn.backend.dao.CountRequestRepository;
 import duantn.backend.helper.VariableCommon;
 import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.CountRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ public class AppSchedule {
         this.countRequestRepository = countRequestRepository;
     }
 
-    @Scheduled(fixedDelay = 5 * 60 * 1000)
+    @Scheduled(fixedDelay = 5 * 60 * 1000, initialDelay = 2 * 60 * 1000)
     public void AutoArticle() {
         List<Article> articleList = articleRepository.findByStatusAndExpTimeBeforeAndDeletedFalse(VariableCommon.DANG_DANG, new Date());
         if (articleList.size() > 0) {
@@ -41,7 +40,7 @@ public class AppSchedule {
         }
     }
 
-    @Scheduled(fixedDelay = 5 * 60 * 1000)
+    @Scheduled(fixedDelay = 5 * 60 * 1000, initialDelay = 3 * 60 * 1000)
     public void AutoSendMail() {
         List<Article> articleList1 = articleRepository.findByStatusAndExpTimeBetweenAndDeletedFalse(VariableCommon.DANG_DANG,
                 new Date(new Date().getTime() - 25 * 3600 * 1000), new Date());
@@ -66,6 +65,17 @@ public class AppSchedule {
         }
     }
 
+    @Scheduled(fixedDelay = 1 * 3600 * 1000)
+    public void calculationTimeGroup() {
+        List<Article> articleList = articleRepository.findByStatusAndDeletedFalse(VariableCommon.DANG_DANG);
+        for (Article article : articleList) {
+            int timeGroup =
+                    (int) (((double) (new Date().getTime() - article.getUpdateTime().getTime())) / ((double) (7 * 24 * 3600 * 1000)));
+            article.setTimeGroup(timeGroup);
+            articleRepository.save(article);
+        }
+    }
+
     @Scheduled(fixedDelay = 5 * 60 * 1000)
     public void updateVariableTime() {
         CountRequest countRequest = countRequestRepository.findFirstBy(Sort.by("date").descending());
@@ -80,6 +90,4 @@ public class AppSchedule {
             countRequestRepository.save(countRequest1);
         }
     }
-
-
 }

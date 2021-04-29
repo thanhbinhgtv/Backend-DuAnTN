@@ -60,6 +60,11 @@ public class Article extends BaseEntity implements Serializable {
     @Column
     private String video;
 
+    @Column(nullable = false)
+    private Integer timeGroup=0;
+    @Column(nullable = false)
+    private Integer point=0;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "serviceId", nullable = false)
     private Service service;

@@ -54,4 +54,6 @@ public class ArticleOutputDTO {
 
     private Long countLike;
     private Boolean liked=false;
+
+    private Integer point;
 }

@@ -43,6 +43,7 @@ public interface CustomArticleRepository {
                                  String status, String search,
                                  Integer minAcreage, Integer maxAcreage,
                                  Integer minPrice, Integer maxPrice,
+                                 Boolean sort,
                                  Integer page, Integer limit);
 
     Map<String, Long> findCustomShowCount(Boolean vip, Long start, Long end,

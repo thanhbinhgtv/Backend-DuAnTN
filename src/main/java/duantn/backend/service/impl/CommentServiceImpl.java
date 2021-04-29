@@ -1,6 +1,7 @@
 package duantn.backend.service.impl;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.component.MailSender;
 import duantn.backend.dao.ArticleRepository;
 import duantn.backend.dao.CommentRepository;
 import duantn.backend.dao.CustomerRepository;
@@ -11,6 +12,7 @@ import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.Comment;
 import duantn.backend.model.entity.Customer;
 import duantn.backend.service.CommentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,11 +36,14 @@ public class CommentServiceImpl implements CommentService {
     CustomerRepository customerRepository;
     final
     CommentRepository commentRepository;
+    final
+    MailSender mailSender;
 
-    public CommentServiceImpl(ArticleRepository articleRepository, CustomerRepository customerRepository, CommentRepository commentRepository) {
+    public CommentServiceImpl(ArticleRepository articleRepository, CustomerRepository customerRepository, CommentRepository commentRepository, MailSender mailSender) {
         this.articleRepository = articleRepository;
         this.customerRepository = customerRepository;
         this.commentRepository = commentRepository;
+        this.mailSender = mailSender;
     }
 
     @Override
@@ -58,8 +63,23 @@ public class CommentServiceImpl implements CommentService {
         }
         comment.setComment(commentInputDTO.getComment());
         comment.setStart(commentInputDTO.getStart());
-
         Comment newComment = commentRepository.save(comment);
+
+        //tính point
+        int point=newComment.getStart()-3;
+        article.setPoint(article.getPoint()+point);
+        articleRepository.save(article);
+
+        //gửi mail
+        String subject=customer.getName()+ " đã nhận sét bài đăng của bạn";
+        String body="<p><strong>Người dùng</strong>: <em>"+customer.getName()+"</em></p>\n" +
+                "<p><strong>Địa chỉ email</strong>: <em>"+customer.getEmail()+"</em></p>\n" +
+                "<p>Đã nhận xét bài đăng của bạn.</p>\n" +
+                "<p><strong>Nội dung nhận xét</strong>:<strong> </strong>"+newComment.getComment()+"</p>\n" +
+                "<p><strong>Đánh giá</strong>: <span style=\"text-shadow: 3px 3px 2px rgba(136, 136, 136, 0.8);\"><span style=\"font-size: 20px; color: rgb(243, 121, 52);\">"+newComment.getStart()+"</span> </span>sao</p>";
+        String note="Tin nhắn được gửi tự động. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.";
+        mailSender.send(article.getCustomer().getEmail(),subject,body,note);
+
         return convertToOutputDTO(newComment);
     }
 

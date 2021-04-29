@@ -129,6 +129,7 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
                                         String status, String search,
                                         Integer minAcreage, Integer maxAcreage,
                                         Integer minPrice, Integer maxPrice,
+                                        Boolean sort,
                                         Integer page, Integer limit) {
         if (search == null || search.trim().equals("")) search = "";
 
@@ -149,10 +150,18 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
 
         query.where(integrated);
 
-        Order vipDesc = builder.desc(root.get("vip"));
-        Order timeDesc = builder.desc(root.get("updateTime"));
-        if(vip==null) query.orderBy(vipDesc, timeDesc);
-        else query.orderBy(timeDesc);
+        if(sort){
+            Order vipDesc = builder.desc(root.get("vip"));
+            Order timeGroupAsc = builder.asc(root.get("timeGroup"));
+            Order pointDesc=builder.desc(root.get("point"));
+            if(vip==null) query.orderBy(timeGroupAsc, vipDesc, pointDesc);
+            else query.orderBy(timeGroupAsc, pointDesc);
+        }else {
+            Order vipDesc = builder.desc(root.get("vip"));
+            Order timeDesc = builder.desc(root.get("updateTime"));
+            if(vip==null) query.orderBy(vipDesc, timeDesc);
+            else query.orderBy(timeDesc);
+        }
 
         return em.createQuery(query).setFirstResult(page * limit).setMaxResults(limit).getResultList();
     }

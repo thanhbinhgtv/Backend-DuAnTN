@@ -97,9 +97,13 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
             if(customer==null) throw new CustomException("Email không hợp lệ");
             Article article= articleRepository.findByArticleIdAndDeletedFalse(id);
             if(article==null) throw new CustomException("Id bài đăng không hợp lệ");
+
+            article.setPoint(article.getPoint()+2);
+            Article newArticle=articleRepository.save(article);
+
             FavoriteArticle favoriteArticle1=new FavoriteArticle();
             favoriteArticle1.setCustomer(customer);
-            favoriteArticle1.setArticle(article);
+            favoriteArticle1.setArticle(newArticle);
             favoriteArticleRepository.save(favoriteArticle1);
             return new Message("Đã thêm vào bài đăng yêu thích");
         }

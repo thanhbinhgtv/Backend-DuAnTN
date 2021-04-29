@@ -51,7 +51,10 @@ public class ArticleServiceImpI implements ArticleService {
     final
     FavoriteArticleRepository favoriteArticleRepository;
 
-    public ArticleServiceImpI(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, MailSender mailSender, JwtUtil jwtUtil, StaffRepository staffRepository, Helper helper, WardRepository wardRepository, FavoriteArticleRepository favoriteArticleRepository) {
+    final
+    CommentRepository commentRepository;
+
+    public ArticleServiceImpI(ArticleRepository articleRepository, StaffArticleRepository staffArticleRepository, MailSender mailSender, JwtUtil jwtUtil, StaffRepository staffRepository, Helper helper, WardRepository wardRepository, FavoriteArticleRepository favoriteArticleRepository, CommentRepository commentRepository) {
         this.articleRepository = articleRepository;
         this.staffArticleRepository = staffArticleRepository;
         this.mailSender = mailSender;
@@ -60,6 +63,7 @@ public class ArticleServiceImpI implements ArticleService {
         this.helper = helper;
         this.wardRepository = wardRepository;
         this.favoriteArticleRepository = favoriteArticleRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -173,6 +177,11 @@ public class ArticleServiceImpI implements ArticleService {
                 article.setType(null);
                 article.setNumber(null);
             } else throw new CustomException("Type của bài đăng bị sai");
+
+            //set TimeUpdated
+            article.setUpdateTime(new Date());
+            article.setTimeGroup(0);
+            article.setPoint(0);
 
             //tạo bản ghi staffArticle
             StaffArticle staffArticle = new StaffArticle();
@@ -392,6 +401,7 @@ public class ArticleServiceImpI implements ArticleService {
             article.setWard(wardOptional.get());
 
             article.setUpdateTime(new Date());
+            article.setTimeGroup(0);
             article.setStatus(VariableCommon.DANG_DANG);
             article.setCustomer(null);
 
@@ -479,6 +489,13 @@ public class ArticleServiceImpI implements ArticleService {
             article.setWard(wardOptional.get());
 
             article.setUpdateTime(new Date());
+            article.setTimeGroup(0);
+            article.setPoint(0);
+            //xóa toàn bộ comment
+            List<Comment> comments=commentRepository.findByArticle(article);
+            for (Comment comment: comments){
+                commentRepository.delete(comment);
+            }
 
             //lưu bài
             Article newArticle=articleRepository.save(article);
@@ -555,6 +572,15 @@ public class ArticleServiceImpI implements ArticleService {
         article.setNumber(date);
         article.setType(type);
 
+        article.setUpdateTime(new Date());
+        article.setTimeGroup(0);
+        article.setPoint(0);
+        //xóa toàn bộ comment
+        List<Comment> comments=commentRepository.findByArticle(article);
+        for (Comment comment: comments){
+            commentRepository.delete(comment);
+        }
+
         //tạo thời hạn
         Integer days = null;
         if (type.equals("day")) {
@@ -586,6 +612,31 @@ public class ArticleServiceImpI implements ArticleService {
         staffArticleRepository.save(staffArticle);
 
         return new Message("Đăng lại bài đăng đã ẩn id: " + id + " thành công");
+    }
+
+    @Override
+    public Message buffPoint(String email, Integer id, Integer point) throws CustomException {
+        Staff staff=staffRepository.findByEmail(email);
+        if(staff==null) throw new CustomException("Nhân viên không tồn tại");
+        Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
+        if (article == null) throw new CustomException("Bài đăng không tồn tại");
+        if (point < 0) throw new CustomException("Số điểm nhỏ nhất là 0");
+
+        article.setPoint(article.getPoint() + point);
+        article.setUpdateTime(new Date());
+        article.setTimeGroup(0);
+
+        Article newArticle = articleRepository.save(article);
+
+        //tạo staffArticle
+        StaffArticle staffArticle=new StaffArticle();
+        staffArticle.setArticle(newArticle);
+        staffArticle.setStaff(staff);
+        staffArticle.setTime(new Date());
+        staffArticle.setAction("Làm mới và tăng cho bài đăng "+point+" điểm");
+        staffArticleRepository.save(staffArticle);
+
+        return new Message("Bạn đã làm mới và tăng điểm thành công, bài đăng hiện có: " + newArticle.getPoint() + " điểm");
     }
 
     private Staff findStaffByJWT(HttpServletRequest request) throws Exception {

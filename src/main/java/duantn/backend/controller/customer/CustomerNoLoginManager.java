@@ -45,13 +45,14 @@ public class CustomerNoLoginManager {
             @RequestParam(required = false) Integer minPrice,
             @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) Boolean vip,
+            @RequestParam(value = "sort", required = false, defaultValue = "true") Boolean sort,
             @RequestParam Integer page,
             @RequestParam Integer limit,
             HttpServletRequest request
     ) {
         String email=helper.getEmailOrNullFromRequest(request);
         return customerNoLoginService.listArticle(vip, email,start,end,ward,district,city,
-                roommate,search,minAcreage,maxAcreage, minPrice, maxPrice, page,limit);
+                roommate,search,minAcreage,maxAcreage, minPrice, maxPrice,sort, page,limit);
     }
 
     @GetMapping("/article/{id}")

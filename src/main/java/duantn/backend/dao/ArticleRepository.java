@@ -18,6 +18,8 @@ public interface ArticleRepository extends JpaRepository<Article, Integer>, Cust
 
     List<Article> findByStatusAndExpTimeBeforeAndDeletedFalse(String status, Date date);
 
+    List<Article> findByStatusAndDeletedFalse(String status);
+
     List<Article> findByStatusAndExpTimeBetweenAndDeletedFalse(String status, Date start, Date end);
 
     @Query("SELECT date(a.timeCreated) as date, count(a) as number from Article a WHERE a.timeCreated >= :start and a.timeCreated < :end group by date order by date asc")

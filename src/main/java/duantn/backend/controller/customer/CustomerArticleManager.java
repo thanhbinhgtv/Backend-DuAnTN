@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/customer")
@@ -114,5 +115,18 @@ public class CustomerArticleManager {
                                   HttpServletRequest request) throws CustomException {
         String email = (String) request.getAttribute("email");
         return customerArticleService.postOldArticle(email, id, number, type, vip);
+    }
+
+    @GetMapping("/article/buff/{id}")
+    public Message buffPoint(@PathVariable Integer id,
+                                  @RequestParam Integer point,
+                                  HttpServletRequest request) throws CustomException {
+        String email = (String) request.getAttribute("email");
+        return customerArticleService.buffPoint(email,id,point);
+    }
+
+    @GetMapping("/article/point/{id}")
+    public Map<String, Object> showPoint(@PathVariable Integer id) throws CustomException {
+        return customerArticleService.showPoint(id);
     }
 }

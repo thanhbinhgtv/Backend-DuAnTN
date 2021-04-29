@@ -24,3 +24,20 @@ paypal:
 
 duantn:
   rate: 23100
+  day:
+    price: 2000
+  week:
+    price: 12000
+  month:
+    price: 48000
+  vip:
+    day:
+      price: 10000
+    week:
+      price: 60000
+    month:
+      price: 240000
+  point:
+    price: 1000
+  renew:
+    price: 10000
