@@ -144,41 +144,36 @@ public class ArticleServiceImpI implements ArticleService {
             //duyệt bài
             //chuyển deleted thành true
             Article article = articleOptional.get();
-            if (!article.getStatus().equals(VariableCommon.CHUA_DUYET))
+            if (!(article.getStatus().equals(VariableCommon.CHUA_DUYET) || article.getStatus().equals(VariableCommon.DA_SUA)))
                 throw new CustomException("Chỉ được duyệt bài có trạng thái là chưa duyệt");
-            article.setStatus(VariableCommon.DANG_DANG);
 
-            //nếu còn hạn cũ
-            if(article.getNumber()==null || article.getType()==null){
-                if(article.getExpTime()!=null){
-                    article.setStatus(
-                            article.getExpTime().after(new Date())?VariableCommon.DANG_DANG:VariableCommon.HET_HAN
-                    );
-                }else throw new CustomException("Lỗi không xác định");
+            //nếu là bài đã sửa
+            if(article.getStatus().equals(VariableCommon.DA_SUA)){
+                if(article.getExpTime().after(new Date())){
+                }else{
+                    article.setStatus(VariableCommon.HET_HAN);
+                    articleRepository.save(article);
+                    throw new CustomException("Bài đăng đã hết hạn");
+                }
+            }else {
+                //tạo thời hạn
+                Integer days = null;
+                if (article.getType().equals("day")) {
+                    days = article.getNumber();
+                    article.setExpTime(helper.addDayForDate(days, new Date()));
+                } else if (article.getType().equals("week")) {
+                    days = helper.calculateDays(article.getNumber(), article.getType(),
+                            new Date());
+                    article.setExpTime(helper.addDayForDate(days, new Date()));
+                } else if (article.getType().equals("month")) {
+                    days = helper.calculateDays(article.getNumber(), article.getType(),
+                            new Date());
+                    article.setExpTime(helper.addDayForDate(days, new Date()));
+                } else throw new CustomException("Type của bài đăng bị sai");
             }
 
-            //tạo thời hạn
-            Integer days = null;
-            if (article.getType().equals("day")) {
-                days = article.getNumber();
-                article.setExpTime(helper.addDayForDate(days, new Date()));
-                article.setType(null);
-                article.setNumber(null);
-            } else if (article.getType().equals("week")) {
-                days = helper.calculateDays(article.getNumber(), article.getType(),
-                        new Date());
-                article.setExpTime(helper.addDayForDate(days, new Date()));
-                article.setType(null);
-                article.setNumber(null);
-            } else if (article.getType().equals("month")) {
-                days = helper.calculateDays(article.getNumber(), article.getType(),
-                        new Date());
-                article.setExpTime(helper.addDayForDate(days, new Date()));
-                article.setType(null);
-                article.setNumber(null);
-            } else throw new CustomException("Type của bài đăng bị sai");
-
             //set TimeUpdated
+            article.setStatus(VariableCommon.DANG_DANG);
             article.setUpdateTime(new Date());
             article.setTimeGroup(0);
             article.setPoint(0);
@@ -410,20 +405,14 @@ public class ArticleServiceImpI implements ArticleService {
             if (article.getType().equals("day")) {
                 days = article.getNumber();
                 article.setExpTime(helper.addDayForDate(days, new Date()));
-                article.setType(null);
-                article.setNumber(null);
             } else if (article.getType().equals("week")) {
                 days = helper.calculateDays(article.getNumber(), article.getType(),
                         new Date());
                 article.setExpTime(helper.addDayForDate(days, new Date()));
-                article.setType(null);
-                article.setNumber(null);
             } else if (article.getType().equals("month")) {
                 days = helper.calculateDays(article.getNumber(), article.getType(),
                         new Date());
                 article.setExpTime(helper.addDayForDate(days, new Date()));
-                article.setType(null);
-                article.setNumber(null);
             } else throw new CustomException("Type của bài đăng bị sai");
 
             //lưu bài
@@ -585,21 +574,17 @@ public class ArticleServiceImpI implements ArticleService {
         Integer days = null;
         if (type.equals("day")) {
             article.setExpTime(helper.addDayForDate(date, new Date()));
-            article.setType(null);
-            article.setNumber(null);
         } else if (type.equals("week")) {
             days = helper.calculateDays(date, article.getType(),
                     new Date());
             article.setExpTime(helper.addDayForDate(days, new Date()));
-            article.setType(null);
-            article.setNumber(null);
         } else if (type.equals("month")) {
             days = helper.calculateDays(date, article.getType(),
                     new Date());
             article.setExpTime(helper.addDayForDate(days, new Date()));
-            article.setType(null);
-            article.setNumber(null);
         } else throw new CustomException("Type của bài đăng bị sai");
+        article.setNumber(date);
+        article.setType(type);
 
         Article newArticle=articleRepository.save(article);
 

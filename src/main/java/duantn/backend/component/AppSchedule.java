@@ -40,7 +40,7 @@ public class AppSchedule {
         }
     }
 
-    @Scheduled(fixedDelay = 5 * 60 * 1000, initialDelay = 3 * 60 * 1000)
+    @Scheduled(fixedDelay = 1 * 3600 * 1000, initialDelay = 3 * 60 * 1000)
     public void AutoSendMail() {
         List<Article> articleList1 = articleRepository.findByStatusAndExpTimeBetweenAndDeletedFalse(VariableCommon.DANG_DANG,
                 new Date(new Date().getTime() - 25 * 3600 * 1000), new Date());

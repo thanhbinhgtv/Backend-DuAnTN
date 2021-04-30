@@ -13,6 +13,7 @@ import duantn.backend.model.entity.StaffArticle;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,20 @@ public class Helper {
     StaffArticleRepository staffArticleRepository;
     final
     FavoriteArticleRepository favoriteArticleRepository;
+
+    @Value("${duantn.day.price}")
+    private Integer dayPrice;
+    @Value("${duantn.week.price}")
+    private Integer weekPrice;
+    @Value("${duantn.month.price}")
+    private Integer monthPrice;
+
+    @Value("${duantn.vip.day.price}")
+    private Integer vipDayPrice;
+    @Value("${duantn.vip.week.price}")
+    private Integer vipWeekPrice;
+    @Value("${duantn.vip.month.price}")
+    private Integer vipMonthPrice;
 
     public Helper(CustomerRepository customerRepository, StaffRepository staffRepository, JwtUtil jwtUtil, CustomJwtAuthenticationFilter customJwtAuthenticationFilter, StaffArticleRepository staffArticleRepository, FavoriteArticleRepository favoriteArticleRepository) {
         this.customerRepository = customerRepository;
@@ -174,6 +189,7 @@ public class Helper {
         customer.put("email", article.getCustomer().getEmail());
         customer.put("phone", article.getCustomer().getPhone());
         customer.put("image", article.getCustomer().getImage());
+        customer.put("balance", article.getCustomer().getAccountBalance()+"");
         articleOutputDTO.setCustomer(customer);
 
         if (article.getExpTime()!=null) {
@@ -189,6 +205,45 @@ public class Helper {
         location.put("cityId", article.getWard().getDistrict().getCity().getCityId() + "");
         location.put("cityName", article.getWard().getDistrict().getCity().getCityName());
         articleOutputDTO.setLocation(location);
+
+        //set price va tinh tien
+        if(article.getVip()){
+            switch (article.getType()){
+                case "day": {
+                    articleOutputDTO.setPrice(vipDayPrice);
+                    articleOutputDTO.setAmount(article.getNumber()*vipDayPrice);
+                    break;
+                }
+                case "week": {
+                    articleOutputDTO.setPrice(vipWeekPrice);
+                    articleOutputDTO.setAmount(article.getNumber()*vipWeekPrice);
+                    break;
+                }
+                case "month": {
+                    articleOutputDTO.setPrice(vipMonthPrice);
+                    articleOutputDTO.setAmount(article.getNumber()*vipMonthPrice);
+                    break;
+                }
+            }
+        }else{
+            switch (article.getType()){
+                case "day": {
+                    articleOutputDTO.setPrice(dayPrice);
+                    articleOutputDTO.setAmount(article.getNumber()*dayPrice);
+                    break;
+                }
+                case "week": {
+                    articleOutputDTO.setPrice(weekPrice);
+                    articleOutputDTO.setAmount(article.getNumber()*weekPrice);
+                    break;
+                }
+                case "month": {
+                    articleOutputDTO.setPrice(monthPrice);
+                    articleOutputDTO.setAmount(article.getNumber()*monthPrice);
+                    break;
+                }
+            }
+        }
 
         articleOutputDTO.setCountLike(favoriteArticleRepository.countByArticle(article));
 

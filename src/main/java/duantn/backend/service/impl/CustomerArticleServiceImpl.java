@@ -166,9 +166,9 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         Customer customer = customerRepository.findByEmail(email);
         if (customer == null) throw new CustomException("Không tìm thấy khách hàng");
         try {
-            ModelMapper modelMapper = new ModelMapper();
-            modelMapper.getConfiguration()
-                    .setMatchingStrategy(MatchingStrategies.STRICT);
+//            ModelMapper modelMapper = new ModelMapper();
+//            modelMapper.getConfiguration()
+//                    .setMatchingStrategy(MatchingStrategies.STRICT);
 
             Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
             if (article == null) throw new CustomException("Bài đăng id không hợp lệ");
@@ -213,7 +213,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             }
 
             if (article.getStatus().equals(VariableCommon.DANG_DANG) || article.getStatus().equals(VariableCommon.SUA_LAI))
-                article.setStatus(VariableCommon.CHUA_DUYET);
+                article.setStatus(VariableCommon.DA_SUA);
 
             return helper.convertToOutputDTO(articleRepository.save(article));
         } catch (CustomException e) {
