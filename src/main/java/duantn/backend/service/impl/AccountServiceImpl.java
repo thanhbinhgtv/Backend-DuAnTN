@@ -367,7 +367,7 @@ public class AccountServiceImpl implements AccountService {
             staff.setGender(staffPersonUpdateDTO.isGender());
             staff.setAddress(staffPersonUpdateDTO.getAddress());
             staff.setPhone(staffPersonUpdateDTO.getPhone());
-            staff.setImage(staffPersonUpdateDTO.getImage());
+            //staff.setImage(staffPersonUpdateDTO.getImage());
             Staff newStaff = staffRepository.save(staff);
 
             ModelMapper modelMapper = new ModelMapper();
@@ -440,7 +440,7 @@ public class AccountServiceImpl implements AccountService {
             customer.setPhone(customerUpdateDTO.getPhone());
             customer.setCardId(customerUpdateDTO.getCardId());
             customer.setDob(new Date(customerUpdateDTO.getBirthday()));
-            customer.setImage(customerUpdateDTO.getImage());
+            //customer.setImage(customerUpdateDTO.getImage());
             Customer newCustomer = customerRepository.save(customer);
             CustomerOutputDTO customerOutputDTO = modelMapper.map(newCustomer, CustomerOutputDTO.class);
             if (customer.getDob() != null) customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
