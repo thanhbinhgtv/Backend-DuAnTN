@@ -489,6 +489,7 @@ public class AccountServiceImpl implements AccountService {
         Customer customer=customerRepository.findByEmail(email);
         if(customer==null) throw new CustomException("Không tìm thấy khách hàng");
         customer.setImage(avatar);
+        customerRepository.save(customer);
         return new Message("Đổi avatar thành công");
     }
 
@@ -498,6 +499,7 @@ public class AccountServiceImpl implements AccountService {
         Staff staff=staffRepository.findByEmail(email);
         if(staff==null) throw new CustomException("Không tìm thấy nhân viên");
         staff.setImage(avatar);
+        staffRepository.save(staff);
         return new Message("Đổi avatar thành công");
     }
 
