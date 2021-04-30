@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 public class RoommateDTO {
-    @NotNull(message = "Giới tính không được trống")
+    @NotNull(message = "Giới tính không được null")
     private Boolean gender;
 
     @NotNull(message = "Số lượng người ở chung không được null")
