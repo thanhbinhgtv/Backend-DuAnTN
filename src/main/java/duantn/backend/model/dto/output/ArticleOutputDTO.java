@@ -48,6 +48,8 @@ public class ArticleOutputDTO {
 
     private Integer number;
     private String type;
+    private Integer price;
+    private Integer amount;
 
     private Long elements;
     private Long pages;
