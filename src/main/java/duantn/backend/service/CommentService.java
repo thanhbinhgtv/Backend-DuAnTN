@@ -17,10 +17,13 @@ import java.util.Map;
 public interface CommentService {
     //thêm/sửa comment
     CommentOutputDTO insertComment(String email, CommentInputDTO commentInputDTO) throws CustomException;
+
     //xem comment
     CommentOutputDTO showComment(String email, Integer articleId) throws CustomException;
+
     //xóa comment
     Message deleteComment(String email, Integer id) throws CustomException;
+
     //xem list comment
     Map<String, Object> listComment(Integer articleId, Integer page, Integer limit) throws CustomException;
 }

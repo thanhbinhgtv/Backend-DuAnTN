@@ -98,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
             customer.setToken(token);
 
             //send mail
-            try{
+            try {
                 mailSender.send(
                         signupDTO.getEmail(),
                         "Xác nhận địa chỉ email",
@@ -107,7 +107,7 @@ public class AccountServiceImpl implements AccountService {
                                 + "&email=" + signupDTO.getEmail(),
                         "Thời hạn xác nhận, 10 phút kể từ khi đăng kí"
                 );
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new CustomException("Lỗi, gửi mail thất bại");
             }
 
@@ -278,9 +278,9 @@ public class AccountServiceImpl implements AccountService {
             token = helper.createToken(31);
             staff.setToken(token);
 
-            try{
+            try {
                 senMail(email, token);
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new CustomException("Lỗi gửi mail thất bại");
             }
 
@@ -292,9 +292,9 @@ public class AccountServiceImpl implements AccountService {
             token = helper.createToken(31);
             customer.setToken(token);
 
-            try{
+            try {
                 senMail(email, token);
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new CustomException("Lỗi gửi mail thất bại");
             }
 

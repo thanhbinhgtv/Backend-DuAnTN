@@ -6,11 +6,9 @@ import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 
 public interface StaffService {
 
@@ -19,9 +17,9 @@ public interface StaffService {
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
     List<StaffOutputDTO> listStaff(String search,
-                                  Boolean status, String sort,
-                                  Integer page,
-                                  Integer limit);
+                                   Boolean status, String sort,
+                                   Integer page,
+                                   Integer limit);
 
     //    thêm nhân viên	Post/super-admin/staffs
     Message insertStaff(StaffInsertDTO staffInsertDTO, HttpServletRequest request) throws Exception;

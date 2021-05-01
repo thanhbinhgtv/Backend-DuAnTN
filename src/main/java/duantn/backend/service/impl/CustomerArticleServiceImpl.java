@@ -14,7 +14,6 @@ import duantn.backend.model.entity.*;
 import duantn.backend.service.CustomerArticleService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -207,8 +206,8 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             article.setUpdateTime(new Date());
             article.setPoint(0);
             //xóa toàn bộ comment
-            List<Comment> comments=commentRepository.findByArticle(article);
-            for (Comment comment: comments){
+            List<Comment> comments = commentRepository.findByArticle(article);
+            for (Comment comment : comments) {
                 commentRepository.delete(comment);
             }
 
@@ -340,8 +339,8 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         article.setUpdateTime(new Date());
         article.setPoint(0);
         //xóa toàn bộ comment
-        List<Comment> comments=commentRepository.findByArticle(article);
-        for (Comment comment: comments){
+        List<Comment> comments = commentRepository.findByArticle(article);
+        for (Comment comment : comments) {
             commentRepository.delete(comment);
         }
 

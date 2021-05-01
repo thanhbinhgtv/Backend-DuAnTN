@@ -12,13 +12,11 @@ import duantn.backend.model.entity.Article;
 import duantn.backend.model.entity.Comment;
 import duantn.backend.model.entity.Customer;
 import duantn.backend.service.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.jws.Oneway;
 import java.util.*;
 
 /**
@@ -56,54 +54,54 @@ public class CommentServiceImpl implements CommentService {
             throw new CustomException("Bạn không được tự nhận xét bài đăng của chính mình");
 
         Comment comment = commentRepository.findByArticleAndCustomer(article, customer);
-        Integer oldStart=null;
+        Integer oldStart = null;
         if (comment == null) {
             comment = new Comment();
             comment.setArticle(article);
             comment.setCustomer(customer);
-        }else {
-            oldStart=comment.getStart();
+        } else {
+            oldStart = comment.getStart();
         }
         comment.setComment(commentInputDTO.getComment());
         comment.setStart(commentInputDTO.getStart());
 
-        if(oldStart!=null){
-            try{
+        if (oldStart != null) {
+            try {
                 //gửi mail
-                String subject=customer.getName()+ " đã nhận sét lại bài đăng của bạn";
-                String body="<p><strong>Người dùng</strong>: <em>"+customer.getName()+"</em></p>\n" +
-                        "<p><strong>Địa chỉ email</strong>: <em>"+customer.getEmail()+"</em></p>\n" +
+                String subject = customer.getName() + " đã nhận sét lại bài đăng của bạn";
+                String body = "<p><strong>Người dùng</strong>: <em>" + customer.getName() + "</em></p>\n" +
+                        "<p><strong>Địa chỉ email</strong>: <em>" + customer.getEmail() + "</em></p>\n" +
                         "<p>Đã thay đổi nhận xét với bài đăng của bạn.</p>\n" +
-                        "<p><strong>Nội dung nhận xét lại</strong>:<strong> </strong>"+comment.getComment()+"</p>\n" +
-                        "<p><strong>Đánh giá</strong>: <span style=\"text-shadow: 3px 3px 2px rgba(136, 136, 136, 0.8);\"><span style=\"font-size: 20px; color: rgb(243, 121, 52);\">"+comment.getStart()+"</span> </span>sao</p>";
-                String note="Tin nhắn được gửi tự động. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.";
-                mailSender.send(article.getCustomer().getEmail(),subject,body,note);
-            }catch (Exception e){
+                        "<p><strong>Nội dung nhận xét lại</strong>:<strong> </strong>" + comment.getComment() + "</p>\n" +
+                        "<p><strong>Đánh giá</strong>: <span style=\"text-shadow: 3px 3px 2px rgba(136, 136, 136, 0.8);\"><span style=\"font-size: 20px; color: rgb(243, 121, 52);\">" + comment.getStart() + "</span> </span>sao</p>";
+                String note = "Tin nhắn được gửi tự động. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.";
+                mailSender.send(article.getCustomer().getEmail(), subject, body, note);
+            } catch (Exception e) {
                 throw new CustomException("Lỗi, gửi mail thất bại");
             }
-        }else {
-            try{
+        } else {
+            try {
                 //gửi mail
-                String subject=customer.getName()+ " đã nhận sét bài đăng của bạn";
-                String body="<p><strong>Người dùng</strong>: <em>"+customer.getName()+"</em></p>\n" +
-                        "<p><strong>Địa chỉ email</strong>: <em>"+customer.getEmail()+"</em></p>\n" +
+                String subject = customer.getName() + " đã nhận sét bài đăng của bạn";
+                String body = "<p><strong>Người dùng</strong>: <em>" + customer.getName() + "</em></p>\n" +
+                        "<p><strong>Địa chỉ email</strong>: <em>" + customer.getEmail() + "</em></p>\n" +
                         "<p>Đã nhận xét bài đăng của bạn.</p>\n" +
-                        "<p><strong>Nội dung nhận xét</strong>:<strong> </strong>"+comment.getComment()+"</p>\n" +
-                        "<p><strong>Đánh giá</strong>: <span style=\"text-shadow: 3px 3px 2px rgba(136, 136, 136, 0.8);\"><span style=\"font-size: 20px; color: rgb(243, 121, 52);\">"+comment.getStart()+"</span> </span>sao</p>";
-                String note="Tin nhắn được gửi tự động. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.";
-                mailSender.send(article.getCustomer().getEmail(),subject,body,note);
-            }catch (Exception e){
+                        "<p><strong>Nội dung nhận xét</strong>:<strong> </strong>" + comment.getComment() + "</p>\n" +
+                        "<p><strong>Đánh giá</strong>: <span style=\"text-shadow: 3px 3px 2px rgba(136, 136, 136, 0.8);\"><span style=\"font-size: 20px; color: rgb(243, 121, 52);\">" + comment.getStart() + "</span> </span>sao</p>";
+                String note = "Tin nhắn được gửi tự động. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.";
+                mailSender.send(article.getCustomer().getEmail(), subject, body, note);
+            } catch (Exception e) {
                 throw new CustomException("Lỗi, gửi mail thất bại");
             }
         }
 
         //tính point
-        int point= commentInputDTO.getStart()-3;
-        if(oldStart!=null){
-            Integer oldPoint=oldStart-3;
-            article.setPoint(article.getPoint()-oldPoint+point);
-        }else {
-            article.setPoint(article.getPoint()+point);
+        int point = commentInputDTO.getStart() - 3;
+        if (oldStart != null) {
+            Integer oldPoint = oldStart - 3;
+            article.setPoint(article.getPoint() - oldPoint + point);
+        } else {
+            article.setPoint(article.getPoint() + point);
         }
         articleRepository.save(article);
 
@@ -126,15 +124,15 @@ public class CommentServiceImpl implements CommentService {
         Customer customer = customerRepository.findByEmail(email);
         if (customer == null) throw new CustomException("Khách hàng không hợp lệ");
         Optional<Comment> optionalComment = commentRepository.findById(id);
-        if(optionalComment.isPresent()){
-            Comment comment= optionalComment.get();
-            if(!email.equals(comment.getCustomer().getEmail()))
+        if (optionalComment.isPresent()) {
+            Comment comment = optionalComment.get();
+            if (!email.equals(comment.getCustomer().getEmail()))
                 throw new CustomException("Bạn không được xóa comment của người khác");
 
             //xóa giảm point
-            int point=comment.getStart()-3;
-            Article article=comment.getArticle();
-            article.setPoint(article.getPoint()-point);
+            int point = comment.getStart() - 3;
+            Article article = comment.getArticle();
+            article.setPoint(article.getPoint() - point);
 
             commentRepository.delete(comment);
             articleRepository.save(article);
@@ -144,20 +142,20 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Map<String, Object> listComment(Integer articleId, Integer page, Integer limit) throws CustomException {
-        Page<Comment> commentPage=commentRepository.findByArticle_ArticleId(articleId,
+        Page<Comment> commentPage = commentRepository.findByArticle_ArticleId(articleId,
                 PageRequest.of(page, limit, Sort.by("timeCreated").descending()));
-        List<CommentOutputDTO> commentOutputDTOS=new ArrayList<>();
-        Integer sum=0;
-        Integer index=0;
-        for (Comment comment: commentPage.toList()){
+        List<CommentOutputDTO> commentOutputDTOS = new ArrayList<>();
+        Integer sum = 0;
+        Integer index = 0;
+        for (Comment comment : commentPage.toList()) {
             commentOutputDTOS.add(convertToOutputDTO(comment));
-            sum+=comment.getStart();
+            sum += comment.getStart();
             index++;
         }
-        Double avgStar=((double) sum)/((double) index);
-        avgStar=Math.round(avgStar*10)/10.0;
+        Double avgStar = ((double) sum) / ((double) index);
+        avgStar = Math.round(avgStar * 10) / 10.0;
 
-        Map<String, Object> map=new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("avgStar", avgStar);
         map.put("elements", commentPage.getTotalElements());
         map.put("pages", commentPage.getTotalPages());

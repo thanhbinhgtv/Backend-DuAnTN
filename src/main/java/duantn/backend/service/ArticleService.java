@@ -5,12 +5,10 @@ import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.input.ContactCustomerDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
-import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.dto.output.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 
 public interface ArticleService {
     List<ArticleOutputDTO> listArticle(
@@ -29,14 +27,17 @@ public interface ArticleService {
             Integer limit
     );
 
-//    contact với khách hàng (gửi mail cho khách hàng về bài viết này)	/admin/article/contact/{id}
+    //    contact với khách hàng (gửi mail cho khách hàng về bài viết này)	/admin/article/contact/{id}
     Message contactToCustomer(Integer id, ContactCustomerDTO contactCustomerDTO,
                               HttpServletRequest request) throws CustomException;
-//    duyệt bài đăng (hiện) (gửi mail)	/admin/article/active/{id}
+
+    //    duyệt bài đăng (hiện) (gửi mail)	/admin/article/active/{id}
     Message activeArticle(Integer id, HttpServletRequest request) throws CustomException;
+
     //duyệt bài: yêu cầu sửa lại
     Message suggestCorrectingArticle(Integer id, String reason, HttpServletRequest request) throws CustomException;
-//    ẩn bài đăng (gửi mail)	/admin/article/block/{id}
+
+    //    ẩn bài đăng (gửi mail)	/admin/article/block/{id}
     Message hiddenArticle(Integer id, String reason, HttpServletRequest request) throws CustomException;
 
     //chi tiết bài đăng
