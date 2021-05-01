@@ -1,6 +1,5 @@
 package duantn.backend.service.impl;
 
-import com.sun.org.apache.bcel.internal.generic.FSUB;
 import duantn.backend.authentication.CustomException;
 import duantn.backend.component.MailSender;
 import duantn.backend.dao.CustomerRepository;
@@ -10,7 +9,6 @@ import duantn.backend.model.dto.input.StaffInsertDTO;
 import duantn.backend.model.dto.input.StaffUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
-import duantn.backend.model.entity.Customer;
 import duantn.backend.model.entity.Staff;
 import duantn.backend.service.StaffService;
 import lombok.SneakyThrows;
@@ -25,7 +23,10 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StaffServiceImpl implements StaffService {
@@ -246,8 +247,8 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public Message blockStaff(Integer id, String email) throws CustomException {
         Staff staff = staffRepository.findByStaffIdAndDeletedFalseAndEnabledTrue(id);
-        Staff superStaff=staffRepository.findByEmail(email);
-        if (superStaff==null) throw new CustomException("Không tìm thấy super staff");
+        Staff superStaff = staffRepository.findByEmail(email);
+        if (superStaff == null) throw new CustomException("Không tìm thấy super staff");
         if (staff == null) throw new CustomException("Lỗi: id " + id + " không tồn tại, hoặc đã bị block");
         else {
 

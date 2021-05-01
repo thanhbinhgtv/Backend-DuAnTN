@@ -2,7 +2,6 @@ package duantn.backend.service;
 
 import duantn.backend.authentication.CustomException;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

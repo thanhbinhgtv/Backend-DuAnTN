@@ -12,14 +12,15 @@ import duantn.backend.model.entity.Staff;
 import duantn.backend.service.NewspaperService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NewspaperServiceImpl implements NewspaperService {
@@ -36,7 +37,7 @@ public class NewspaperServiceImpl implements NewspaperService {
 
     @Override
     public List<NewspaperOutputDTO> listNewspaper(String sort, Boolean hidden, String title,
-                                             Integer page, Integer limit) {
+                                                  Integer page, Integer limit) {
         if (title == null) title = "";
         Page<Newspaper> newspaperPage;
         if (hidden != null) {
@@ -85,7 +86,7 @@ public class NewspaperServiceImpl implements NewspaperService {
     @Override
     public NewspaperOutputDTO insertNewspaper(NewspaperInsertDTO newspaperInsertDTO) throws CustomException {
         Optional<Staff> staffOptional = staffRepository.findById(newspaperInsertDTO.getStaffId());
-        if(!staffOptional.isPresent())
+        if (!staffOptional.isPresent())
             throw new CustomException("Nhân viên với id " + newspaperInsertDTO.getStaffId() + " không tồn tại");
 
         try {
@@ -110,13 +111,13 @@ public class NewspaperServiceImpl implements NewspaperService {
         if (!newspaperOptional.isPresent())
             throw new CustomException("Bản tin với id " + id + " không tồn tại");
         try {
-                Newspaper newspaper = newspaperOptional.get();
-                newspaper.setTitle(newspaperUpdateDTO.getTitle());
-                newspaper.setContent(newspaperUpdateDTO.getContent());
-                newspaper.setImage(newspaperUpdateDTO.getImage());
-                newspaper.setStaff(staffOptional.get());
-                newspaper.setTimeCreated(new Date());
-                return convertToOutputDTO(newspaperRepository.save(newspaper), null, null);
+            Newspaper newspaper = newspaperOptional.get();
+            newspaper.setTitle(newspaperUpdateDTO.getTitle());
+            newspaper.setContent(newspaperUpdateDTO.getContent());
+            newspaper.setImage(newspaperUpdateDTO.getImage());
+            newspaper.setStaff(staffOptional.get());
+            newspaper.setTimeCreated(new Date());
+            return convertToOutputDTO(newspaperRepository.save(newspaper), null, null);
         } catch (Exception e) {
             throw new CustomException("Cập nhật thất bại");
         }

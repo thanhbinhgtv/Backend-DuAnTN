@@ -5,13 +5,12 @@ import duantn.backend.model.dto.input.ArticleInsertDTO;
 import duantn.backend.model.dto.input.ArticleUpdateDTO;
 import duantn.backend.model.dto.output.ArticleOutputDTO;
 import duantn.backend.model.dto.output.Message;
-import io.swagger.models.auth.In;
 
 import java.util.List;
 import java.util.Map;
 
 public interface CustomerArticleService {
-//    list bài đăng cá nhân	/customer/article
+    //    list bài đăng cá nhân	/customer/article
 //    lọc bài đăng theo trạng thái: chưa duyệt, đang đăng, đã ẩn	/customer/article?status={uncheck/active/hidden}
 //    tìm kiếm bài đăng theo title	/customer/article?title={title}
     List<ArticleOutputDTO> listArticle(String email, String sort, Long start, Long end,
@@ -47,5 +46,6 @@ public interface CustomerArticleService {
     ArticleOutputDTO detailArticle(String email, Integer id) throws CustomException;
 
     Message buffPoint(String email, Integer id, Integer point) throws CustomException;
+
     Map<String, Object> showPoint(Integer id) throws CustomException;
 }

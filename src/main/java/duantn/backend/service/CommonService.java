@@ -5,13 +5,12 @@ import duantn.backend.model.dto.output.CityOutputDTO;
 import duantn.backend.model.dto.output.TransactionOutputDTO;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CommonService {
     //Lịch sử nạp tiền
     List<TransactionOutputDTO> listAllTransaction(String email,
-                                           Integer page, Integer limit,
-                                           Boolean type) throws CustomException;
+                                                  Integer page, Integer limit,
+                                                  Boolean type) throws CustomException;
 
     //Trả về các tỉnh
     List<CityOutputDTO> listAllCity() throws CustomException;

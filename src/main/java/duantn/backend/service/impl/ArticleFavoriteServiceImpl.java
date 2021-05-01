@@ -14,7 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
@@ -41,9 +44,9 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
         List<Map<String, String>> mapList = new ArrayList<>();
         for (FavoriteArticle favoriteArticle : favoriteArticleList) {
             Map<String, String> map = new HashMap<>();
-            if(favoriteArticle.getArticle()!=null&& !favoriteArticle.getArticle().getDeleted()){
-                if(favoriteArticle.getArticle().getStatus().equals(VariableCommon.DANG_DANG)||
-                        favoriteArticle.getArticle().getStatus().equals(VariableCommon.HET_HAN)){
+            if (favoriteArticle.getArticle() != null && !favoriteArticle.getArticle().getDeleted()) {
+                if (favoriteArticle.getArticle().getStatus().equals(VariableCommon.DANG_DANG) ||
+                        favoriteArticle.getArticle().getStatus().equals(VariableCommon.HET_HAN)) {
                     map.put("id", favoriteArticle.getId().toString());
                     map.put("articleId", favoriteArticle.getArticle().getArticleId().toString());
                     map.put("title", favoriteArticle.getArticle().getTitle());
@@ -53,9 +56,9 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
                     map.put("price", String.valueOf(favoriteArticle.getArticle().getRoomPrice()));
                     map.put("ward", favoriteArticle.getArticle().getWard().getWardName());
                     map.put("status", favoriteArticle.getArticle().getStatus());
-                }else{
+                } else {
                     map.put("id", favoriteArticle.getId().toString());
-                    map.put("title","Bài đăng đã bị ẩn");
+                    map.put("title", "Bài đăng đã bị ẩn");
                     map.put("articleId", "Bài đăng đã bị ẩn");
                     map.put("image", "Bài đăng đã bị ẩn");
                     map.put("timeUpdate", "Bài đăng đã bị ẩn");
@@ -64,9 +67,9 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
                     map.put("ward", "Bài đăng đã bị ẩn");
                     map.put("status", favoriteArticle.getArticle().getStatus());
                 }
-            }else{
+            } else {
                 map.put("id", favoriteArticle.getId().toString());
-                map.put("title","Bài đăng đã bị xóa");
+                map.put("title", "Bài đăng đã bị xóa");
                 map.put("articleId", "Bài đăng đã bị xóa");
                 map.put("image", "Bài đăng đã bị xóa");
                 map.put("timeUpdate", "Bài đăng đã bị xóa");
@@ -76,8 +79,8 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
                 map.put("status", "Đã xóa");
             }
 
-            map.put("pages", ""+favoriteArticlePage.getTotalPages());
-            map.put("elements", ""+favoriteArticlePage.getTotalElements());
+            map.put("pages", "" + favoriteArticlePage.getTotalPages());
+            map.put("elements", "" + favoriteArticlePage.getTotalElements());
 
             mapList.add(map);
         }
@@ -87,21 +90,21 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
 
     @Override
     public Message addRemoveArticle(String email, Integer id) throws CustomException {
-        FavoriteArticle favoriteArticle=favoriteArticleRepository.
+        FavoriteArticle favoriteArticle = favoriteArticleRepository.
                 findByCustomer_EmailAndArticle_ArticleId(email, id);
-        if (favoriteArticle!=null) {
+        if (favoriteArticle != null) {
             favoriteArticleRepository.delete(favoriteArticle);
             return new Message("Bỏ yêu thích thành công");
         } else {
-            Customer customer=customerRepository.findByEmail(email);
-            if(customer==null) throw new CustomException("Email không hợp lệ");
-            Article article= articleRepository.findByArticleIdAndDeletedFalse(id);
-            if(article==null) throw new CustomException("Id bài đăng không hợp lệ");
+            Customer customer = customerRepository.findByEmail(email);
+            if (customer == null) throw new CustomException("Email không hợp lệ");
+            Article article = articleRepository.findByArticleIdAndDeletedFalse(id);
+            if (article == null) throw new CustomException("Id bài đăng không hợp lệ");
 
-            article.setPoint(article.getPoint()+2);
-            Article newArticle=articleRepository.save(article);
+            article.setPoint(article.getPoint() + 2);
+            Article newArticle = articleRepository.save(article);
 
-            FavoriteArticle favoriteArticle1=new FavoriteArticle();
+            FavoriteArticle favoriteArticle1 = new FavoriteArticle();
             favoriteArticle1.setCustomer(customer);
             favoriteArticle1.setArticle(newArticle);
             favoriteArticleRepository.save(favoriteArticle1);

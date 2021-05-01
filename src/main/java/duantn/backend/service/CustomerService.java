@@ -1,17 +1,12 @@
 package duantn.backend.service;
 
 import duantn.backend.authentication.CustomException;
-
 import duantn.backend.model.dto.input.CustomerUpdateDTO;
 import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.dto.output.Message;
-
-import duantn.backend.model.entity.Customer;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CustomerService {
     //Tìm kiếm khách hàng = email, phone, name
@@ -19,7 +14,7 @@ public interface CustomerService {
     //phân trang
     //nếu không truyền vào tham số thì trả về all list
     List<CustomerOutputDTO> listCustomer(String search, Boolean deleted, String nameSort,
-                                String balanceSort, Integer page, Integer limit);
+                                         String balanceSort, Integer page, Integer limit);
 
     //    cập nhật thông tin khách hàng	Put/super-admin/customers
     ResponseEntity<?> updateCustomer(CustomerUpdateDTO customerUpdateDTO,

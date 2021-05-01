@@ -7,7 +7,6 @@ import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.StaffOutputDTO;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public interface AccountService {
@@ -38,5 +37,6 @@ public interface AccountService {
                            HttpServletRequest request) throws CustomException;
 
     Message avatar(String avatar, String email) throws CustomException;
+
     Message avatarStaff(String avatar, String email) throws CustomException;
 }
