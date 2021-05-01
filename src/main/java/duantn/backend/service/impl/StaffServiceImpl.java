@@ -1,5 +1,6 @@
 package duantn.backend.service.impl;
 
+import com.sun.org.apache.bcel.internal.generic.FSUB;
 import duantn.backend.authentication.CustomException;
 import duantn.backend.component.MailSender;
 import duantn.backend.dao.CustomerRepository;
@@ -166,19 +167,25 @@ public class StaffServiceImpl implements StaffService {
             staff.setDob(new Date((staffInsertDTO.getBirthday())));
             staff.setPass(passwordEncoder.encode(staffInsertDTO.getPass()));
             staff.setToken(token);
-            Staff newStaff = staffRepository.save(staff);
+
             //StaffOutputDTO staffOutputDTO = modelMapper.map(newStaff, StaffOutputDTO.class);
             //staffOutputDTO.setBirthday(newStaff.getDob().getTime());
 
             //send mail
-            mailSender.send(
-                    staffInsertDTO.getEmail(),
-                    "Xác nhận địa chỉ email",
-                    "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
-                            helper.getHostUrl(request.getRequestURL().toString(), "/super-admin") + "/confirm?token-customer=" + token
-                            + "&email=" + staffInsertDTO.getEmail(),
-                    "Thời hạn xác nhận email: 10 phút kể từ khi đăng kí"
-            );
+            try{
+                mailSender.send(
+                        staffInsertDTO.getEmail(),
+                        "Xác nhận địa chỉ email",
+                        "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
+                                helper.getHostUrl(request.getRequestURL().toString(), "/super-admin") + "/confirm?token-customer=" + token
+                                + "&email=" + staffInsertDTO.getEmail(),
+                        "Thời hạn xác nhận email: 10 phút kể từ khi đăng kí"
+                );
+            }catch (Exception e){
+                throw new CustomException("Lỗi, gửi mail thất bại");
+            }
+
+            Staff newStaff = staffRepository.save(staff);
 
             Thread deleteDisabledStaff = new Thread() {
                 @SneakyThrows
@@ -237,10 +244,30 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Message blockStaff(Integer id) throws CustomException {
+    public Message blockStaff(Integer id, String email) throws CustomException {
         Staff staff = staffRepository.findByStaffIdAndDeletedFalseAndEnabledTrue(id);
-        if (staff == null) throw new CustomException("Lỗi: id " + id + " không tồn tại");
+        Staff superStaff=staffRepository.findByEmail(email);
+        if (superStaff==null) throw new CustomException("Không tìm thấy super staff");
+        if (staff == null) throw new CustomException("Lỗi: id " + id + " không tồn tại, hoặc đã bị block");
         else {
+
+            //gửi mail
+            SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+            String title="Nhân viên: "+staff.getEmail()+" đã bị khóa tài khoản";
+            String content="<p>Chúng tôi xin trân trọng thông báo.</p>\n" +
+                    "<p>Nhân viên: <strong>"+staff.getName()+"</strong></p>\n" +
+                    "<p>Tài khoản: <strong>"+staff.getEmail()+"</strong></p>\n" +
+                    "<p>Đã bị <span style=\"color: rgb(184, 49, 47);\"><strong>khóa </strong></span>tài khoản, bởi:</p>\n" +
+                    "<p>Quản lý: <strong>"+superStaff.getName()+"</strong></p>\n" +
+                    "<p>Email: <strong>"+email+"</strong></p>\n" +
+                    "<p>Vào lúc: <strong><em>"+sdf.format(new Date())+"</em></strong></p>";
+            String note="Nếu có thắc mắc ý kiến bạn hãy liên hệ với quản lý qua email: "+email;
+            try{
+                mailSender.send(staff.getEmail(), title, content, note);
+            }catch (Exception e){
+                throw new CustomException("Lỗi, gửi mail thất bại");
+            }
+
             staff.setDeleted(true);
             staffRepository.save(staff);
             return new Message("Block nhân viên id " + id + " thành công");
@@ -248,12 +275,33 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Message activeStaff(Integer id) throws CustomException {
+    public Message activeStaff(Integer id, String email) throws CustomException {
         Optional<Staff> optionalStaff = staffRepository.findById(id);
+        Staff superStaff=staffRepository.findByEmail(email);
+        if (superStaff==null) throw new CustomException("Không tìm thấy super staff");
         if (!optionalStaff.isPresent()) throw new CustomException("Lỗi: id " + id + " không tồn tại");
         else {
-            optionalStaff.get().setDeleted(false);
-            staffRepository.save(optionalStaff.get());
+            Staff staff=optionalStaff.get();
+            if(staff.getDeleted()==false) throw new CustomException("Chỉ kích hoạt lại khi tài khoản bị khóa");
+            //gửi mail
+            SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+            String title="Nhân viên: "+staff.getEmail()+" đã được kích hoạt lại tài khoản";
+            String content="<p>Chúng tôi xin trân trọng thông báo.</p>\n" +
+                    "<p>Nhân viên: <strong>"+staff.getName()+"</strong></p>\n" +
+                    "<p>Tài khoản: <strong>"+staff.getEmail()+"</strong></p>\n" +
+                    "<p>Đã được <span style=\"color: rgb(184, 49, 47);\"><strong>kích hoạt </strong></span>tài khoản, bởi:</p>\n" +
+                    "<p>Quản lý: <strong>"+superStaff.getName()+"</strong></p>\n" +
+                    "<p>Email: <strong>"+email+"</strong></p>\n" +
+                    "<p>Vào lúc: <strong><em>"+sdf.format(new Date())+"</em></strong></p>";
+            String note="Nếu có thắc mắc ý kiến bạn hãy liên hệ với quản lý qua email: "+email;
+            try{
+                mailSender.send(staff.getEmail(), title, content, note);
+            }catch (Exception e){
+                throw new CustomException("Lỗi, gửi mail thất bại");
+            }
+
+            staff.setDeleted(false);
+            staffRepository.save(staff);
             return new Message("Kích hoạt nhân viên id: " + id + " thành công");
         }
     }

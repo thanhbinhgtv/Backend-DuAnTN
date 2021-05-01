@@ -64,14 +64,16 @@ public class StaffsManager {
 
 
     @GetMapping("/staffs/block/{id}")
-    public Message blockStaff(@PathVariable Integer id) throws CustomException{
-        return staffService.blockStaff(id);
+    public Message blockStaff(@PathVariable Integer id, HttpServletRequest request) throws CustomException{
+        String email= (String) request.getAttribute("email");
+        return staffService.blockStaff(id, email);
     }
 
 
     @GetMapping("/staffs/active/{id}")
-    public Message activeStaff(@PathVariable Integer id) throws CustomException{
-        return staffService.activeStaff(id);
+    public Message activeStaff(@PathVariable Integer id, HttpServletRequest request) throws CustomException{
+        String email= (String) request.getAttribute("email");
+        return staffService.activeStaff(id, email);
     }
 
     //    xem thông tin nhân viên	GET/super-admin/staffs/{id}
@@ -80,14 +82,14 @@ public class StaffsManager {
         return staffService.findOneStaff(id);
     }
 
-    // xóa toàn bộ những nhân viên đã bị xóa mềm
-    @DeleteMapping("/staffs")
-    public Message deleteAllStaffs(){
-        return staffService.deleteAllStaffs();
-    }
-
-    @DeleteMapping("/staffs/{id}")
-    public Message deleteStaffs(@PathVariable Integer id) throws CustomException{
-        return staffService.deleteStaffs(id);
-    }
+//    // xóa toàn bộ những nhân viên đã bị xóa mềm
+//    @DeleteMapping("/staffs")
+//    public Message deleteAllStaffs(){
+//        return staffService.deleteAllStaffs();
+//    }
+//
+//    @DeleteMapping("/staffs/{id}")
+//    public Message deleteStaffs(@PathVariable Integer id) throws CustomException{
+//        return staffService.deleteStaffs(id);
+//    }
 }

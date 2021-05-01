@@ -30,10 +30,10 @@ public interface StaffService {
     ResponseEntity<?> updateStaff(StaffUpdateDTO staffUpdateDTO, Integer id) throws CustomException;
 
     //    block nhân viên	DELETE/super-admin/staffs/{id}
-    Message blockStaff(Integer id) throws CustomException;
+    Message blockStaff(Integer id, String email) throws CustomException;
 
     //    active nhân viên
-    Message activeStaff(Integer id) throws CustomException;
+    Message activeStaff(Integer id, String email) throws CustomException;
 
     //    xem thông tin nhân viên	GET/super-admin/staffs/{id}
     ResponseEntity<?> findOneStaff(Integer id);

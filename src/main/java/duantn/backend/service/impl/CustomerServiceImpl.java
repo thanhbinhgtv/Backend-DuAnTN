@@ -1,6 +1,7 @@
 package duantn.backend.service.impl;
 
 import duantn.backend.authentication.CustomException;
+import duantn.backend.component.MailSender;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.CustomerRepository;
 import duantn.backend.dao.StaffRepository;
@@ -8,9 +9,11 @@ import duantn.backend.model.dto.input.CustomerUpdateDTO;
 import duantn.backend.model.dto.output.Message;
 import duantn.backend.model.dto.output.CustomerOutputDTO;
 import duantn.backend.model.entity.Customer;
+import duantn.backend.model.entity.Staff;
 import duantn.backend.service.CustomerService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,11 +34,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     final
     StaffRepository staffRepository;
+    final
+    MailSender mailSender;
 
-    public CustomerServiceImpl(StaffRepository staffRepository, PasswordEncoder passwordEncoder, CustomerRepository customerRepository) {
+    public CustomerServiceImpl(StaffRepository staffRepository, PasswordEncoder passwordEncoder, CustomerRepository customerRepository, MailSender mailSender) {
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
         this.staffRepository = staffRepository;
+        this.mailSender = mailSender;
     }
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -178,10 +184,29 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Message blockCustomer(Integer id) throws CustomException {
+    public Message blockCustomer(Integer id, String email) throws CustomException {
         Customer customer = customerRepository.findByCustomerIdAndDeletedFalseAndEnabledTrue(id);
+        Staff superStaff=staffRepository.findByEmail(email);
+        if (superStaff==null) throw new CustomException("Không tìm thấy super staff");
         if (customer == null) throw new CustomException("Lỗi: id " + id + " không tồn tại, hoặc đã block rồi");
         else {
+            //gửi mail
+            SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+            String title="Khách hàng: "+customer.getEmail()+" đã bị khóa tài khoản";
+            String content="<p>Chúng tôi xin trân trọng thông báo.</p>\n" +
+                    "<p>Khách hàng: <strong>"+customer.getName()+"</strong></p>\n" +
+                    "<p>Tài khoản: <strong>"+customer.getEmail()+"</strong></p>\n" +
+                    "<p>Đã bị <span style=\"color: rgb(184, 49, 47);\"><strong>khóa </strong></span>tài khoản, bởi:</p>\n" +
+                    "<p>Nhân viên: <strong>"+superStaff.getName()+"</strong></p>\n" +
+                    "<p>Email: <strong>"+email+"</strong></p>\n" +
+                    "<p>Vào lúc: <strong><em>"+sdf.format(new Date())+"</em></strong></p>";
+            String note="Nếu có thắc mắc ý kiến bạn hãy liên hệ với nhân viên qua email: "+email;
+            try{
+                mailSender.send(customer.getEmail(), title, content, note);
+            }catch (Exception e){
+                throw new CustomException("Lỗi, gửi mail thất bại");
+            }
+
             customer.setDeleted(true);
             customerRepository.save(customer);
             return new Message("Block khách hàng id " + id + " thành công");
@@ -189,10 +214,31 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Message activeCustomer(Integer id) throws CustomException {
+    public Message activeCustomer(Integer id, String email) throws CustomException {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        Staff superStaff=staffRepository.findByEmail(email);
+        if (superStaff==null) throw new CustomException("Không tìm thấy super staff");
         if (!optionalCustomer.isPresent()) throw new CustomException("Lỗi: id " + id + " không tồn tại");
         else {
+            Customer customer= optionalCustomer.get();
+            if(customer.getDeleted()==false) throw new CustomException("Chỉ kích hoạt tài khoản khi nó đã bị khóa");
+            //gửi mail
+            SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+            String title="Khách hàng: "+customer.getEmail()+" đã được kích hoạt tài khoản";
+            String content="<p>Chúng tôi xin trân trọng thông báo.</p>\n" +
+                    "<p>Khách hàng: <strong>"+customer.getName()+"</strong></p>\n" +
+                    "<p>Tài khoản: <strong>"+customer.getEmail()+"</strong></p>\n" +
+                    "<p>Đã được <span style=\"color: rgb(184, 49, 47);\"><strong>kích hoạt </strong></span>tài khoản, bởi:</p>\n" +
+                    "<p>Nhân viên: <strong>"+superStaff.getName()+"</strong></p>\n" +
+                    "<p>Email: <strong>"+email+"</strong></p>\n" +
+                    "<p>Vào lúc: <strong><em>"+sdf.format(new Date())+"</em></strong></p>";
+            String note="Nếu có thắc mắc ý kiến bạn hãy liên hệ với nhân viên qua email: "+email;
+            try{
+                mailSender.send(customer.getEmail(), title, content, note);
+            }catch (Exception e){
+                throw new CustomException("Lỗi, gửi mail thất bại");
+            }
+
             optionalCustomer.get().setDeleted(false);
             customerRepository.save(optionalCustomer.get());
             return new Message("Kích hoạt khách hàng id: " + id + " thành công");

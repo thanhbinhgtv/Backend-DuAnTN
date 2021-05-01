@@ -26,10 +26,10 @@ public interface CustomerService {
                                      Integer id) throws CustomException;
 
     //    block khách hàng	DELETE/super-admin/customers/{id}
-    Message blockCustomer(Integer id) throws CustomException;
+    Message blockCustomer(Integer id, String email) throws CustomException;
 
     //    active khách hàng
-    Message activeCustomer(Integer id) throws CustomException;
+    Message activeCustomer(Integer id, String email) throws CustomException;
 
     //    xem thông tin khách hàng	GET/super-admin/customers/{id}
     ResponseEntity<?> findOneCustomer(Integer id);
