@@ -113,7 +113,11 @@ public class ArticleServiceImpI implements ArticleService {
                     + "Email: " + staff.getEmail() + "<br/>"
                     + "Thời gian: " + simpleDateFormat.format(new Date());
 
-            mailSender.send(to, contactCustomerDTO.getTitle(), contactCustomerDTO.getContent(), note);
+            try{
+                mailSender.send(to, contactCustomerDTO.getTitle(), contactCustomerDTO.getContent(), note);
+            }catch (Exception e){
+                throw new CustomException("Lỗi, gửi mail thất bại");
+            }
 
             //tạo bản ghi staff article
             StaffArticle staffArticle=new StaffArticle();
@@ -184,9 +188,6 @@ public class ArticleServiceImpI implements ArticleService {
             staffArticle.setStaff(staff);
             staffArticle.setArticle(article);
             staffArticle.setAction("Duyệt bài");
-            //lưu
-            staffArticleRepository.save(staffArticle);
-            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             //gửi thư
             String note = "Nhân viên duyệt bài: " + staff.getName() + "<br/>"
@@ -210,7 +211,7 @@ public class ArticleServiceImpI implements ArticleService {
                     "\n" +
                     "<p>Trạng thái: <strong><span style=\"color:#2980b9\">đã được duyệt</span></strong></p>\n" +
                     "\n" +
-                    "<p>Thời gian hết hạn (ước tính): <span style=\"color:#c0392b\">" + simpleDateFormat.format(new Date(articleOutputDTO.getExpDate())) + "</span></p>\n" +
+                    "<p>Thời gian hết hạn (ước tính): <span style=\"color:#c0392b\">" + simpleDateFormat.format(article.getExpTime()) + "</span></p>\n" +
                     "\n" +
                     "<p>Bài đăng của bạn đã được nhân viên <em><strong>" + staff.getName() + " </strong></em>(email: <em><strong>" + staff.getEmail() + "</strong></em>) duyệt vào lúc <em><strong>" + simpleDateFormat.format(new Date()) + "</strong></em>.</p>\n" +
                     "\n" +
@@ -219,8 +220,17 @@ public class ArticleServiceImpI implements ArticleService {
                     "<p> xxxx </p>\n";
             if(article.getCustomer()!=null){
                 String to = article.getCustomer().getEmail();
-                mailSender.send(to, title, content, note);
+                try{
+                    mailSender.send(to, title, content, note);
+                }catch (Exception e){
+                    throw new CustomException("Lỗi, gửi mail thất bại");
+                }
             }
+
+            //lưu
+            staffArticleRepository.save(staffArticle);
+            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
+
             return new Message("Duyệt bài thành công");
         } else throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
     }
@@ -253,9 +263,6 @@ public class ArticleServiceImpI implements ArticleService {
             staffArticle.setStaff(staff);
             staffArticle.setArticle(article);
             staffArticle.setAction("Ẩn bài");
-            //lưu
-            staffArticleRepository.save(staffArticle);
-            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             //gửi thư
             if(article.getCustomer()!=null){
@@ -284,8 +291,16 @@ public class ArticleServiceImpI implements ArticleService {
                         "<p>Bài đăng của bạn đã bị nhân viên <em><strong>" + staff.getName() + " </strong></em>(email: <em><strong>" + staff.getEmail() + "</strong></em>) ẩn vào lúc <em><strong>" + simpleDateFormat.format(new Date()) + "</strong></em>.</p>\n" +
                         "\n" +
                         "<p>Chúng tôi rất tiếc về điều này, bạn vui lòng xem lại bài đăng của mình đã phù hợp với nội quy website chưa. Mọi thắc mắc xin liên hệ theo email nhân viên đã duyệt bài.</p>\n";
-                mailSender.send(to, title, content, note);
+                try{
+                    mailSender.send(to, title, content, note);
+                }catch (Exception e){
+                    throw new CustomException("Lỗi, gửi mail thất bại");
+                }
             }
+
+            //lưu
+            staffArticleRepository.save(staffArticle);
+            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             return new Message("Ẩn bài thành công");
         } else throw new CustomException("Bài đăng với id: " + id + " không tồn tại");
@@ -320,9 +335,6 @@ public class ArticleServiceImpI implements ArticleService {
             staffArticle.setStaff(staff);
             staffArticle.setArticle(article);
             staffArticle.setAction("Yêu cầu sửa lại bài");
-            //lưu
-            staffArticleRepository.save(staffArticle);
-            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             //gửi thư
             if(article.getCustomer()!=null){
@@ -351,8 +363,16 @@ public class ArticleServiceImpI implements ArticleService {
                         "<p>Bài đăng của bạn đã bị nhân viên <em><strong>" + staff.getName() + " </strong></em>(email: <em><strong>" + staff.getEmail() + "</strong></em>) yêu cầu sửa lại, vào lúc <em><strong>" + simpleDateFormat.format(new Date()) + "</strong></em>.</p>\n" +
                         "\n" +
                         "<p>Chúng tôi rất tiếc về điều này, bạn vui lòng xem lại bài đăng của mình đã phù hợp với nội quy website chưa. Mọi thắc mắc xin liên hệ theo email nhân viên đã duyệt bài.</p>\n";
-                mailSender.send(to, title, content, note);
+                try {
+                    mailSender.send(to, title, content, note);
+                }catch (Exception e) {
+                    throw new CustomException("Lỗi, gửi mail thất bại");
+                }
             }
+
+            //lưu
+            staffArticleRepository.save(staffArticle);
+            ArticleOutputDTO articleOutputDTO = helper.convertToOutputDTO(articleRepository.save(article));
 
             return new Message("Yêu cầu sửa lại bài thành công");
         } else throw new CustomException("Bài đăng với id: " + id + " không tồn tại");

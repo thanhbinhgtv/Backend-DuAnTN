@@ -96,17 +96,22 @@ public class AccountServiceImpl implements AccountService {
             customer.setAccountBalance(10000);
             customer.setPass(passwordEncoder.encode(signupDTO.getPass()));
             customer.setToken(token);
-            Customer newCustomer = customerRepository.save(customer);
 
             //send mail
-            mailSender.send(
-                    signupDTO.getEmail(),
-                    "Xác nhận địa chỉ email",
-                    "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
-                            helper.getHostUrl(request.getRequestURL().toString(), "/sign-up") + "/confirm?token-customer=" + token
-                            + "&email=" + signupDTO.getEmail(),
-                    "Thời hạn xác nhận, 10 phút kể từ khi đăng kí"
-            );
+            try{
+                mailSender.send(
+                        signupDTO.getEmail(),
+                        "Xác nhận địa chỉ email",
+                        "Click vào đường link sau để xác nhận email và kích hoạt tài khoản của bạn:<br/>" +
+                                helper.getHostUrl(request.getRequestURL().toString(), "/sign-up") + "/confirm?token-customer=" + token
+                                + "&email=" + signupDTO.getEmail(),
+                        "Thời hạn xác nhận, 10 phút kể từ khi đăng kí"
+                );
+            }catch (Exception e){
+                throw new CustomException("Lỗi, gửi mail thất bại");
+            }
+
+            Customer newCustomer = customerRepository.save(customer);
 
             Thread deleteDisabledCustomer = new Thread() {
                 @SneakyThrows
@@ -272,6 +277,13 @@ public class AccountServiceImpl implements AccountService {
                 throw new CustomException("Email đổi mật khẩu đã được gửi, bạn hãy check lại mail");
             token = helper.createToken(31);
             staff.setToken(token);
+
+            try{
+                senMail(email, token);
+            }catch (Exception e){
+                throw new CustomException("Lỗi gửi mail thất bại");
+            }
+
             staffRepository.save(staff);
         } else if (customer != null) {
             if (!customer.getEnabled()) throw new CustomException("Email chưa được xác nhận");
@@ -279,10 +291,22 @@ public class AccountServiceImpl implements AccountService {
                 throw new CustomException("Email đổi mật khẩu đã được gửi, bạn hãy check lại mail");
             token = helper.createToken(31);
             customer.setToken(token);
+
+            try{
+                senMail(email, token);
+            }catch (Exception e){
+                throw new CustomException("Lỗi gửi mail thất bại");
+            }
+
             customerRepository.save(customer);
         } else {
             throw new CustomException("Email không tồn tại");
         }
+
+        return new Message("Thành công, bạn hãy check mail để tiếp tục");
+    }
+
+    private void senMail(String email, String token) {
         //send mail
         mailSender.send(
                 email,
@@ -292,7 +316,6 @@ public class AccountServiceImpl implements AccountService {
                         + "&email=" + email,
                 "Chúc bạn thành công"
         );
-        return new Message("Thành công, bạn hãy check mail để tiếp tục");
     }
 
     @Override
@@ -367,7 +390,7 @@ public class AccountServiceImpl implements AccountService {
             staff.setGender(staffPersonUpdateDTO.isGender());
             staff.setAddress(staffPersonUpdateDTO.getAddress());
             staff.setPhone(staffPersonUpdateDTO.getPhone());
-            //staff.setImage(staffPersonUpdateDTO.getImage());
+            staff.setImage(staffPersonUpdateDTO.getImage());
             Staff newStaff = staffRepository.save(staff);
 
             ModelMapper modelMapper = new ModelMapper();
@@ -440,7 +463,7 @@ public class AccountServiceImpl implements AccountService {
             customer.setPhone(customerUpdateDTO.getPhone());
             customer.setCardId(customerUpdateDTO.getCardId());
             customer.setDob(new Date(customerUpdateDTO.getBirthday()));
-            //customer.setImage(customerUpdateDTO.getImage());
+            customer.setImage(customerUpdateDTO.getImage());
             Customer newCustomer = customerRepository.save(customer);
             CustomerOutputDTO customerOutputDTO = modelMapper.map(newCustomer, CustomerOutputDTO.class);
             if (customer.getDob() != null) customerOutputDTO.setBirthday(newCustomer.getDob().getTime());
@@ -485,9 +508,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message avatar(String avatar, String email) throws CustomException {
-        if(avatar==null || avatar.trim().equals("")) throw new CustomException("Link avatar không được trống");
-        Customer customer=customerRepository.findByEmail(email);
-        if(customer==null) throw new CustomException("Không tìm thấy khách hàng");
+        if (avatar == null || avatar.trim().equals("")) throw new CustomException("Link avatar không được trống");
+        Customer customer = customerRepository.findByEmail(email);
+        if (customer == null) throw new CustomException("Không tìm thấy khách hàng");
         customer.setImage(avatar);
         customerRepository.save(customer);
         return new Message("Đổi avatar thành công");
@@ -495,9 +518,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message avatarStaff(String avatar, String email) throws CustomException {
-        if(avatar==null || avatar.trim().equals("")) throw new CustomException("Link avatar không được trống");
-        Staff staff=staffRepository.findByEmail(email);
-        if(staff==null) throw new CustomException("Không tìm thấy nhân viên");
+        if (avatar == null || avatar.trim().equals("")) throw new CustomException("Link avatar không được trống");
+        Staff staff = staffRepository.findByEmail(email);
+        if (staff == null) throw new CustomException("Không tìm thấy nhân viên");
         staff.setImage(avatar);
         staffRepository.save(staff);
         return new Message("Đổi avatar thành công");

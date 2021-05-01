@@ -8,6 +8,7 @@ import duantn.backend.service.CustomerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +46,16 @@ public class CustomerManager {
 
     //    block nhân viên	GET/admin/customers/block/{id}
     @GetMapping("/customers/block/{id}")
-    public Message blockCustomer(@PathVariable Integer id) throws CustomException{
-        return customerService.blockCustomer(id);
+    public Message blockCustomer(@PathVariable Integer id, HttpServletRequest request) throws CustomException{
+        String email=(String) request.getAttribute("email");
+        return customerService.blockCustomer(id, email);
     }
 
     //    active nhân viên	DELETE/admin/customers/block/{id}
     @GetMapping("/customers/active/{id}")
-    public Message activeCustomer(@PathVariable Integer id) throws CustomException{
-        return customerService.activeCustomer(id);
+    public Message activeCustomer(@PathVariable Integer id, HttpServletRequest request) throws CustomException{
+        String email=(String) request.getAttribute("email");
+        return customerService.activeCustomer(id, email);
     }
 
     //    xem thông tin nhân viên	GET/admin/customers/{id}
@@ -61,14 +64,14 @@ public class CustomerManager {
         return customerService.findOneCustomer(id);
     }
 
-    // xóa toàn bộ những nhân viên đã bị xóa mềm
-    @DeleteMapping("/customer")
-    public Message deleteAllCustomers(){
-        return customerService.deleteAllCustomers();
-    }
-
-    @DeleteMapping("/customer/{id}")
-    public Message deleteCustomers(@PathVariable Integer id) throws CustomException{
-        return customerService.deleteCustomers(id);
-    }
+//    // xóa toàn bộ những nhân viên đã bị xóa mềm
+//    @DeleteMapping("/customer")
+//    public Message deleteAllCustomers(){
+//        return customerService.deleteAllCustomers();
+//    }
+//
+//    @DeleteMapping("/customer/{id}")
+//    public Message deleteCustomers(@PathVariable Integer id) throws CustomException{
+//        return customerService.deleteCustomers(id);
+//    }
 }
