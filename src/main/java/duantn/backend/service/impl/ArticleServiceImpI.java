@@ -179,7 +179,22 @@ public class ArticleServiceImpI implements ArticleService {
             article.setStatus(VariableCommon.DANG_DANG);
             article.setUpdateTime(new Date());
             article.setTimeGroup(0);
+
+
+            //xóa toàn bộ comment,  yêu thích, điểm
             article.setPoint(0);
+            List<Comment> comments = commentRepository.findByArticle(article);
+            if (comments != null && comments.size() > 0) {
+                for (Comment comment : comments) {
+                    commentRepository.delete(comment);
+                }
+            }
+            List<FavoriteArticle> favoriteArticles = favoriteArticleRepository.findByArticle(article);
+            if (favoriteArticles != null && favoriteArticles.size() > 0) {
+                for (FavoriteArticle favoriteArticle : favoriteArticles) {
+                    favoriteArticleRepository.delete(favoriteArticle);
+                }
+            }
 
             //tạo bản ghi staffArticle
             StaffArticle staffArticle = new StaffArticle();
@@ -498,11 +513,20 @@ public class ArticleServiceImpI implements ArticleService {
 
             article.setUpdateTime(new Date());
             article.setTimeGroup(0);
+
+            //xóa toàn bộ comment,  yêu thích, điểm
             article.setPoint(0);
-            //xóa toàn bộ comment
             List<Comment> comments = commentRepository.findByArticle(article);
-            for (Comment comment : comments) {
-                commentRepository.delete(comment);
+            if (comments != null && comments.size() > 0) {
+                for (Comment comment : comments) {
+                    commentRepository.delete(comment);
+                }
+            }
+            List<FavoriteArticle> favoriteArticles = favoriteArticleRepository.findByArticle(article);
+            if (favoriteArticles != null && favoriteArticles.size() > 0) {
+                for (FavoriteArticle favoriteArticle : favoriteArticles) {
+                    favoriteArticleRepository.delete(favoriteArticle);
+                }
             }
 
             //lưu bài
@@ -582,11 +606,20 @@ public class ArticleServiceImpI implements ArticleService {
 
         article.setUpdateTime(new Date());
         article.setTimeGroup(0);
+
+        //xóa toàn bộ comment,  yêu thích, điểm
         article.setPoint(0);
-        //xóa toàn bộ comment
         List<Comment> comments = commentRepository.findByArticle(article);
-        for (Comment comment : comments) {
-            commentRepository.delete(comment);
+        if (comments != null && comments.size() > 0) {
+            for (Comment comment : comments) {
+                commentRepository.delete(comment);
+            }
+        }
+        List<FavoriteArticle> favoriteArticles = favoriteArticleRepository.findByArticle(article);
+        if (favoriteArticles != null && favoriteArticles.size() > 0) {
+            for (FavoriteArticle favoriteArticle : favoriteArticles) {
+                favoriteArticleRepository.delete(favoriteArticle);
+            }
         }
 
         //tạo thời hạn

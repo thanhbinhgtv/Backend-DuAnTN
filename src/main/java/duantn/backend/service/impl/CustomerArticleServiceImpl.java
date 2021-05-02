@@ -207,8 +207,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             article.setPoint(0);
             //xóa toàn bộ comment
             List<Comment> comments = commentRepository.findByArticle(article);
-            for (Comment comment : comments) {
-                commentRepository.delete(comment);
+            if(comments.size()>0){
+                for (Comment comment : comments) {
+                    commentRepository.delete(comment);
+                }
             }
 
             if (article.getStatus().equals(VariableCommon.DANG_DANG) || article.getStatus().equals(VariableCommon.SUA_LAI))
@@ -340,8 +342,10 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         article.setPoint(0);
         //xóa toàn bộ comment
         List<Comment> comments = commentRepository.findByArticle(article);
-        for (Comment comment : comments) {
-            commentRepository.delete(comment);
+        if(comments.size()>0){
+            for (Comment comment : comments) {
+                commentRepository.delete(comment);
+            }
         }
 
         Customer newCustomer = customerRepository.save(customer);
