@@ -93,6 +93,10 @@ public class ArticleFavoriteServiceImpl implements ArticleFavoriteService {
         FavoriteArticle favoriteArticle = favoriteArticleRepository.
                 findByCustomer_EmailAndArticle_ArticleId(email, id);
         if (favoriteArticle != null) {
+            Article article=favoriteArticle.getArticle();
+            article.setPoint(article.getPoint()-2);
+            articleRepository.save(article);
+
             favoriteArticleRepository.delete(favoriteArticle);
             return new Message("Bỏ yêu thích thành công");
         } else {
