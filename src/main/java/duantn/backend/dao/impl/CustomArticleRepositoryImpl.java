@@ -245,7 +245,9 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         if (status != null && !status.trim().equals("")) {
             if (status.equals("uncheck")) {
                 Predicate findByStatusNull = builder.like(root.get("status"), VariableCommon.CHUA_DUYET);
-                searchByTitle = builder.and(searchByTitle, findByStatusNull);
+                Predicate findByStatusNull1 = builder.like(root.get("status"), VariableCommon.DA_SUA);
+                Predicate findByABC=builder.or(findByStatusNull, findByStatusNull1);
+                searchByTitle = builder.and(searchByTitle, findByABC);
             } else if (status.equals("active")) {
                 Predicate findByStatusTrue = builder.like(root.get("status"), VariableCommon.DANG_DANG);
                 searchByTitle = builder.and(searchByTitle, findByStatusTrue);
@@ -345,7 +347,9 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         if (status != null && !status.trim().equals("")) {
             if (status.equals("uncheck")) {
                 Predicate findByStatusNull = builder.like(root.get("status"), VariableCommon.CHUA_DUYET);
-                searchByTitle = builder.and(searchByTitle, findByStatusNull);
+                Predicate findByStatusNull1 = builder.like(root.get("status"), VariableCommon.DA_SUA);
+                Predicate findByABC=builder.or(findByStatusNull, findByStatusNull1);
+                searchByTitle = builder.and(searchByTitle, findByABC);
             } else if (status.equals("active")) {
                 Predicate findByStatusTrue = builder.like(root.get("status"), VariableCommon.DANG_DANG);
                 searchByTitle = builder.and(searchByTitle, findByStatusTrue);
@@ -445,7 +449,9 @@ public class CustomArticleRepositoryImpl implements CustomArticleRepository {
         if (status != null && !status.trim().equals("")) {
             if (status.equals("uncheck")) {
                 Predicate findByStatusNull = builder.like(root.get("status"), VariableCommon.CHUA_DUYET);
-                searchByTitle = builder.and(searchByTitle, findByStatusNull);
+                Predicate findByStatusNull1 = builder.like(root.get("status"), VariableCommon.DA_SUA);
+                Predicate findByABC=builder.or(findByStatusNull, findByStatusNull1);
+                searchByTitle = builder.and(searchByTitle, findByABC);
             } else if (status.equals("active")) {
                 Predicate findByStatusTrue = builder.like(root.get("status"), VariableCommon.DANG_DANG);
                 searchByTitle = builder.and(searchByTitle, findByStatusTrue);
