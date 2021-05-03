@@ -145,7 +145,7 @@ public class StaffServiceImpl implements StaffService {
     public Message insertStaff(StaffInsertDTO staffInsertDTO, HttpServletRequest request) throws Exception {
         //validation
         if (customerRepository.findByEmail(staffInsertDTO.getEmail()) != null)
-            throw new CustomException("Email đã khách hàng sử dụng");
+            throw new CustomException("Email đã được khách hàng sử dụng");
         if (staffRepository.findByEmail(staffInsertDTO.getEmail()) != null)
             throw new CustomException("Email đã được nhân viên sử dụng");
         String matchNumber = "[0-9]+";

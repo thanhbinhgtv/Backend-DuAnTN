@@ -68,7 +68,7 @@ public class CommentServiceImpl implements CommentService {
         if (oldStart != null) {
             try {
                 //gửi mail
-                String subject = customer.getName() + " đã nhận sét lại bài đăng của bạn";
+                String subject = customer.getName() + " đã nhận xét lại bài đăng của bạn";
                 String body = "<p><strong>Người dùng</strong>: <em>" + customer.getName() + "</em></p>\n" +
                         "<p><strong>Địa chỉ email</strong>: <em>" + customer.getEmail() + "</em></p>\n" +
                         "<p>Đã thay đổi nhận xét với bài đăng của bạn.</p>\n" +
@@ -82,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
         } else {
             try {
                 //gửi mail
-                String subject = customer.getName() + " đã nhận sét bài đăng của bạn";
+                String subject = customer.getName() + " đã nhận xét bài đăng của bạn";
                 String body = "<p><strong>Người dùng</strong>: <em>" + customer.getName() + "</em></p>\n" +
                         "<p><strong>Địa chỉ email</strong>: <em>" + customer.getEmail() + "</em></p>\n" +
                         "<p>Đã nhận xét bài đăng của bạn.</p>\n" +
