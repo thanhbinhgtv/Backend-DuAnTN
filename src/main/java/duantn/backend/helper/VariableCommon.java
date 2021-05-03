@@ -13,5 +13,5 @@ public class VariableCommon {
     public static final String SUA_LAI="Yêu cầu sửa lại";
     public static final String DANG_DANG="Đang đăng";
     public static final String HET_HAN="Hết hạn";
-    public static final String BI_AN="Bị ẩn";
+    public static final String BI_AN="Đã ẩn";
 }
