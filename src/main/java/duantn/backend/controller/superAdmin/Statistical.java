@@ -1,5 +1,6 @@
 package duantn.backend.controller.superAdmin;
 
+import duantn.backend.authentication.CustomException;
 import duantn.backend.service.StatisticalService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +31,9 @@ public class Statistical {
     public Map<String, Object> StatisticArticle(@RequestParam(required = false) Integer month,
                                                 @RequestParam(required = false) Integer year,
                                                 @RequestParam Integer page,
-                                                @RequestParam Integer limit) {
+                                                @RequestParam Integer limit) throws CustomException {
+        if(year!=null && (year>2199 || year<1000)) throw new CustomException("Năm quá lớn hoặc quá nhỏ");
+        if(month!=null && (month<0 || month>12)) throw new CustomException("Tháng không hợp lệ");
         return statisticalService.statisticArticle(month, year, page, limit);
     }
 
@@ -39,7 +42,9 @@ public class Statistical {
     public Map<String, Object> StatisticRevenue(@RequestParam(required = false) Integer month,
                                                 @RequestParam(required = false) Integer year,
                                                 @RequestParam Integer page,
-                                                @RequestParam Integer limit) {
+                                                @RequestParam Integer limit) throws CustomException{
+        if(year!=null && (year>2199 || year<1000)) throw new CustomException("Năm quá lớn hoặc quá nhỏ");
+        if(month!=null && (month<0 || month>12)) throw new CustomException("Tháng không hợp lệ");
         return statisticalService.statisticRevenue(month, year, page, limit);
     }
 
@@ -48,7 +53,9 @@ public class Statistical {
     public Map<String, Object> StatisticCustomer(@RequestParam(required = false) Integer month,
                                                  @RequestParam(required = false) Integer year,
                                                  @RequestParam Integer page,
-                                                 @RequestParam Integer limit) {
+                                                 @RequestParam Integer limit) throws CustomException {
+        if(year!=null && (year>2199 || year<1000)) throw new CustomException("Năm quá lớn hoặc quá nhỏ");
+        if(month!=null && (month<0 || month>12)) throw new CustomException("Tháng không hợp lệ");
         return statisticalService.statisticCustomer(month, year, page, limit);
     }
 
@@ -57,7 +64,9 @@ public class Statistical {
     public Map<String, Object> StatisticRequest(@RequestParam(required = false) Integer month,
                                                 @RequestParam(required = false) Integer year,
                                                 @RequestParam Integer page,
-                                                @RequestParam Integer limit) {
+                                                @RequestParam Integer limit) throws CustomException {
+        if(year!=null && (year>2199 || year<1000)) throw new CustomException("Năm quá lớn hoặc quá nhỏ");
+        if(month!=null && (month<0 || month>12)) throw new CustomException("Tháng không hợp lệ");
         return statisticalService.statisticRequest(month, year, page, limit);
     }
 
@@ -68,7 +77,9 @@ public class Statistical {
                                                     @RequestParam(required = false) Integer month,
                                                     @RequestParam(required = false) Integer year,
                                                     @RequestParam Integer page,
-                                                    @RequestParam Integer limit) {
+                                                    @RequestParam Integer limit) throws CustomException{
+        if(year!=null && (year>2199 || year<1000)) throw new CustomException("Năm quá lớn hoặc quá nhỏ");
+        if(month!=null && (month<0 || month>12)) throw new CustomException("Tháng không hợp lệ");
         return statisticalService.statisticStaffAction(search, date, month, year, page, limit);
     }
 }

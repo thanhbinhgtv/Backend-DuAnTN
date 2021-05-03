@@ -33,7 +33,7 @@ public class CountRequestFilter implements Filter {
             FilterChain chain) throws IOException, ServletException {
         String url = ((HttpServletRequest) request).getRequestURI();
         if (!url.contains("/admin") && !url.contains("/super-admin")) {
-            CountRequest countRequest = countRequestRepository.findFirstBy(Sort.by("date").ascending());
+            CountRequest countRequest = countRequestRepository.findFirstBy(Sort.by("date").descending());
             countRequest.setCount(countRequest.getCount() + 1);
             countRequestRepository.save(countRequest);
         }
