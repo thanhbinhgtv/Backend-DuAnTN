@@ -5,6 +5,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import duantn.backend.authentication.CustomException;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
@@ -41,7 +42,12 @@ public class FirebaseFileService {
         }
     }
 
-    public String saveTest(MultipartFile file) throws IOException {
+    public String saveTest(MultipartFile file) throws Exception {
+        if(!(getExtension(file.getOriginalFilename()).equalsIgnoreCase("jpg")||
+                getExtension(file.getOriginalFilename()).equalsIgnoreCase("png")||
+                getExtension(file.getOriginalFilename()).equalsIgnoreCase("jpeg")||
+                getExtension(file.getOriginalFilename()).equalsIgnoreCase("gif")))
+            throw new CustomException("Định dạng ảnh không chính xác");
         String imageName = generateFileName(file.getOriginalFilename());
         Map<String, String> map = new HashMap<>();
         map.put("firebaseStorageDownloadTokens", imageName);
