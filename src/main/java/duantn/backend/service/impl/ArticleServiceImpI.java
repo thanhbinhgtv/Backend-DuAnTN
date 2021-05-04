@@ -151,7 +151,7 @@ public class ArticleServiceImpI implements ArticleService {
                 throw new CustomException("Chỉ được duyệt bài có trạng thái là chưa duyệt");
 
             //nếu là bài đã sửa
-            if (article.getStatus().equals(VariableCommon.DA_SUA)) {
+            if (article.getStatus().equals(VariableCommon.DA_SUA)&&(article.getExpTime()!=null)) {
                 if (article.getExpTime().after(new Date())) {
                 } else {
                     article.setStatus(VariableCommon.HET_HAN);
