@@ -20,7 +20,7 @@ public class UploadController {
     }
 
     @PostMapping("/firebase/upload")
-    public List<String> create(@RequestParam(name = "files") List<MultipartFile> files) {
+    public List<String> create(@RequestParam(name = "files") List<MultipartFile> files) throws CustomException{
         if(files.size()>0){
             List<String> imageLinks = new ArrayList<>();
             int index=0;
@@ -32,7 +32,9 @@ public class UploadController {
 
                     imageLinks.add(url);
                     index++;
-                } catch (Exception e) {
+                } catch (CustomException e){
+                    throw new CustomException(e.getMessage());
+                }catch (Exception e) {
                     //  throw internal error;
                     e.printStackTrace();
                     throw new CustomException("Upload image thất bại");
