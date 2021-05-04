@@ -192,6 +192,7 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
             RoommateDTO roommateDTO = articleUpdateDTO.getRoommateDTO();
             if (roommateDTO != null) {
                 Roommate roommate = article.getRoommate();
+                if(roommate==null) roommate=new Roommate();
                 roommate.setDescription(roommateDTO.getDescription());
                 roommate.setGender(roommateDTO.getGender());
                 roommate.setQuantity(roommateDTO.getQuantity());
