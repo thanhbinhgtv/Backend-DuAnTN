@@ -382,6 +382,8 @@ public class CustomerArticleServiceImpl implements CustomerArticleService {
         if (!email.equals(article.getCustomer().getEmail()))
             throw new CustomException("Bạn không được tăng buff cho bài đăng của người khác");
         if (point < 0) throw new CustomException("Số điểm nhỏ nhất là 0");
+        if(!article.getStatus().equals(VariableCommon.DANG_DANG))
+            throw new CustomException("Chỉ có thể buff điểm cho bài đang đăng");
 
         article.setPoint(article.getPoint() + point);
         article.setUpdateTime(new Date());
